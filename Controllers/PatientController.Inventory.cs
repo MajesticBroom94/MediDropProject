@@ -350,6 +350,21 @@ public partial class PatientController
         if (patientMedication == null)
             return NotFound();
 
+        // An active round may still contain this medication in the physical dispenser.
+        // Block removal even if its individual slot has already been dispensed.
+        var loadedInActiveRound = await _db.MedicationRoundSlotItems
+            .AsNoTracking()
+            .AnyAsync(item => item.PatientMedicationId == patientMedication.Id &&
+                              item.MedicationRoundSlot.MedicationRound.PatientId == patient.Id &&
+                              item.MedicationRoundSlot.MedicationRound.Status == MedicationRoundStatus.Active);
+
+        if (loadedInActiveRound)
+        {
+            TempData["InventoryError"] =
+                $"{patientMedication.Medication.Name} cannot be removed while it is assigned to an active dispenser round. Complete the round before removing it.";
+            return RedirectToAction(nameof(Inventory));
+        }
+
         patientMedication.Status = PatientMedicationStatus.Discontinued;
         patientMedication.UpdatedAt = DateTimeOffset.UtcNow;
 
