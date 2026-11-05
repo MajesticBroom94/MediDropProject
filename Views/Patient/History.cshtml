@@ -1,0 +1,114 @@
+@model MediDropProject.Models.Patient.PatientHistoryViewModel
+@using MediDropProject.Domain.Enums
+
+@{
+    Layout = "_PatientLayout";
+    ViewData["Title"] = "History & reports";
+    ViewData["Eyebrow"] = "Dispensing history";
+
+    string RoundClass(MedicationRoundStatus status) => status switch
+    {
+        MedicationRoundStatus.Completed => "green",
+        MedicationRoundStatus.Cancelled => "red",
+        _ => "blue"
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/patient/dashboard-history.css" asp-append-version="true" />
+}
+
+<div class="page-intro history-intro">
+    <div>
+        <h1>Dispensing history</h1>
+        <p>Review dispenser activity from the last three months. Adherence counts medication removal as successful. Cancelled and missed past doses count against adherence.</p>
+    </div>
+    <div class="page-actions">
+        <a class="btn" asp-action="ExportHistory">
+            <i class="fa-solid fa-file-csv"></i>
+            <text>&nbsp; Export CSV</text>
+        </a>
+    </div>
+</div>
+
+<div class="history-range-note">
+    <i class="fa-regular fa-calendar"></i>
+    <span>@Model.FromDate.ToString("dd MMM yyyy") – @Model.ToDate.ToString("dd MMM yyyy")</span>
+</div>
+
+<div class="history-metrics">
+    <div class="card metric history-metric history-metric-primary">
+        <strong>@Model.CompletionRate.ToString("0.#")%</strong>
+        <span>Removal adherence</span>
+    </div>
+    <div class="card metric history-metric">
+        <strong>@Model.EligibleOperationCount</strong>
+        <span>Past scheduled operations</span>
+    </div>
+    <div class="card metric history-metric">
+        <strong>@Model.RemovedCount</strong>
+        <span>Removed from dispenser</span>
+    </div>
+    <div class="card metric history-metric">
+        <strong>@Model.CancelledCount</strong>
+        <span>Cancelled past doses</span>
+    </div>
+    <div class="card metric history-metric">
+        <strong>@Model.MissedCount</strong>
+        <span>Missed doses</span>
+    </div>
+</div>
+
+<section class="history-round-section">
+    <div class="history-section-heading">
+        <div>
+            <h2>Dispenser rounds</h2>
+            <p>Each round represents one physical dispenser load. Open a round to inspect its dispense operations and medication snapshots.</p>
+        </div>
+        <span>@Model.Rounds.Count round@(Model.Rounds.Count == 1 ? "" : "s")</span>
+    </div>
+
+    @if (Model.Rounds.Count == 0)
+    {
+        <div class="card history-empty">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <strong>No dispensing history yet</strong>
+            <span>Rounds will appear here after a medication schedule has been created.</span>
+        </div>
+    }
+    else
+    {
+        <div class="history-round-list">
+            @foreach (var round in Model.Rounds)
+            {
+                <article class="card history-round-card">
+                    <div class="history-round-main">
+                        <div class="history-round-date">
+                            <span>@round.StartedAt.ToString("MMM")</span>
+                            <strong>@round.StartedAt.Day</strong>
+                        </div>
+                        <div class="history-round-copy">
+                            <div class="history-round-title-line">
+                                <h3>Round #@round.RoundId</h3>
+                                <span class="status-pill @RoundClass(round.Status)">@round.Status</span>
+                            </div>
+                            <p>Started @round.StartedAt.ToString("dd MMM yyyy") · @round.DeviceName</p>
+                        </div>
+                    </div>
+
+                    <div class="history-round-stats">
+                        <div><strong>@round.OperationCount</strong><span>Operations</span></div>
+                        <div><strong>@round.RemovedCount</strong><span>Removed</span></div>
+                        <div><strong>@round.CancelledCount</strong><span>Cancelled</span></div>
+                        <div><strong>@round.MissedCount</strong><span>Missed</span></div>
+                    </div>
+
+                    <a class="btn small history-details-button" asp-action="HistoryDetails" asp-route-id="@round.RoundId">
+                        Details
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                </article>
+            }
+        </div>
+    }
+</section>

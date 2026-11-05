@@ -1,0 +1,35 @@
+.admin-devices-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.admin-device-provision-button {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    white-space: nowrap;
+    background: #0c6b76;
+    border-color: #0c6b76;
+    color: #fff;
+}
+
+.admin-device-provision-button:hover {
+    background: #09525d;
+    border-color: #09525d;
+    color: #fff;
+}
+
+@media (max-width: 620px) {
+    .admin-devices-heading form {
+        width: 100%;
+    }
+
+    .admin-device-provision-button {
+        width: 100%;
+        justify-content: center;
+    }
+}

@@ -1,0 +1,85 @@
+@model MediDropProject.Models.Account.EditProfileViewModel
+@{
+    var isAdmin = User.IsInRole("Admin");
+    Layout = isAdmin ? "_AdminLayout" : Model.IsProvider ? "_CareProviderLayout" : "_PatientLayout";
+    ViewData["Title"] = "My profile";
+    ViewData["Eyebrow"] = "Account";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/account/account-profile.css" asp-append-version="true"/> }
+
+<div class="account-profile-page">
+    <div class="account-profile-heading">
+        <div><h1>My profile</h1>
+            <p>Manage your personal details and account security.</p></div>
+        <a class="account-profile-back" asp-controller="Account" asp-action="Index">Back to portal</a>
+    </div>
+    @if (TempData["ProfileSuccess"] is string success)
+    {
+        <div class="account-profile-success" role="status">@success</div>
+    }
+    <section class="account-profile-card">
+        <div class="account-profile-section-title"><i class="fa-regular fa-user"></i>
+            <div><h2>Personal details</h2>
+                <p>Changes to your name are reflected in both profiles.</p></div>
+        </div>
+        <form asp-controller="AccountProfile" asp-action="Save" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="account-profile-errors"></div>
+            <div class="account-profile-grid">
+                
+                <div class="account-profile-field">
+                    <label asp-for="FirstName"></label>
+                    <input asp-for="FirstName" autocomplete="given-name"/>
+                    <span asp-validation-for="FirstName"></span>
+                </div>
+                
+                <div class="account-profile-field">
+                    <label asp-for="LastName"></label>
+                    <input asp-for="LastName"autocomplete="family-name"/>
+                    <span asp-validation-for="LastName"></span>
+                </div>
+
+                @if (isAdmin)
+                {
+                    <div class="account-profile-field full">
+                        <p class="account-profile-help">Administrator details are shared with your sign-in account.</p>
+                    </div>
+                }
+                else if (Model.IsProvider)
+                {
+                    <div class="account-profile-field full"><label asp-for="ProfessionalTitle"></label>
+                        <input
+                            asp-for="ProfessionalTitle" placeholder="e.g. Registered nurse"/>
+                        <span
+                            asp-validation-for="ProfessionalTitle"></span></div>
+                    <div class="account-profile-field full"><label asp-for="Bio"></label>
+                        <textarea asp-for="Bio" rows="4" placeholder="Brief professional introduction"></textarea>
+                        <span asp-validation-for="Bio"></span></div>
+                }
+                else
+                {
+                    <div class="account-profile-field"><label asp-for="DateOfBirth"></label>
+                        <input asp-for="DateOfBirth"
+                               type="date"/>
+                        <span
+                            asp-validation-for="DateOfBirth"></span>
+                    </div>
+                }
+            </div>
+            <div class="account-profile-actions">
+                <button type="submit" class="account-profile-primary"><i class="fa-solid fa-check"></i> Save details
+                </button>
+            </div>
+        </form>
+    </section>
+    <section class="account-profile-card account-profile-security">
+        <div class="account-profile-section-title"><i class="fa-solid fa-shield-halved"></i>
+            <div><h2>Account security</h2>
+                <p>Update the password used to sign in to MediDrop.</p></div>
+        </div>
+        <a class="account-profile-secondary" asp-controller="AccountProfile" asp-action="Password"><i
+                class="fa-solid fa-key"></i> Change password</a>
+    </section>
+</div>

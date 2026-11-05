@@ -1,0 +1,120 @@
+@model MediDropProject.Models.Patient.RoundHistoryDetailsViewModel
+@using MediDropProject.Domain.Enums
+
+@{
+    Layout = null;
+
+    string Outcome(MedicationRoundSlotStatus status) => status switch
+    {
+        MedicationRoundSlotStatus.Removed => "Removed",
+        MedicationRoundSlotStatus.Dispensed => "Dispensed",
+        MedicationRoundSlotStatus.Ready => "Ready",
+        MedicationRoundSlotStatus.Pending => "Pending",
+        MedicationRoundSlotStatus.DispenseTimeout => "Missed dispense",
+        MedicationRoundSlotStatus.RemoveTimeout => "Missed collection",
+        MedicationRoundSlotStatus.Cancelled => "Cancelled",
+        _ => status.ToString()
+    };
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MediDrop - Round #@Model.RoundId</title>
+    <link rel="stylesheet" href="~/css/careProvider/print-documents.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/patient/history-print.css" asp-append-version="true" />
+</head>
+<body>
+    <nav class="print-toolbar" aria-label="Report actions">
+        <a asp-action="HistoryDetails" asp-route-id="@Model.RoundId">← Back to round</a>
+        <button type="button" onclick="window.print()">Print / Save as PDF</button>
+    </nav>
+
+    <main class="document round-document">
+        <header class="doc-header">
+            <div class="doc-branding">
+                <img class="doc-logo" src="~/images/medidrop-logo.png" alt="MediDrop logo" />
+                <div>
+                    <div class="doc-brand">MediDrop</div>
+                    <div class="doc-subtitle">Patient medication records</div>
+                </div>
+            </div>
+            <div class="round-header-reference">
+                <div class="doc-tag">DISPENSER ROUND REPORT</div>
+                <strong>Round #@Model.RoundId</strong>
+                <span>@Model.Status</span>
+            </div>
+        </header>
+
+        <h1>Medication round &amp; schedule</h1>
+        <p class="lead">A record of the medications scheduled for this dispenser load and their recorded dispensing outcomes.</p>
+
+        <section class="details" aria-label="Round information">
+            <div class="detail"><span>Patient</span><strong>@ViewData["PatientName"]</strong></div>
+            <div class="detail"><span>Start date</span><strong>@Model.StartedAt.ToLocalTime().ToString("dd MMM yyyy")</strong></div>
+            <div class="detail"><span>Completed</span><strong>@(Model.CompletedAt?.ToLocalTime().ToString("dd MMM yyyy, HH:mm") ?? "Not completed")</strong></div>
+            <div class="detail"><span>Round status</span><strong>@Model.Status</strong></div>
+            <div class="detail"><span>Loaded slots</span><strong>@Model.Slots.Count operation@(Model.Slots.Count == 1 ? "" : "s")</strong></div>
+        </section>
+
+        <section class="round-summary" aria-label="Round summary">
+            <div><span>Removal adherence</span><strong>@Model.CompletionRate.ToString("0.#")%</strong></div>
+            <div><span>Removed</span><strong>@Model.RemovedCount</strong></div>
+            <div><span>Missed</span><strong>@Model.MissedCount</strong></div>
+            <div><span>Cancelled</span><strong>@Model.CancelledCount</strong></div>
+        </section>
+
+        <h2>Scheduled medication</h2>
+        <p class="section-caption">Physical slot numbers refer to compartments in the dispenser. Medication names and quantities reflect the saved round records.</p>
+
+        @if (Model.Slots.Count == 0)
+        {
+            <p class="empty-report">There are no populated medication slots in this round.</p>
+        }
+        else
+        {
+            <table class="round-table">
+                <thead>
+                <tr>
+                    <th class="col-slot">Slot</th>
+                    <th class="col-schedule">Scheduled</th>
+                    <th class="col-medication">Medication / quantity</th>
+                    <th class="col-outcome">Outcome</th>
+                    <th class="col-time">Dispensed / removed</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var slot in Model.Slots)
+                {
+                    <tr>
+                        <td><strong>#@slot.DeviceSlotNumber</strong></td>
+                        <td>
+                            <strong>@slot.ScheduledFor.ToString("ddd, dd MMM yyyy")</strong>
+                            <small>@slot.PeriodName · @slot.ScheduledFor.ToString("HH:mm")</small>
+                        </td>
+                        <td>
+                            @foreach (var item in slot.Items)
+                            {
+                                <div class="round-medication">
+                                    <strong>@item.DisplayName</strong>
+                                    <small>Qty @item.Quantity</small>
+                                </div>
+                            }
+                        </td>
+                        <td>@Outcome(slot.Status)</td>
+                        <td>
+                            <div class="event-time"><span>Dispensed</span><strong>@(slot.DispensedAt?.ToString("dd MMM HH:mm") ?? "—")</strong></div>
+                            <div class="event-time"><span>Removed</span><strong>@(slot.RemovedAt?.ToString("dd MMM HH:mm") ?? "—")</strong></div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+
+        <footer class="footer">Generated by MediDrop</footer>
+    </main>
+</body>
+</html>

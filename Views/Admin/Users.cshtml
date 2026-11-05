@@ -1,0 +1,152 @@
+@model MediDropProject.Models.Admin.AdminUserListViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Accounts";
+    var isSuperAdmin = User.IsInRole("SuperAdmin");
+}
+@section Styles {
+    @if (isSuperAdmin)
+    {
+        <link rel="stylesheet" href="~/css/admin/admin-creation.css" asp-append-version="true" />
+    }
+}
+
+<div class="admin-heading admin-users-heading">
+    <div><span class="admin-eyebrow">ACCOUNT OVERSIGHT</span>
+        <h1>Registered accounts</h1>
+        <p>Inspect accounts and manage access restrictions.</p></div>
+    @if (isSuperAdmin)
+    {
+        <button class="admin-create-trigger" type="button" id="openAdminCreation">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i> Create Admin
+        </button>
+    }
+</div>
+<section class="admin-panel admin-search-panel admin-users-page">
+    <form class="admin-filters admin-modern-filters" asp-action="Users" method="get">
+        <label><span>Search</span><input name="search" type="search" value="@Model.Search" maxlength="100"
+                                         placeholder="Name or email"/></label>
+        <button class="admin-btn primary" type="submit">Search</button>
+        <a class="admin-btn" asp-action="Users">Reset</a>
+    </form>
+</section>
+<section class="admin-panel admin-results-panel admin-list-shell admin-users-page">
+    <div class="admin-panel-head admin-modern-head"><div class="admin-modern-head-label"><i class="fa-solid fa-users" aria-hidden="true"></i><div><h2>Accounts</h2><p>Account directory and access management</p></div></div><span class="admin-modern-count">@Model.Pagination.Total matching</span>
+    </div>
+    @if (Model.Items.Count == 0)
+    {
+        <p class="admin-empty">No matching accounts.</p>
+    }
+    else
+    {
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Roles</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var u in Model.Items)
+                {
+                    <tr>
+                        <td data-label="Name">
+                            <strong>@(string.IsNullOrWhiteSpace(u.Name) ? "User #" + u.Id : u.Name)</strong></td>
+                        <td data-label="Email">@u.Email</td>
+                        <td data-label="Roles">
+                            <div class="admin-badges">@foreach (var role in u.Roles)
+                                {
+                                    <span class="admin-pill neutral">@role</span>
+                                }
+                            </div>
+                        </td>
+                        <td data-label="Status"><span
+                                class="admin-pill @(u.Status.ToString().ToLowerInvariant())">@u.Status</span></td>
+                        <td data-label="Created">@u.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                        <td><a class="admin-btn small admin-modern-row-action" asp-action="AccountDetails" asp-route-id="@u.Id">Manage</a></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+    @if (Model.Pagination.TotalPages > 1)
+    {
+        <nav class="admin-pagination" aria-label="Account pages">
+            <span>Page @Model.Pagination.Page of @Model.Pagination.TotalPages</span>
+            <div>
+                @if (Model.Pagination.HasPrevious)
+                {
+                    <a class="admin-btn" asp-action="Users" asp-route-search="@Model.Search"
+                       asp-route-pageNumber="@(Model.Pagination.Page - 1)">Previous</a>
+                }
+                @if (Model.Pagination.HasNext)
+                {
+                    <a class="admin-btn" asp-action="Users" asp-route-search="@Model.Search"
+                       asp-route-pageNumber="@(Model.Pagination.Page + 1)">Next</a>
+                }
+            </div>
+        </nav>
+    }
+</section>
+
+
+@if (isSuperAdmin)
+{
+        <dialog class="admin-create-dialog" id="adminCreationDialog" aria-labelledby="adminCreationTitle">
+            <div class="admin-create-dialog-heading">
+                <h2 id="adminCreationTitle">Create administrator</h2>
+                <button class="admin-create-close" type="button" id="closeAdminCreation" aria-label="Close">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <form asp-controller="AccountProfile" asp-action="CreateAdministrator"
+                  method="post" id="adminCreationForm">
+                @Html.AntiForgeryToken()
+                <p>Who is this account for?</p>
+                <label for="newAdminEmail">Email address</label>
+                <input id="newAdminEmail" name="email" type="email" required maxlength="256"
+                       autocomplete="off" placeholder="email@example.com" />
+                <p class="admin-create-error" id="adminCreationError" role="alert" hidden></p>
+                <div class="admin-create-dialog-actions">
+                    <button type="button" class="admin-create-cancel" id="cancelAdminCreation">Cancel</button>
+                    <button type="submit" class="admin-create-submit" id="submitAdminCreation">
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i> Create Admin
+                    </button>
+                </div>
+            </form>
+
+            <div class="admin-create-result" id="adminCreationResult" hidden>
+                <p class="admin-create-result-success"><i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                    Administrator created successfully.</p>
+                <p>Copy these credentials now and share them securely. The password won't be shown again.</p>
+                <div class="admin-create-credential">
+                    <span>Email</span>
+                    <strong id="createdAdminEmail"></strong>
+                </div>
+                <div class="admin-create-credential">
+                    <span>Temporary password</span>
+                    <code id="createdAdminPassword"></code>
+                </div>
+                <div class="admin-create-dialog-actions">
+                    <button type="button" class="admin-create-cancel" id="doneAdminCreation">Done</button>
+                    <button type="button" class="admin-create-submit" id="copyAdminCredentials">
+                        <i class="fa-solid fa-copy" aria-hidden="true"></i> Copy credentials
+                    </button>
+                </div>
+            </div>
+        </dialog>
+}
+
+@section Scripts {
+    @if (isSuperAdmin)
+    {
+        <script src="~/js/admin-creation.js" asp-append-version="true"></script>
+    }
+}

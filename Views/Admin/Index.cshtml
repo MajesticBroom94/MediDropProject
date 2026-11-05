@@ -1,0 +1,35 @@
+@model MediDropProject.Models.Admin.AdminDashboardViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Dashboard";
+}
+<div class="admin-dashboard">
+<div class="admin-heading"><div><span class="admin-eyebrow">SYSTEM OVERVIEW</span><h1>Administration dashboard</h1><p>Review outstanding work and monitor MediDrop operations.</p></div></div>
+<div class="admin-kpi-grid">
+    <a class="admin-kpi" asp-action="Users"><i class="fa-solid fa-users admin-kpi-icon" aria-hidden="true"></i><span>Registered patients</span><strong>@Model.Patients</strong><small>Patient profiles</small></a>
+    <a class="admin-kpi" asp-action="ProviderRegistrations" asp-route-providerStatus="Verified"><i class="fa-solid fa-user-shield admin-kpi-icon" aria-hidden="true"></i><span>Verified providers</span><strong>@Model.Providers</strong><small>Latest registration verified</small></a>
+    <a class="admin-kpi" asp-action="Devices"><i class="fa-solid fa-microchip admin-kpi-icon" aria-hidden="true"></i><span>Active devices</span><strong>@Model.ActiveDevices <em>/ @Model.TotalDevices</em></strong><small>Device provisioning &amp; status</small></a>
+    <div class="admin-kpi"><i class="fa-solid fa-prescription-bottle-medical admin-kpi-icon" aria-hidden="true"></i><span>Active prescriptions</span><strong>@Model.ActivePrescriptions</strong><small>Issued and marked active</small></div>
+</div>
+<div class="admin-two-col">
+    <section class="admin-panel admin-queue-panel admin-queue-providers"><div class="admin-panel-head"><div><h2><i class="fa-solid fa-user-check" aria-hidden="true"></i> Provider verification queue</h2><p>Latest pending applications</p></div><a asp-action="ProviderRegistrations" asp-route-providerStatus="Pending">View all</a></div>
+        @if (Model.RecentRegistrations.Count == 0) { <p class="admin-empty">No provider applications are waiting.</p> }
+        @foreach (var item in Model.RecentRegistrations) {
+            <a class="admin-row-link" asp-action="ProviderRegistrationDetails" asp-route-id="@item.Id"><div><strong>@item.ProviderName</strong><small>@item.ProviderType · @item.Authority</small></div><span>@item.SubmittedAt.ToLocalTime().ToString("dd MMM") <i class="fa-solid fa-chevron-right"></i></span></a>
+        }
+    </section>
+    <section class="admin-panel admin-queue-panel admin-queue-medications"><div class="admin-panel-head"><div><h2><i class="fa-solid fa-capsules" aria-hidden="true"></i> Medication approval queue</h2><p>Review new catalogue entries</p></div><a asp-action="Medications" asp-route-medicationStatus="Pending">View all</a></div>
+        @if (Model.RecentMedications.Count == 0) { <p class="admin-empty">No medication submissions are waiting.</p> }
+        @foreach (var item in Model.RecentMedications) {
+            <a class="admin-row-link" asp-action="MedicationDetails" asp-route-id="@item.Id"><div><strong>@item.Name @item.Strength</strong><small>@(item.SubmittedBy ?? "System entry") · @item.Form</small></div><span>@item.CreatedAt.ToLocalTime().ToString("dd MMM") <i class="fa-solid fa-chevron-right"></i></span></a>
+        }
+    </section>
+</div>
+<section class="admin-panel admin-margin-top admin-activity-panel"><div class="admin-panel-head"><div><h2><i class="fa-solid fa-wave-square" aria-hidden="true"></i> Recent system activity</h2><p>Recorded audit events, not inferred clinical alerts</p></div><a asp-action="Audit">Audit log</a></div>
+    @if (Model.RecentActivity.Count == 0) { <p class="admin-empty">No audit events recorded yet.</p> }
+    @foreach (var item in Model.RecentActivity) {
+        <div class="admin-row-link is-static"><div><strong>@item.EventType · @item.Action</strong><small>@(item.Actor ?? "System") · @item.EntityType #@item.EntityId</small></div><time>@item.OccurredAt.ToLocalTime().ToString("dd MMM, HH:mm")</time></div>
+    }
+</section>
+
+</div>

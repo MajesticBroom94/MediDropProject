@@ -1,0 +1,191 @@
+@model MediDropProject.Models.Patient.PatientCareViewModel
+
+@{
+    Layout = "_PatientLayout";
+    ViewData["Title"] = "Care providers";
+    ViewData["Eyebrow"] = "Care team";
+
+    // Calendar-based duration so a provider verified six months ago isn't shown
+    // as an arbitrary number of days. No additional database fields are needed.
+    string TimeSince(DateTimeOffset date)
+    {
+        var from = date.ToLocalTime().Date;
+        var today = DateTime.Today;
+        if (from > today) return "today";
+
+        var months = (today.Year - from.Year) * 12 + today.Month - from.Month;
+        if (today.Day < from.Day) months--;
+
+        if (months >= 12)
+        {
+            var years = months / 12;
+            return $"{years} {(years == 1 ? "year" : "years")}";
+        }
+        if (months >= 1)
+            return $"{months} {(months == 1 ? "month" : "months")}";
+
+        var days = (today - from).Days;
+        if (days == 0) return "today";
+        if (days < 7) return $"{days} {(days == 1 ? "day" : "days")}";
+
+        var weeks = days / 7;
+        return $"{weeks} {(weeks == 1 ? "week" : "weeks")}";
+    }
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/patient/care-providers-page.css" asp-append-version="true" />
+}
+
+<div class="page-intro">
+    <div>
+        <h1>Care providers</h1>
+        <p>Manage providers who can access your patient information and medication data.</p>
+    </div>
+</div>
+
+@if (TempData["CareMessage"] is string message)
+{
+    <div class="alert success">@message</div>
+}
+
+@if (Model.PendingRequests.Count > 0)
+{
+    <h2 class="section-title">New patient-care requests</h2>
+
+    <div class="care-provider-grid">
+        @foreach (var request in Model.PendingRequests)
+        {
+            var fullName = $"{request.ProfessionalTitle} {request.ProviderName}".Trim();
+            <section class="card care-provider-card care-provider-request">
+                <div class="care-provider-card-top">
+                    <div class="care-provider-identity">
+                        <span class="care-provider-avatar" aria-hidden="true"><i class="fa-solid fa-user-doctor"></i></span>
+                        <div>
+                            <h3>@fullName</h3>
+                            @if (!string.IsNullOrWhiteSpace(request.ProviderType))
+                            {
+                                <span class="care-provider-type">@request.ProviderType</span>
+                            }
+                        </div>
+                    </div>
+                    <span class="status-pill amber">Needs response</span>
+                </div>
+
+                <div class="care-provider-facts">
+                    @if (!string.IsNullOrWhiteSpace(request.ProviderEmail))
+                    {
+                        <div class="care-provider-fact">
+                            <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+                            <a href="mailto:@request.ProviderEmail">@request.ProviderEmail</a>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(request.RegistrationNumber))
+                    {
+                        <div class="care-provider-fact">
+                            <i class="fa-solid fa-id-card" aria-hidden="true"></i>
+                            <span>@request.RegistrationAuthority @request.RegistrationNumber</span>
+                        </div>
+                    }
+                    @if (request.VerifiedAt.HasValue)
+                    {
+                        <div class="care-provider-fact">
+                            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                            <span title="Verified @request.VerifiedAt.Value.ToLocalTime().ToString("dd MMM yyyy")">Verified care provider for @TimeSince(request.VerifiedAt.Value)</span>
+                        </div>
+                    }
+                    <div class="care-provider-fact">
+                        <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                        <span title="Requested @request.RequestedAt.ToLocalTime().ToString("dd MMM yyyy")">@(TimeSince(request.RequestedAt) == "today" ? "Requested today" : $"Requested {TimeSince(request.RequestedAt)} ago")</span>
+                    </div>
+                </div>
+
+                <div class="care-provider-actions">
+                    <form asp-action="DeclineCareRequest" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="relationshipId" value="@request.RelationshipId" />
+                        <button class="btn small" type="submit">Decline</button>
+                    </form>
+                    <form asp-action="AcceptCareRequest" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="relationshipId" value="@request.RelationshipId" />
+                        <button class="btn primary small" type="submit">Accept</button>
+                    </form>
+                </div>
+            </section>
+        }
+    </div>
+}
+else
+{
+    <section class="card empty-state">
+        <h2>No new care requests</h2>
+        <p class="muted">New patient-care requests will appear here when a verified provider asks to connect.</p>
+    </section>
+}
+
+<h2 class="section-title">Connected providers</h2>
+
+@if (Model.ConnectedProviders.Count == 0)
+{
+    <section class="card empty-state">
+        <h2>No connected providers</h2>
+        <p class="muted">You have not approved access for any care providers yet.</p>
+    </section>
+}
+else
+{
+    <div class="care-provider-grid">
+        @foreach (var provider in Model.ConnectedProviders)
+        {
+            var fullName = $"{provider.ProfessionalTitle} {provider.ProviderName}".Trim();
+            <section class="card care-provider-card">
+                <div class="care-provider-card-top">
+                    <div class="care-provider-identity">
+                        <span class="care-provider-avatar" aria-hidden="true"><i class="fa-solid fa-user-doctor"></i></span>
+                        <div>
+                            <h3>@fullName</h3>
+                            @if (!string.IsNullOrWhiteSpace(provider.ProviderType))
+                            {
+                                <span class="care-provider-type">@provider.ProviderType</span>
+                            }
+                        </div>
+                    </div>
+                    <span class="status-pill green">Connected</span>
+                </div>
+
+                <div class="care-provider-facts">
+                    @if (!string.IsNullOrWhiteSpace(provider.ProviderEmail))
+                    {
+                        <div class="care-provider-fact">
+                            <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+                            <a href="mailto:@provider.ProviderEmail">@provider.ProviderEmail</a>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(provider.RegistrationNumber))
+                    {
+                        <div class="care-provider-fact">
+                            <i class="fa-solid fa-id-card" aria-hidden="true"></i>
+                            <span>@provider.RegistrationAuthority @provider.RegistrationNumber</span>
+                        </div>
+                    }
+                    @if (provider.VerifiedAt.HasValue)
+                    {
+                        <div class="care-provider-fact">
+                            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                            <span title="Verified @provider.VerifiedAt.Value.ToLocalTime().ToString("dd MMM yyyy")">Verified care provider for @TimeSince(provider.VerifiedAt.Value)</span>
+                        </div>
+                    }
+                    <div class="care-provider-fact">
+                        <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+                        <span>
+                            @(provider.StartDate.HasValue
+                                ? $"Connected since {provider.StartDate.Value:dd MMM yyyy}"
+                                : "Connection date unavailable")
+                        </span>
+                    </div>
+                </div>
+            </section>
+        }
+    </div>
+}

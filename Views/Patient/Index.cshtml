@@ -1,0 +1,279 @@
+@model MediDropProject.Models.Patient.PatientDashboardViewModel
+@using MediDropProject.Domain.Enums
+
+@{
+    Layout = "_PatientLayout";
+    ViewData["Title"] = "Dashboard";
+    ViewData["Eyebrow"] = "Patient";
+
+    string SlotStatusClass(MedicationRoundSlotStatus status) => status switch
+    {
+        MedicationRoundSlotStatus.Removed => "green",
+        MedicationRoundSlotStatus.Dispensed => "blue",
+        MedicationRoundSlotStatus.Ready => "blue",
+        MedicationRoundSlotStatus.DispenseTimeout or MedicationRoundSlotStatus.RemoveTimeout => "red",
+        MedicationRoundSlotStatus.Cancelled => "amber",
+        _ => "amber"
+    };
+
+    string SlotStatusText(MedicationRoundSlotStatus status) => status switch
+    {
+        MedicationRoundSlotStatus.Removed => "Removed",
+        MedicationRoundSlotStatus.Dispensed => "Dispensed",
+        MedicationRoundSlotStatus.Ready => "Ready",
+        MedicationRoundSlotStatus.Pending => "Upcoming",
+        MedicationRoundSlotStatus.DispenseTimeout => "Dispense timeout",
+        MedicationRoundSlotStatus.RemoveTimeout => "Removal timeout",
+        MedicationRoundSlotStatus.Cancelled => "Cancelled",
+        _ => status.ToString()
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/patient/dashboard-history.css" asp-append-version="true" />
+}
+
+<div class="page-intro dashboard-intro">
+    <div>
+        <h1>@(string.IsNullOrWhiteSpace(Model.FirstName) ? "Your medication routine" : $"Hi, {Model.FirstName}")</h1>
+        <p>Your medication schedule, dispenser status and recent activity in one place.</p>
+    </div>
+    <div class="page-actions">
+        <a class="btn primary" asp-action="Schedule">
+            <i class="fa-regular fa-calendar-days"></i>
+            <text>&nbsp; Manage schedule</text>
+        </a>
+    </div>
+</div>
+
+<div class="grid cols-4 dashboard-metrics">
+    <a class="card metric dashboard-metric-link" asp-action="Schedule">
+        <div class="metric-icon"><i class="fa-regular fa-clock"></i></div>
+        <strong>@Model.TodayScheduledCount</strong>
+        <span>Dispense operations today</span>
+    </a>
+    <a class="card metric dashboard-metric-link" asp-action="Inventory">
+        <div class="metric-icon"><i class="fa-solid fa-capsules"></i></div>
+        <strong>@Model.ActiveMedicationCount</strong>
+        <span>Active medications</span>
+    </a>
+    <a class="card metric dashboard-metric-link" asp-action="Prescriptions">
+        <div class="metric-icon"><i class="fa-solid fa-file-prescription"></i></div>
+        <strong>@Model.ActivePrescriptionCount</strong>
+        <span>Active prescriptions</span>
+    </a>
+    <a class="card metric dashboard-metric-link" asp-controller="Patient" asp-action="CareProviders">
+        <div class="metric-icon">
+            <i class="fa-solid fa-user-doctor" aria-hidden="true"></i>
+        </div>
+        <strong>@Model.CareProviderCount</strong>
+        <span>@(Model.CareProviderCount == 1 ? "Care provider" : "Care providers")</span>
+    </a>
+</div>
+
+<div class="grid cols-2 dashboard-primary-grid">
+    <section class="card next-dose dashboard-next-dose">
+        @if (TempData["RemoteDispenseError"] is string remoteError)
+        {
+            <div class="dashboard-remote-message" role="alert">@remoteError</div>
+        }
+        @if (TempData["RemoteDispenseMessage"] is string remoteMessage)
+        {
+            <div class="dashboard-remote-message" role="status">@remoteMessage</div>
+        }
+        <div class="card-head">
+            <h2>Next scheduled dose</h2>
+            @if (Model.CanConfirmDispenseRemotely)
+            {
+                <span class="status-pill green">Awaiting confirmation</span>
+            }
+            else if (Model.NextDose != null)
+            {
+                <span class="status-pill green">Scheduled</span>
+            }
+        </div>
+
+        @if (Model.CanConfirmDispenseRemotely)
+        {
+            <div class="dashboard-empty light dashboard-remote-ready">
+                <i class="fa-solid fa-pills"></i>
+                <strong>Medication ready to dispense</strong>
+                <span>The dispenser is waiting for your confirmation. You can also confirm using its physical button.</span>
+                <form asp-action="ConfirmRemoteDispense" asp-controller="Patient" method="post" class="dashboard-remote-form">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn primary">
+                        <i class="fa-solid fa-check"></i> Confirm dispense
+                    </button>
+                </form>
+            </div>
+        }
+        else if (Model.NextDose == null)
+        {
+            <div class="dashboard-empty light">
+                <i class="fa-regular fa-calendar-check"></i>
+                <strong>No upcoming dose</strong>
+                <span>There are no pending dispense operations in the active round.</span>
+            </div>
+        }
+        else
+        {
+            <div class="muted">@Model.NextDose.ScheduledFor.ToString("ddd, dd MMM") · @Model.NextDose.PeriodName</div>
+            <div class="next-dose-time">@Model.NextDose.ScheduledFor.ToString("HH:mm")</div>
+            <div class="next-dose-meds">
+                @foreach (var item in Model.NextDose.Items)
+                {
+                    <div>
+                        <strong>@item.DisplayName</strong>
+                        <span>Qty @item.Quantity</span>
+                    </div>
+                }
+            </div>
+        }
+    </section>
+
+    <section class="card dashboard-routine-card">
+        <div class="card-head">
+            <h2>Today's routine</h2>
+            <a asp-action="Schedule">View schedule</a>
+        </div>
+
+        @if (Model.TodayRoutine.Count == 0)
+        {
+            <div class="dashboard-empty">
+                <i class="fa-regular fa-calendar"></i>
+                <strong>No doses scheduled today</strong>
+                <span>Your active schedule has no populated dispense slots for today.</span>
+            </div>
+        }
+        else
+        {
+            <div class="list dashboard-routine-list">
+                @foreach (var dose in Model.TodayRoutine)
+                {
+                    <div class="list-row">
+                        <div class="list-icon"><i class="fa-solid fa-pills"></i></div>
+                        <div class="list-copy">
+                            <strong>@dose.PeriodName · @dose.ScheduledFor.ToString("HH:mm")</strong>
+                            <span>@dose.Items.Count medication@(dose.Items.Count == 1 ? "" : "s")</span>
+                        </div>
+                        <span class="status-pill @SlotStatusClass(dose.Status)">@SlotStatusText(dose.Status)</span>
+                    </div>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+<div class="grid cols-2 dashboard-secondary-grid">
+    <section class="card dashboard-device-card">
+        <div class="card-head">
+            <h2>Dispenser</h2>
+            <a asp-action="Device">Device controls</a>
+        </div>
+
+        @if (!Model.Device.IsPaired)
+        {
+            <div class="dashboard-device-hero">
+                <div class="device-summary-icon warning"><i class="fa-solid fa-microchip" aria-hidden="true"></i></div>
+                <div class="device-summary-copy">
+                    <strong>No dispenser paired</strong>
+                    <span>Connect your MediDrop dispenser to manage your medication schedule.</span>
+                </div>
+                <span class="status-pill red">Not paired</span>
+            </div>
+            <a class="dashboard-device-pair-link" asp-action="Device">
+                <i class="fa-solid fa-link" aria-hidden="true"></i> Pair a dispenser
+                <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </a>
+        }
+        else
+        {
+            <div class="dashboard-device-hero">
+                <div class="device-summary-icon @(Model.Device.IsOnline ? "online" : "offline")">
+                    <i class="fa-solid fa-microchip" aria-hidden="true"></i>
+                </div>
+                <div class="device-summary-copy">
+                    <strong>@(string.IsNullOrWhiteSpace(Model.Device.Name) ? "MediDrop Dispenser" : Model.Device.Name)</strong>
+                    <span>Your paired medication dispenser</span>
+                </div>
+                <span class="status-pill @(Model.Device.IsOnline ? "green" : "red")">
+                    <i class="fa-solid @(Model.Device.IsOnline ? "fa-wifi" : "fa-wifi-slash")" aria-hidden="true"></i>
+                    @(Model.Device.IsOnline ? "Online" : "Offline")
+                </span>
+            </div>
+
+            <div class="dashboard-device-details">
+                <div class="dashboard-device-detail">
+                    <span><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i> Operating state</span>
+                    <strong>
+                        @if (Model.Device.IsOnline)
+                        {
+                            @(Model.Device.OperatingState switch
+                            {
+                                OperatingState.AwaitingDispenseConfirmation => "Awaiting confirmation",
+                                OperatingState.AwaitingMedicationRemoval => "Awaiting medication removal",
+                                OperatingState.StartingTask => "Starting task",
+                                null => "Unknown",
+                                _ => Model.Device.OperatingState.ToString()
+                            })
+                        }
+                        else
+                        {
+                            <text>Not connected</text>
+                        }
+                    </strong>
+                </div>
+                <div class="dashboard-device-detail">
+                    <span><i class="fa-regular fa-clock" aria-hidden="true"></i> Last contact</span>
+                    <strong>@(Model.Device.LastSeenAt?.ToString("dd MMM yyyy, HH:mm") ?? "Never connected")</strong>
+                </div>
+            </div>
+        }
+    </section>
+
+    <section class="card">
+        <div class="card-head">
+            <h2>Recent notifications</h2>
+            <a asp-controller="Notification" asp-action="Index">View all</a>
+        </div>
+
+        @if (Model.RecentNotifications.Count == 0)
+        {
+            <div class="dashboard-empty compact">
+                <i class="fa-regular fa-bell-slash"></i>
+                <strong>Nothing new</strong>
+                <span>Recent MediDrop notifications will appear here.</span>
+            </div>
+        }
+        else
+        {
+            <div class="list dashboard-notification-list">
+                @foreach (var notification in Model.RecentNotifications)
+                {
+                    <a class="list-row dashboard-notification-row @(notification.IsUnread ? "unread" : "")"
+                       href="@(!string.IsNullOrWhiteSpace(notification.ActionUrl) && Url.IsLocalUrl(notification.ActionUrl)
+                                   ? notification.ActionUrl
+                                   : Url.Action("Index", "Notification"))">
+                        <div class="list-icon"><i class="fa-regular fa-bell"></i></div>
+                        <div class="list-copy">
+                            <strong>@notification.Title</strong>
+                            <span>@notification.Message</span>
+                        </div>
+                        <div class="list-meta">@notification.CreatedAt.ToLocalTime().ToString("dd MMM")</div>
+                    </a>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+<div class="dashboard-history-link">
+    <a class="card history-callout" asp-action="History">
+        <div class="history-callout-icon"><i class="fa-solid fa-chart-line"></i></div>
+        <div>
+            <strong>Review dispensing history</strong>
+            <span>See the last three months of dispenser rounds, completed removals and recorded issues.</span>
+        </div>
+        <i class="fa-solid fa-chevron-right"></i>
+    </a>
+</div>

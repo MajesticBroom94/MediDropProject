@@ -1,0 +1,93 @@
+/* Live popup is positioned beside the header bell by live-notifications.js. */
+.medidrop-live-notice {
+    position: fixed;
+    z-index: 10050;
+    top: 76px;
+    right: 16px;
+    width: min(390px, calc(100vw - 24px));
+    pointer-events: none;
+    --notice-offset-x: 0px;
+    --notice-offset-y: -22px;
+}
+.medidrop-live-notice::before {
+    content: "";
+    position: absolute;
+    top: -7px;
+    right: var(--notice-arrow-right, 25px);
+    width: 14px;
+    height: 14px;
+    border-radius: 3px 0 0 0;
+    transform: rotate(45deg);
+    background: #173f56;
+    box-shadow: -1px -1px 0 rgba(116, 211, 211, .25);
+    pointer-events: none;
+    opacity: 0;
+}
+.medidrop-live-notice:has(.medidrop-toast-card)::before { opacity: 1; }
+.medidrop-toast-card {
+    pointer-events: auto;
+    display: flex;
+    gap: 13px;
+    padding: 18px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #173f56 0%, #102c42 100%);
+    color: #f7fdff;
+    border: 1px solid #357488;
+    box-shadow: 0 20px 48px rgba(5, 27, 44, .38), 0 5px 14px rgba(5, 27, 44, .2);
+    font-family: inherit;
+    transform-origin: var(--notice-origin-x, 90%) top;
+    animation: medidrop-toast-from-bell .42s cubic-bezier(.18, .78, .22, 1) both;
+}
+.medidrop-toast-icon {
+    width: 39px;
+    height: 39px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    color: #b5ffff;
+    background: rgba(88, 196, 204, .2);
+    border: 1px solid rgba(142, 232, 230, .27);
+}
+.medidrop-toast-content { min-width: 0; flex: 1; }
+.medidrop-toast-eyebrow {
+    display: block;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: #8de5e0;
+    margin-bottom: 5px;
+}
+.medidrop-toast-content strong {
+    display: block;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #fff;
+    overflow-wrap: anywhere;
+}
+.medidrop-toast-content p {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #d1e4ee;
+    margin: 6px 0 12px;
+    overflow-wrap: anywhere;
+}
+.medidrop-toast-actions { display: flex; align-items: center; gap: 17px; flex-wrap: wrap; font-size: 12px; }
+.medidrop-toast-actions a { color: #92f0e9; text-decoration: none; font-weight: 750; }
+.medidrop-toast-actions a:hover { color: #fff; text-decoration: underline; }
+.medidrop-toast-actions button { color: #c4d9e5; cursor: pointer; border: 0; background: transparent; padding: 0; font: inherit; }
+.medidrop-toast-actions button:hover { color: #fff; }
+.medidrop-toast-actions a:focus-visible, .medidrop-toast-actions button:focus-visible { outline: 2px solid #a2f7e9; outline-offset: 4px; border-radius: 2px; }
+@keyframes medidrop-toast-from-bell {
+    0% { opacity: 0; transform: translate(var(--notice-offset-x), var(--notice-offset-y)) scale(.35); filter: blur(3px); }
+    65% { opacity: 1; filter: blur(0); }
+    100% { opacity: 1; transform: translate(0, 0) scale(1); filter: blur(0); }
+}
+@media (max-width: 600px) {
+    .medidrop-live-notice { width: min(360px, calc(100vw - 20px)); }
+    .medidrop-toast-card { padding: 15px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .medidrop-toast-card { animation: none; }
+}

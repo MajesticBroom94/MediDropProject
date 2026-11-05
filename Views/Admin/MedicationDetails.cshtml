@@ -1,0 +1,39 @@
+@using MediDropProject.Domain.Enums
+@model MediDropProject.Models.Admin.AdminMedicationRow
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Medication details";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin/medication-review.css" asp-append-version="true" />
+}
+<a class="admin-back" asp-action="Medications"><i class="fa-solid fa-arrow-left"></i> Medication catalogue</a>
+<div class="admin-heading"><div><span class="admin-eyebrow">MEDICATION #@Model.Id</span><h1>@Model.Name @Model.Strength</h1><p>@Model.GenericName</p></div><div class="admin-badges"><span class="admin-pill @Model.Status.ToString().ToLowerInvariant()">@Model.Status</span></div></div>
+<div class="admin-two-col med-review-readonly">
+    <section class="admin-panel med-review-panel"><div class="med-review-panel-head"><i class="fa-solid fa-capsules" aria-hidden="true"></i><h2>Medication profile</h2></div><div class="med-review-panel-body">
+        <div class="admin-medicine-heading">
+            @if (!string.IsNullOrWhiteSpace(Model.ImageUrl)) { <img src="@Model.ImageUrl" alt="" loading="lazy" /> }
+            else { <span class="admin-med-placeholder"><i class="fa-solid fa-pills"></i></span> }
+            <div><strong>@Model.Name</strong><small>@Model.Strength · @Model.Form</small></div>
+        </div>
+        <dl class="admin-details">
+            <div><dt>Manufacturer</dt><dd>@(Model.Manufacturer ?? "Not specified")</dd></div>
+            <div><dt>Barcode</dt><dd>@(Model.Barcode ?? "Not provided")</dd></div>
+            <div><dt>Submitted by</dt><dd>@(string.IsNullOrWhiteSpace(Model.SubmittedBy) ? "System / seeded" : Model.SubmittedBy)</dd></div>
+            <div><dt>Created</dt><dd>@Model.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</dd></div>
+            <div><dt>Updated</dt><dd>@Model.UpdatedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</dd></div>
+        </dl>
+        </div>
+    </section>
+    <section class="admin-panel med-review-panel"><div class="med-review-panel-head"><i class="fa-solid fa-file-medical" aria-hidden="true"></i><h2>Medicine information</h2></div><div class="med-review-panel-body">
+        <h3 class="admin-subheading">Description</h3><p class="admin-body-copy">@(Model.Description ?? "Not provided")</p>
+        <h3 class="admin-subheading">Active ingredients</h3><p class="admin-body-copy">@(Model.ActiveIngredients ?? "Not provided")</p>
+        <h3 class="admin-subheading">Safety information</h3><p class="admin-body-copy admin-safety">@(Model.SafetyInformation ?? "Not provided")</p>
+        </div>
+    </section>
+</div>
+<section class="admin-panel med-review-panel admin-margin-top"><div class="med-review-panel-head"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><h2>Catalogue management</h2></div><div class="med-review-panel-body">
+<p class="admin-help">Correct inaccurate medication details and choose the appropriate status. Only Active medications can be selected for new prescriptions.</p>
+<a class="admin-btn primary" asp-action="EditMedication" asp-route-id="@Model.Id"><i class="fa-solid fa-pen"></i> Edit medication</a>
+</div>
+</section>

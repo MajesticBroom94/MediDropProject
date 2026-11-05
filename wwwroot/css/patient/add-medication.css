@@ -1,0 +1,118 @@
+/* Patient/AddMedication only. Loaded after patient.css; other pages remain unchanged. */
+.am-search-panel {
+    padding: 20px 22px;
+    background: linear-gradient(115deg, #fff, #f4fafb);
+}
+.am-results-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin: 22px 0 14px;
+}
+.am-results-heading h2 { margin: 0 0 4px; color: #123858; font-size: 19px; }
+.am-results-heading p { margin: 0; color: #6b8291; font-size: 12px; }
+.am-result-count {
+    flex-shrink: 0;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: #e8f2f6;
+    color: #426579;
+    font-size: 12px;
+    font-weight: 800;
+}
+.am-catalogue-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: stretch;
+}
+.am-medication-card.card {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+    overflow: hidden;
+    padding: 0;
+    border: 1px solid #d1e2e9;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 9px 26px rgba(17, 61, 80, .055);
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+.am-medication-card:hover {
+    border-color: #a7d2db;
+    box-shadow: 0 12px 30px rgba(17, 61, 80, .095);
+}
+.am-card-content { padding: 20px 21px 16px; flex: 1; min-width: 0; }
+.am-card-header { display: flex; align-items: flex-start; gap: 14px; min-width: 0; margin-bottom: 15px; }
+.am-medication-image {
+    display: grid;
+    place-items: center;
+    flex: 0 0 66px;
+    width: 66px;
+    height: 66px;
+    overflow: hidden;
+    border-radius: 15px;
+    background: #e5f3f3;
+    color: #12858b;
+    font-size: 25px;
+}
+.am-medication-image img { width: 100%; height: 100%; object-fit: cover; }
+.am-medication-identity { flex: 1; min-width: 0; }
+.am-title-line { display: flex; flex-wrap: wrap; align-items: center; gap: 7px 10px; }
+.am-title-line h3 { margin: 1px 0 0; color: #123858; font-size: 17px; line-height: 1.3; overflow-wrap: anywhere; }
+.am-title-line .status-pill { font-size: 10px; }
+.am-generic { margin: 5px 0 8px; font-size: 12px; color: #738999; }
+.am-medication-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+.am-medication-tags span {
+    padding: 5px 9px;
+    border-radius: 7px;
+    background: #eff5f8;
+    color: #436477;
+    font-size: 11px;
+    font-weight: 700;
+}
+.am-detail-row { display: flex; align-items: flex-start; gap: 9px; margin-top: 9px; color: #597484; font-size: 12px; line-height: 1.5; min-width: 0; }
+.am-detail-row i { flex: 0 0 15px; width: 15px; margin-top: 3px; color: #16919a; text-align: center; }
+.am-detail-row span { min-width: 0; overflow-wrap: anywhere; }
+.am-detail-row strong { color: #365a6d; }
+.am-description {
+    margin: 12px 0 0;
+    color: #768b96;
+    font-size: 12px;
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+.am-card-footer {
+    margin-top: auto;
+    padding: 14px 21px;
+    border-top: 1px solid #e4edf0;
+    background: #f7fbfc;
+}
+.am-add-form { display: flex; align-items: flex-end; gap: 12px; }
+.am-quantity-field { flex: 0 0 140px; min-width: 0; margin: 0; }
+.am-quantity-field label { display: block; margin: 0 0 7px; font-size: 11px; font-weight: 800; color: #496b7c; }
+.am-quantity-field input { width: 100%; min-height: 43px; font-weight: 700; }
+.am-add-form .btn { flex: 1; min-height: 43px; white-space: nowrap; }
+.am-added-footer { display: flex; align-items: center; gap: 9px; color: #267e64; font-size: 12px; font-weight: 800; }
+.am-added-footer i { font-size: 15px; }
+.am-already-added { background: #fcfefd; }
+@media (max-width: 1050px) {
+    .am-catalogue-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 580px) {
+    .am-search-panel { padding: 16px; }
+    .am-results-heading { align-items: flex-start; }
+    .am-results-heading p { max-width: 230px; }
+    .am-card-content { padding: 16px; }
+    .am-card-footer { padding: 13px 16px; }
+    .am-medication-image { flex-basis: 55px; width: 55px; height: 55px; border-radius: 12px; }
+    .am-card-header { gap: 11px; }
+    .am-add-form { flex-wrap: wrap; }
+    .am-quantity-field { flex: 1 1 100%; }
+    .am-add-form .btn { flex-basis: 100%; }
+}

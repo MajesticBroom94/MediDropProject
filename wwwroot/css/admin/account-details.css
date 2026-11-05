@@ -1,0 +1,647 @@
+/* Account Details page: profile cards and access-management modal. */
+.admin-account-profile-grid {
+    display: grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    align-items: start
+}
+
+.admin-account-card {
+    position: relative
+}
+
+.admin-manage-head {
+    align-items: center;
+    flex-wrap: wrap
+}
+
+.admin-manage-head h2 i {
+    color: #0b8b9c;
+    margin-right: 8px
+}
+
+.admin-manage-head .admin-btn {
+    flex-shrink: 0;
+    border-color: #b8d8e7;
+    color: #0c668a;
+    background: #effaff
+}
+
+.admin-manage-head .admin-btn:hover {
+    background: #dff2f9
+}
+
+.admin-account-scope-note {
+    font-size: 12px;
+    line-height: 1.6;
+    color: #628094;
+    background: #eff7fa;
+    border-left: 3px solid #149ca1;
+    border-radius: 0 9px 9px 0;
+    padding: 10px 12px;
+    margin-bottom: 12px
+}
+
+.admin-card-status {
+    margin: 0 0 8px;
+    display: flex;
+    justify-content: flex-end
+}
+
+.admin-registration-link {
+    margin-top: 16px
+}
+
+.admin-access-dialog {
+    width: min(560px, calc(100% - 24px));
+    max-height: calc(100dvh - 32px);
+    padding: 0;
+    border: 1px solid #d3e5ed;
+    border-radius: 18px;
+    color: #143b55;
+    background: white;
+    box-shadow: 0 25px 80px #081d3452;
+    overflow: auto
+}
+
+.admin-access-dialog::backdrop {
+    background: #0b254b96;
+    backdrop-filter: blur(3px)
+}
+
+.admin-access-form {
+    padding: 24px
+}
+
+.admin-access-modal-header {
+    display: flex;
+    gap: 13px;
+    align-items: flex-start;
+    margin-bottom: 18px
+}
+
+.admin-access-modal-symbol {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: #e3f6f5;
+    color: #078a95;
+    display: grid;
+    place-items: center;
+    font-size: 19px
+}
+
+.admin-access-modal-header > div:nth-child(2) {
+    flex: 1;
+    min-width: 0
+}
+
+.admin-access-modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #123958
+}
+
+.admin-access-modal-header p {
+    margin: 5px 0 0;
+    color: #678399;
+    font-size: 12px;
+    overflow-wrap: anywhere
+}
+
+.admin-access-close {
+    border: 0;
+    background: #f1f6f8;
+    color: #496d83;
+    width: 31px;
+    height: 31px;
+    border-radius: 9px;
+    cursor: pointer
+}
+
+.admin-access-description {
+    background: #eaf7fc;
+    border: 1px solid #c4e7f0;
+    border-radius: 11px;
+    padding: 13px;
+    color: #225c7e;
+    font-size: 12px;
+    line-height: 1.65;
+    margin-bottom: 18px
+}
+
+.admin-access-description.is-danger {
+    background: #fff5f3;
+    border-color: #f4d3cf;
+    color: #9b3c40
+}
+
+.admin-access-reason {
+    display: grid;
+    gap: 8px;
+    font-weight: 800;
+    font-size: 12px;
+    color: #315770
+}
+
+.admin-access-reason textarea {
+    resize: vertical;
+    width: 100%;
+    min-height: 112px;
+    border: 1px solid #c4dbe7;
+    background: #fbfdfe;
+    border-radius: 11px;
+    padding: 12px;
+    font: inherit;
+    font-weight: 400;
+    color: #123958
+}
+
+.admin-access-reason small {
+    justify-self: end;
+    color: #8195a4;
+    font-weight: 400
+}
+
+.admin-access-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #e8eff3
+}
+
+.admin-access-modal-footer .admin-btn.danger {
+    background: #b72f40;
+    color: #fff;
+    border-color: #b72f40
+}
+
+.admin-access-modal-footer .admin-btn.success {
+    background: #168258;
+    color: #fff;
+    border-color: #168258
+}
+
+@media (max-width: 1050px) {
+    .admin-account-profile-grid {
+        grid-template-columns:1fr
+    }
+}
+
+@media (max-width: 520px) {
+    .admin-access-form {
+        padding: 18px
+    }
+
+    .admin-manage-head .admin-btn {
+        width: 100%
+    }
+
+    .admin-access-modal-footer .admin-btn {
+        flex: 1
+    }
+}
+
+/* Account-only access change history: avoids changes to shared admin.css. */
+.account-access-history {
+    margin-top: 20px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.account-access-history-head {
+    margin: 0;
+    padding: 19px 22px;
+    background: linear-gradient(110deg, #123858, #096383);
+    border: 0;
+}
+
+.account-access-history-head h2 {
+    color: #fff;
+}
+
+.account-access-history-head h2 i {
+    color: #83e5e1;
+    margin-right: 7px;
+}
+
+.account-access-history-head p {
+    color: #d6eaf0;
+}
+
+.account-access-history-scroll {
+    overflow-x: auto;
+}
+
+.account-access-history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.account-access-history-table th, .account-access-history-table td {
+    padding: 13px 19px;
+    text-align: left;
+    font-size: 12px;
+    border-bottom: 1px solid #e4eef3;
+}
+
+.account-access-history-table th {
+    background: #f0f7fb;
+    color: #355e75;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    font-size: 10px;
+}
+
+.account-access-history-table td {
+    color: #294c63;
+}
+
+.account-access-history-table td strong {
+    color: #123858;
+}
+
+.account-access-history-table tbody tr:nth-child(even) {
+    background: #f7fbfd;
+}
+
+.account-access-history-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.account-access-history-status {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    border-radius: 99px;
+    padding: 5px 10px;
+}
+
+.account-access-history-status.is-restriction {
+    color: #a43c48;
+    background: #fff0f1;
+}
+
+.account-access-history-status.is-restoration {
+    color: #18724f;
+    background: #e5f7ee;
+}
+
+.account-access-history-empty {
+    margin: 0;
+    padding: 23px;
+    color: #718898;
+    font-size: 13px;
+}
+
+@media (max-width: 620px) {
+    .account-access-history-head {
+        padding: 17px;
+    }
+
+    .account-access-history-table thead {
+        display: none;
+    }
+
+    .account-access-history-table tbody {
+        display: grid;
+        gap: 9px;
+        padding: 12px;
+    }
+
+    .account-access-history-table tr {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        border: 1px solid #dbe7ef;
+        border-radius: 12px;
+        padding: 13px;
+    }
+
+    .account-access-history-table td {
+        padding: 0;
+        border: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .account-access-history-table td::before {
+        content: attr(data-label);
+        display: block;
+        color: #8297a7;
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+}
+
+
+/* Account details colour alignment — scoped to this page only. */
+.admin-account-profile-grid > .admin-account-card {
+    padding: 0;
+    overflow: hidden;
+    border-color: #bcd5e4;
+    box-shadow: 0 10px 27px rgba(13, 56, 84, .085);
+}
+
+/* A single account card (for example an Admin-only account) fills the row. */
+.admin-account-profile-grid > .admin-account-card:only-child {
+    grid-column: 1 / -1;
+}
+
+.admin-account-card > .admin-panel-head.admin-manage-head {
+    margin: 0;
+    padding: 19px 21px;
+    border: 0;
+    background: linear-gradient(110deg, #123858, #096383);
+    color: #fff;
+}
+
+.admin-account-card > .admin-manage-head h2,
+.admin-account-card > .admin-manage-head h2 i {
+    color: #fff;
+}
+
+.admin-account-card > .admin-manage-head h2 i {
+    color: #83e5e1;
+}
+
+.admin-account-card > .admin-manage-head p {
+    color: #d6eaf0;
+}
+
+.admin-account-card > .admin-manage-head .admin-btn {
+    background: rgba(255, 255, 255, .13);
+    color: #fff;
+    border-color: rgba(255, 255, 255, .45);
+}
+
+.admin-account-card > .admin-manage-head .admin-btn:hover {
+    background: rgba(255, 255, 255, .23);
+}
+
+.admin-account-card > .admin-account-scope-note {
+    margin: 18px 21px 8px;
+    background: #eaf7fa;
+    border-left-color: #098c91;
+    color: #376981;
+}
+
+.admin-account-card > .admin-card-status {
+    margin: 12px 21px 4px;
+}
+
+.admin-account-card > .admin-details {
+    margin: 0 21px 20px;
+}
+
+.admin-account-card > .admin-details > div:nth-child(even) {
+    background: #f5fafc;
+}
+
+.admin-account-card > .admin-details > div {
+    padding: 12px 10px;
+}
+
+.admin-account-card > .admin-details dt {
+    color: #54768a;
+}
+
+.admin-account-card > .admin-details dd {
+    color: #123858;
+}
+
+.admin-account-card > .admin-registration-link {
+    margin: 0 21px 20px;
+}
+
+.admin-account-card > .admin-help {
+    margin: 0 21px 20px;
+}
+
+@media (max-width: 620px) {
+    .admin-account-card > .admin-panel-head.admin-manage-head {
+        padding: 16px;
+    }
+
+    .admin-account-card > .admin-account-scope-note {
+        margin: 15px 16px 8px;
+    }
+
+    .admin-account-card > .admin-card-status {
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+
+    .admin-account-card > .admin-details {
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+
+    .admin-account-card > .admin-registration-link,
+    .admin-account-card > .admin-help {
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+}
+
+/* Collapsible account/profile cards: exclusively AccountDetails page. */
+.admin-account-profile-grid {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.admin-account-profile-grid > .admin-account-card {
+    width: 100%;
+    min-width: 0;
+}
+
+.admin-account-card > .admin-account-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.admin-account-summary::-webkit-details-marker {
+    display: none;
+}
+
+.admin-account-card > .admin-account-summary h2 {
+    color: #fff;
+}
+
+.admin-account-card > .admin-account-summary h2 i {
+    color: #83e5e1;
+}
+
+.admin-account-card > .admin-account-summary p {
+    color: #d6eaf0;
+}
+
+.admin-account-summary-right {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 23px;
+}
+
+.admin-account-summary-right .admin-pill {
+    white-space: nowrap;
+}
+
+.admin-account-chevron {
+    color: #fff;
+    font-size: 16px;
+    transition: transform .18s ease;
+}
+
+.admin-account-card[open] .admin-account-chevron {
+    transform: rotate(180deg);
+}
+
+.admin-account-summary:focus-visible {
+    outline: 3px solid #83e5e1;
+    outline-offset: -4px;
+}
+
+.admin-account-card > .admin-account-expanded {
+    padding-top: 1px;
+}
+
+.admin-account-card .admin-account-expanded > .admin-account-scope-note {
+    margin: 18px 21px 8px;
+    background: #eaf7fa;
+    border-left-color: #098c91;
+    color: #376981;
+}
+
+.admin-account-card .admin-account-expanded > .admin-details {
+    margin: 0 21px 16px;
+}
+
+.admin-account-card .admin-account-expanded > .admin-details > div:nth-child(even) {
+    background: #f5fafc;
+}
+
+.admin-account-card .admin-account-expanded > .admin-details > div {
+    padding: 12px 10px;
+}
+
+.admin-account-card .admin-account-expanded > .admin-details dt {
+    color: #54768a;
+}
+
+.admin-account-card .admin-account-expanded > .admin-details dd {
+    color: #123858;
+}
+
+.admin-account-card .admin-account-expanded > .admin-registration-link {
+    margin: 0 21px 12px;
+}
+
+.admin-account-card .admin-account-expanded > .admin-help {
+    margin: 0 21px 12px;
+}
+
+.admin-account-manage-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 15px 21px 20px;
+    border-top: 1px solid #e7eff3;
+    margin-top: 6px;
+}
+
+.admin-account-manage-footer:empty {
+    display: none;
+}
+
+.admin-account-manage-footer .admin-btn {
+    flex-shrink: 0;
+}
+
+@media (max-width: 620px) {
+    .admin-account-summary-right {
+        gap: 12px;
+    }
+
+    .admin-account-card .admin-account-expanded > .admin-account-scope-note {
+        margin: 15px 16px 8px;
+    }
+
+    .admin-account-card .admin-account-expanded > .admin-details {
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+
+    .admin-account-card .admin-account-expanded > .admin-registration-link,
+    .admin-account-card .admin-account-expanded > .admin-help {
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+
+    .admin-account-manage-footer {
+        padding: 14px 16px 18px;
+    }
+}
+
+
+/* Align the registration link and Manage access button in the provider card. */
+.admin-account-manage-footer {
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.admin-account-manage-footer .admin-registration-link {
+    margin: 0;
+}
+
+.admin-account-manage-footer .admin-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
+    white-space: normal;
+}
+
+/* Give Access History the same collapse/expand behavior as the profile cards. */
+.account-access-history > .account-access-history-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.account-access-history > .account-access-history-head::-webkit-details-marker {
+    display: none;
+}
+
+.account-access-history[open] .admin-account-chevron {
+    transform: rotate(180deg);
+}
+
+.account-access-history-head:focus-visible {
+    outline: 3px solid #83e5e1;
+    outline-offset: -4px;
+}
+
+@media (max-width: 620px) {
+    .admin-account-manage-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-account-manage-footer .admin-btn {
+        width: 100%;
+    }
+}

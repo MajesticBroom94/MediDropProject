@@ -1,0 +1,280 @@
+/* Overview content only. Patient header and tabs use patient-workspace-header.css. */
+.ov-section-heading {
+    margin: 24px 0 16px;
+}
+
+.ov-section-heading h2 {
+    font-size: 21px;
+    color: #0b3157;
+    margin: 0 0 5px;
+}
+
+.ov-section-heading p {
+    font-size: 13px;
+    color: #748ca2;
+    margin: 0;
+}
+
+.ov-stats {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.ov-stat {
+    min-width: 0;
+    background: #fff;
+    border: 1px solid #dce9f4;
+    border-top: 4px solid #1188cc;
+    border-radius: 16px;
+    padding: 17px;
+    box-shadow: 0 7px 20px #0a41600b;
+}
+
+.ov-stat > span {
+    color: #52738e;
+    font-weight: 800;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.ov-stat > span i {
+    color: #1689ca;
+}
+
+.ov-stat strong {
+    display: block;
+    color: #103b62;
+    font-size: 34px;
+    margin: 13px 0 6px;
+}
+
+.ov-stat small {
+    color: #718aa2;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.ov-stat-highlight {
+    background: #086caf;
+    border-color: #086caf;
+}
+
+.ov-stat-highlight > span, .ov-stat-highlight > span i, .ov-stat-highlight strong, .ov-stat-highlight small {
+    color: #fff;
+}
+
+.ov-content-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+}
+
+.ov-right-stack {
+    display: grid;
+    gap: 18px;
+}
+
+.ov-panel {
+    min-width: 0;
+    background: #fff;
+    border: 1px solid #deebf5;
+    border-radius: 17px;
+    padding: 24px;
+    box-shadow: 0 7px 22px #174b6810;
+}
+
+.ov-panel-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.ov-panel-title h2 {
+    color: #10375e;
+    font-size: 17px;
+    margin: 0 0 5px;
+}
+
+.ov-panel-title p {
+    color: #8196aa;
+    font-size: 12px;
+    margin: 0;
+}
+
+.ov-panel-title > i {
+    font-size: 19px;
+    color: #1585c8;
+}
+
+.ov-slot-list {
+    display: grid;
+}
+
+.ov-slot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 0;
+    border-top: 1px solid #ebf1f7;
+}
+
+.ov-slot:first-child {
+    border-top: 0;
+    padding-top: 0;
+}
+
+.ov-slot strong {
+    font-size: 13px;
+    color: #173e60;
+    display: block;
+}
+
+.ov-slot small {
+    color: #7990a7;
+    font-size: 12px;
+    display: block;
+    margin-top: 6px;
+    line-height: 1.4;
+}
+
+.ov-pill {
+    display: inline-block;
+    flex-shrink: 0;
+    white-space: nowrap;
+    border-radius: 25px;
+    padding: 7px 11px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.ov-pill.good {
+    background: #e3f7ef;
+    color: #0e7553;
+}
+
+.ov-pill.bad {
+    background: #fff0ed;
+    color: #b64338;
+}
+
+.ov-pill.neutral {
+    background: #eaf3fa;
+    color: #346b95;
+}
+
+.ov-summary-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    border-top: 1px solid #e9f0f6;
+    padding: 15px 0;
+    font-size: 13px;
+}
+
+.ov-summary-line > span {
+    color: #658099;
+}
+
+.ov-summary-line strong {
+    color: #173e60;
+}
+
+.ov-summary-line small {
+    display: block;
+    font-size: 11px;
+    color: #879aaf;
+    margin-top: 4px;
+}
+
+.ov-empty {
+    text-align: center;
+    padding: 48px 14px;
+    color: #7891a8;
+}
+
+.ov-empty i {
+    font-size: 26px;
+    color: #1585c8;
+    display: block;
+    margin-bottom: 14px;
+}
+
+.ov-empty strong {
+    display: block;
+    color: #2b5072;
+}
+
+.ov-empty p {
+    font-size: 12px;
+    line-height: 1.7;
+    max-width: 330px;
+    margin: 9px auto;
+}
+
+.ov-empty.compact {
+    padding: 20px 8px;
+}
+
+.ov-data-note {
+    font-size: 12px;
+    color: #738ba0;
+    line-height: 1.6;
+    margin-top: 22px;
+}
+
+.ov-data-note i {
+    margin-right: 6px;
+    color: #1486c8;
+}
+
+@media (max-width: 1000px) {
+    .ov-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ov-content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 650px) {
+    .ov-section-heading {
+        margin-top: 20px;
+    }
+
+    .ov-stats {
+        gap: 10px;
+    }
+
+    .ov-stat {
+        padding: 16px;
+    }
+
+    .ov-stat strong {
+        font-size: 27px;
+    }
+
+    .ov-panel {
+        padding: 18px;
+    }
+
+    .ov-slot {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 380px) {
+    .ov-stats {
+        grid-template-columns: 1fr;
+    }
+}

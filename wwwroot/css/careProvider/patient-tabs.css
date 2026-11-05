@@ -1,0 +1,372 @@
+/* Shared patient-tab refinements; patient-overview.css provides the hero and base panels */
+.tabs-range {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap
+}
+
+.tabs-range a {
+    padding: 9px 13px;
+    border: 1px solid #cfdfeb;
+    background: #fff;
+    border-radius: 10px;
+    color: #285376;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 13px
+}
+
+.tabs-range a.selected {
+    background: #0876c9;
+    color: white;
+    border-color: #0876c9
+}
+
+.tab-panel {
+    margin: 20px 0;
+    padding: 25px
+}
+
+.tab-table-wrap {
+    overflow-x: auto
+}
+
+.tab-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 610px
+}
+
+.tab-table th {
+    background: #edf6fc;
+    color: #16456c;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: .04em
+}
+
+.tab-table th, .tab-table td {
+    text-align: left;
+    padding: 14px 12px;
+    border-bottom: 1px solid #e4edf5;
+    font-size: 13px
+}
+
+.tab-table td {
+    color: #315775
+}
+
+.tab-status {
+    display: inline-block;
+    border-radius: 99px;
+    padding: 5px 11px;
+    background: #e8f3fc;
+    color: #106aaf;
+    font-weight: 750;
+    font-size: 11px
+}
+
+.tab-link {
+    color: #0876c9;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap
+}
+
+.tab-muted {
+    color: #7891a8
+}
+
+.tab-med-grid {
+    display: grid;
+    grid-template-columns:repeat(auto-fill, minmax(min(100%, 350px), 1fr));
+    gap: 18px
+}
+
+.tab-med {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0
+}
+
+.tab-med h3 {
+    margin: 0 0 5px;
+    color: #0b3157
+}
+
+.tab-med p {
+    color: #69859b;
+    font-size: 13px;
+    margin: 0 0 12px
+}
+
+.tab-med-media {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    background: #e8f4fd;
+    color: #0876c9
+}
+
+.tab-med-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 13px
+}
+
+.tab-med-quantity {
+    margin-left: auto;
+    text-align: right
+}
+
+.tab-med-quantity strong {
+    display: block;
+    font-size: 23px;
+    color: #0b3157
+}
+
+.tab-med-quantity small {
+    color: #70889b
+}
+
+.tab-success {
+    background: #e7f8f2;
+    border: 1px solid #b8e5d3;
+    border-radius: 10px;
+    padding: 13px 17px;
+    color: #157453;
+    font-weight: 700;
+    margin: 16px 0
+}
+
+.tab-details {
+    display: grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap: 10px 25px
+}
+
+.tab-details p {
+    display: grid;
+    gap: 5px;
+    border-bottom: 1px solid #e9eff5;
+    padding-bottom: 12px
+}
+
+.tab-details strong {
+    font-size: 12px;
+    color: #6a859d
+}
+
+.tab-details span {
+    color: #0b3157;
+    overflow-wrap: anywhere
+}
+
+.tab-form-grid {
+    display: grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap: 16px
+}
+
+.tab-form-grid .full {
+    grid-column: 1/-1
+}
+
+.tab-form-grid .field {
+    display: grid;
+    gap: 7px
+}
+
+.tab-form-grid input, .tab-form-grid textarea, .tab-form-grid select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #cbdde9;
+    font: inherit;
+    color: #153754;
+    background: #fff
+}
+
+.tab-form-grid label {
+    font-size: 12px;
+    color: #174b73;
+    font-weight: 800
+}
+
+.tab-item-list {
+    display: grid;
+    gap: 16px
+}
+
+.tab-item {
+    background: #f7fbff;
+    border: 1px solid #dce9f3;
+    padding: 20px;
+    border-radius: 15px
+}
+
+.tab-remove-item {
+    margin-top: 12px;
+    background: #f0c5c5;
+}
+
+.tab-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+    border-top: 1px solid #e5edf4;
+    padding-top: 20px
+}
+
+.text-danger {
+    color: #b53342;
+    font-size: 12px
+}
+
+@media (max-width: 700px) {
+    .tab-panel {
+        padding: 16px
+    }
+
+    .tab-details, .tab-form-grid {
+        grid-template-columns:1fr
+    }
+
+    .tab-form-grid .full {
+        grid-column: auto
+    }
+
+    .tab-med {
+        flex-wrap: wrap
+    }
+
+    .tab-form-actions .btn {
+        flex: 1
+    }
+}
+
+.tab-form-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+#add-prescription-item {
+    margin-right: auto;
+    background: #9fc7e5;
+}
+
+@media (max-width: 650px) {
+    #add-prescription-item {
+        width: 100%;
+        margin-right: 0;
+    }
+}
+
+/* Keep prescription fields aligned consistently */
+.tab-item .tab-form-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    align-items: start;
+}
+
+.tab-item .field {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    align-self: start;
+}
+
+.tab-item .field label {
+    display: block;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.tab-item .field input,
+.tab-item .field select,
+.tab-item .field textarea {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 56px;
+    margin: 0;
+}
+
+.tab-item .field textarea {
+    min-height: 86px;
+}
+
+/* Validation messages stay below their own input */
+.tab-item .field .text-danger,
+.tab-item .field .field-validation-error {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+/* Full-width fields */
+.tab-item .field.full {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 850px) {
+    .tab-item .tab-form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .tab-item .tab-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Document exports */
+.report-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.report-pdf-link {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 9px 15px;
+    border-radius: 10px;
+    background: #0b709c;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 750;
+    text-decoration: none;
+    margin-left: auto;
+}
+
+.report-pdf-link:hover {
+    background: #075679;
+    color: #fff;
+}
+
+@media (max-width: 650px) {
+    .report-actions {
+        width: 100%;
+    }
+
+    .report-actions .report-pdf-link {
+        width: 100%;
+    }
+}

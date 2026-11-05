@@ -1,0 +1,90 @@
+@using MediDropProject.Domain.Enums
+@model MediDropProject.Models.Admin.AdminMedicationListViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Medication catalogue";
+}
+<div class="admin-heading admin-medication-heading">
+    <div>
+        <span class="admin-eyebrow">CATALOGUE MANAGEMENT</span>
+        <h1>Medications</h1>
+        <p>Correct submitted records and set their catalogue status.</p>
+    </div>
+</div>
+<section class="admin-panel admin-search-panel admin-medication-page">
+    <form class="admin-filters admin-medication-filters" asp-action="Medications" method="get">
+        <label>
+            <span>Search</span>
+            <input type="search" name="search" value="@Model.Search" maxlength="100"
+                   placeholder="Name, strength, barcode, manufacturer"/>
+        </label>
+        <label>
+            <span>Status</span>
+            <select asp-for="MedicationStatus" asp-items="Html.GetEnumSelectList<MedicationStatus>()">
+                <option value="">All</option>
+            </select>
+        </label>
+        <button class="admin-btn primary" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+        <a class="admin-btn" asp-action="Medications">Reset</a>
+    </form>
+</section>
+<section class="admin-panel admin-results-panel admin-medication-page">
+    <div class="admin-panel-head admin-medication-list-head">
+        <div class="admin-medication-list-title">
+            <i class="fa-solid fa-capsules" aria-hidden="true"></i>
+            <div><h2>Catalogue records</h2><p>Review submitted medication entries</p></div>
+        </div>
+        <span class="admin-medication-total">@Model.Pagination.Total matching</span>
+    </div>
+    @if (Model.Items.Count == 0)
+    {
+        <p class="admin-empty">No matching medications.</p>
+    }
+    else
+    {
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>Medication</th>
+                    <th>Submitted by</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var m in Model.Items)
+                {
+                    <tr>
+                        <td data-label="Medication">
+                            <strong>@m.Name @m.Strength</strong><small>@m.GenericName · @m.Form</small></td>
+                        <td data-label="Submitted by">@(string.IsNullOrWhiteSpace(m.SubmittedBy) ? "System / seeded" : m.SubmittedBy)</td>
+                        <td data-label="Submitted">@m.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                        <td data-label="Status"><span
+                                class="admin-pill @m.Status.ToString().ToLowerInvariant()">@m.Status</span></td>
+                        <td><a class="admin-btn small" asp-action="MedicationDetails" asp-route-id="@m.Id">View <i class="fa-solid fa-arrow-right"></i></a></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+    @if (Model.Pagination.TotalPages > 1)
+    {
+        <nav class="admin-pagination" aria-label="Medication pages"><span>Page @Model.Pagination.Page of @Model.Pagination.TotalPages</span>
+            <div>
+                @if (Model.Pagination.HasPrevious)
+                {
+                    <a class="admin-btn" asp-action="Medications" asp-route-medicationStatus="@Model.MedicationStatus"
+                       asp-route-search="@Model.Search" asp-route-pageNumber="@(Model.Pagination.Page - 1)">Previous</a>
+                }
+                @if (Model.Pagination.HasNext)
+                {
+                    <a class="admin-btn" asp-action="Medications" asp-route-medicationStatus="@Model.MedicationStatus"
+                       asp-route-search="@Model.Search" asp-route-pageNumber="@(Model.Pagination.Page + 1)">Next</a>
+                }
+            </div>
+        </nav>
+    }
+</section>

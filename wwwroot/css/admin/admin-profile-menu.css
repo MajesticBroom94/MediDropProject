@@ -1,0 +1,48 @@
+/* Admin sidebar account menu — isolated from shared admin.css */
+.admin-profile-menu {
+    min-width: 0;
+}
+
+.admin-profile-menu > summary.admin-account {
+    width: 100%;
+    padding: 5px 0;
+    border-radius: 11px;
+}
+
+.admin-profile-menu > summary.admin-account:hover {
+    background: #f0f7fa;
+}
+
+.admin-profile-menu .admin-profile-identity {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-profile-menu .admin-profile-identity strong,
+.admin-profile-menu .admin-profile-identity small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-profile-menu .profile-switch-toggle-icon {
+    margin-left: auto;
+    color: #53798e;
+}
+
+.admin-profile-menu .profile-switch-menu[open] .profile-switch-x {
+    display: inline;
+}
+
+.admin-profile-menu .profile-switch-popup {
+    margin-top: 9px;
+}
+
+.admin-profile-menu .profile-switch-action {
+    text-decoration: none;
+}
+
+.admin-profile-menu .profile-switch-action:hover {
+    color: #0c6574;
+}

@@ -1,0 +1,114 @@
+@model MediDropProject.Models.CareProvider.SubmitMedicationViewModel
+@{
+    Layout = "_CareProviderLayout";
+    ViewData["Title"] = "Submit medication";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/careProvider/submit-medication.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/careProvider/submit-medication-upload.css" asp-append-version="true" />
+}
+
+<div class="submit-medication-page">
+    <a class="submit-back" asp-controller="CareProvider" asp-action="Medications">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to catalogue
+    </a>
+
+    <div class="page-heading">
+        <div>
+            <span class="eyebrow">Medication</span>
+            <h1>Submit medication</h1>
+        </div>
+    </div>
+    <p class="page-subtitle">Suggest a missing medication for review. It will not be available in the catalogue until approved by Admin.</p>
+
+    <section class="form-panel submit-panel">
+        <div class="submit-panel-heading">
+            <span class="submit-panel-icon"><i class="fa-solid fa-capsules" aria-hidden="true"></i></span>
+            <div><h2>Medication details</h2><p class="quiet">Check the catalogue before submitting to avoid duplicates.</p></div>
+        </div>
+
+        <form asp-controller="CareProvider" asp-action="SubmitMedication" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="submit-validation" role="alert"></div>
+
+            <div class="form-grid">
+                <div class="field">
+                    <label asp-for="Name">Medication name <span class="required">*</span></label>
+                    <input asp-for="Name" placeholder="Medication name" autocomplete="off" />
+                    <span asp-validation-for="Name" class="field-error"></span>
+                </div>
+                <div class="field">
+                    <label asp-for="GenericName">Generic name</label>
+                    <input asp-for="GenericName" placeholder="Generic / chemical name" />
+                    <span asp-validation-for="GenericName" class="field-error"></span>
+                </div>
+                <div class="field">
+                    <label asp-for="Strength">Strength</label>
+                    <input asp-for="Strength" placeholder="e.g. 500 mg" />
+                    <span asp-validation-for="Strength" class="field-error"></span>
+                </div>
+                <div class="field">
+                    <label asp-for="Form">Medication form</label>
+
+                    <select asp-for="Form">
+                        <option value="Tablet">Tablet</option>
+                        <option value="Capsule">Capsule</option>
+                        <option value="Gastro-resistant capsule">Suppository</option>
+                        <option value="Syrup">Syrup</option>
+                        <option value="Drops">Drops</option>
+                        <option value="Cream">Cream</option>
+                        <option value="Ointment">Ointment</option>
+                        <option value="Injection">Injection</option>
+                        <option value="Inhaler">Inhaler</option>
+                        <option value="Other">Other</option>
+                    </select>
+
+                    <span asp-validation-for="Form" class="field-error"></span>
+                </div>
+                <div class="field">
+                    <label asp-for="Barcode">Barcode</label>
+                    <input asp-for="Barcode" placeholder="Optional" />
+                    <span asp-validation-for="Barcode" class="field-error"></span>
+                </div>
+                <div class="field">
+                    <label asp-for="ManufacturerId">Manufacturer</label>
+                    <select asp-for="ManufacturerId" asp-items="Model.Manufacturers">
+                        <option value="">Select manufacturer (optional)</option>
+                    </select>
+                    <span asp-validation-for="ManufacturerId" class="field-error"></span>
+                </div>
+                <div class="field full">
+                    <label asp-for="Description">Description</label>
+                    <textarea asp-for="Description" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="field-error"></span>
+                </div>
+                <div class="field full">
+                    <label asp-for="ActiveIngredients">Active ingredients</label>
+                    <textarea asp-for="ActiveIngredients" rows="2"></textarea>
+                    <span asp-validation-for="ActiveIngredients" class="field-error"></span>
+                </div>
+                <div class="field full">
+                    <label asp-for="SafetyInformation">Safety information</label>
+                    <textarea asp-for="SafetyInformation" rows="3"></textarea>
+                    <span asp-validation-for="SafetyInformation" class="field-error"></span>
+                </div>
+                <div class="field full">
+                    <label asp-for="Image">Medication image (optional)</label>
+                    <input asp-for="Image" type="file" accept="image/jpeg,image/png,image/webp" />
+                    <span asp-validation-for="Image" class="field-error"></span>
+                    <small class="submit-image-note">JPG, PNG or WebP. Maximum 2 MB. An image is optional.</small>
+                </div>
+            </div>
+
+            <div class="form-actions submit-actions">
+                <span class="quiet"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>  Submitted medications must be reviewed and approved before becoming active.</span>
+                <button class="btn btn-primary" type="submit">
+                    <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Submit for approval
+                </button>
+            </div>
+        </form>
+    </section>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,131 @@
+.submit-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 0 20px;
+    color: #0876c9;
+    font-size: 13px;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.submit-back:hover {
+    color: #0b3157;
+    text-decoration: underline;
+}
+
+.submit-medication-page .page-heading {
+    margin-bottom: 7px;
+}
+
+.submit-medication-page .page-subtitle {
+    margin: 0 0 24px;
+}
+
+.submit-panel {
+    border-top: 4px solid #0876c9;
+    background: #fff;
+}
+
+.submit-panel-heading {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding-bottom: 18px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #dbe8f2;
+}
+
+.submit-panel-heading h2 {
+    margin: 0 0 5px;
+    color: #0b3157;
+    font-size: 19px;
+}
+
+.submit-panel-heading p {
+    margin: 0;
+}
+
+.submit-panel-icon {
+    flex: 0 0 45px;
+    width: 45px;
+    height: 45px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    background: linear-gradient(135deg, #0b3157, #0876c9);
+    color: #fff;
+}
+
+.submit-medication-page .field label {
+    font-weight: 750;
+    color: #173f61;
+}
+
+.submit-medication-page .field input:focus,
+.submit-medication-page .field textarea:focus,
+.submit-medication-page .field select:focus {
+    border-color: #0876c9;
+    box-shadow: 0 0 0 3px rgba(8, 118, 201, .12);
+}
+
+.submit-medication-page .required {
+    color: #c13e54;
+}
+
+.submit-medication-page .field-error {
+    display: block;
+    color: #b43146;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.submit-medication-page .field-error:empty {
+    display: none;
+}
+
+.submit-validation:empty, .submit-validation.validation-summary-valid {
+    display: none;
+}
+
+.submit-validation {
+    border-radius: 10px;
+    background: #fff1f2;
+    color: #9e2c43;
+    padding: 10px 14px;
+    margin-bottom: 18px;
+}
+
+.submit-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #dbe8f2;
+}
+
+.submit-actions .quiet {
+    font-size: 12px;
+}
+
+.submit-actions .quiet i {
+    color: #0876c9;
+    margin-right: 5px;
+}
+
+@media (max-width: 650px) {
+    .submit-panel-heading {
+        align-items: flex-start;
+    }
+
+    .submit-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .submit-actions .btn {
+        width: 100%;
+    }
+}

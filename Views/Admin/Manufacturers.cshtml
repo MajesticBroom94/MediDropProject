@@ -1,0 +1,188 @@
+@model MediDropProject.Models.Admin.AdminManufacturerListViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Manufacturers";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin/manufacturers.css" asp-append-version="true"/>
+}
+
+<div class="admin-heading mf-page-heading">
+    <div>
+        <span class="admin-eyebrow">CATALOGUE MANAGEMENT</span>
+        <h1>Medication manufacturers</h1>
+        <p>Manage the manufacturers available in medication submission and editing dropdowns.</p>
+    </div>
+    <button class="admin-btn primary mf-create-trigger" type="button" id="mfOpenCreate">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i> Add manufacturer
+    </button>
+</div>
+
+<section class="mf-tools" aria-label="Search manufacturers">
+    <form class="mf-search" asp-action="Manufacturers" method="get">
+        <label for="mfSearch">Search manufacturers</label>
+        <div class="mf-search-controls">
+            <input id="mfSearch" type="search" name="search" value="@Model.Search" maxlength="100"
+                   placeholder="Search by manufacturer name"/>
+            <button class="admin-btn primary" type="submit"><i class="fa-solid fa-magnifying-glass"
+                                                               aria-hidden="true"></i> Search
+            </button>
+            <a class="admin-btn" asp-action="Manufacturers">Reset</a>
+        </div>
+    </form>
+</section>
+
+<section class="mf-results" aria-label="Manufacturers">
+    <div class="mf-results-head">
+        <div class="mf-head-title">
+            <i class="fa-solid fa-industry" aria-hidden="true"></i>
+            <div><h2>Manufacturers</h2>
+                <p>Used in the medication catalogue</p></div>
+        </div>
+        <span class="mf-count">@Model.Pagination.Total matching</span>
+    </div>
+    @if (!Model.Items.Any())
+    {
+        <div class="admin-empty">No manufacturers found.</div>
+    }
+    else
+    {
+        <div class="admin-table-wrap">
+            <table class="admin-table mf-table">
+                <thead>
+                <tr>
+                    <th>Manufacturer</th>
+                    <th>Medications</th>
+                    <th>Created</th>
+                    <th>Manage</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td data-label="Manufacturer"><strong>@item.Name</strong><small>Manufacturer #@item.Id</small>
+                        </td>
+                        <td data-label="Medications">@item.MedicationCount</td>
+                        <td data-label="Created">@item.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                        <td data-label="Manage" class="mf-actions">
+                            <button type="button" class="admin-btn small mf-edit" data-id="@item.Id"
+                                    data-name="@item.Name">
+                                <i class="fa-solid fa-pen"></i> Rename
+                            </button>
+
+                            <form asp-action="DeleteManufacturer" method="post" class="mf-delete"
+                                  onsubmit="return confirm('Delete this unused manufacturer?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.Id"/>
+                                <button type="submit"
+                                        class="btn danger small"
+                                        disabled="@(item.MedicationCount > 0)"
+                                        title="@(item.MedicationCount > 0
+                                                   ? "Cannot delete a manufacturer linked to medications."
+                                                   : "Delete manufacturer")">
+                                    <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+    @if (Model.Pagination.TotalPages > 1)
+    {
+        <nav class="admin-pagination" aria-label="Manufacturer pages">
+            <span>Page @Model.Pagination.Page of @Model.Pagination.TotalPages</span>
+            <div>
+                @if (Model.Pagination.HasPrevious)
+                {
+                    <a class="admin-btn" asp-action="Manufacturers" asp-route-search="@Model.Search"
+                       asp-route-pageNumber="@(Model.Pagination.Page - 1)">Previous</a>
+                }
+                @if (Model.Pagination.HasNext)
+                {
+                    <a class="admin-btn" asp-action="Manufacturers" asp-route-search="@Model.Search"
+                       asp-route-pageNumber="@(Model.Pagination.Page + 1)">Next</a>
+                }
+            </div>
+        </nav>
+    }
+</section>
+
+<dialog class="mf-dialog" id="mfCreateDialog" aria-labelledby="mfCreateTitle">
+    <form asp-action="AddManufacturer" method="post">
+        @Html.AntiForgeryToken()
+        <div class="mf-dialog-head">
+            <h2 id="mfCreateTitle">Add manufacturer</h2>
+            <button type="button" class="mf-close" data-close-dialog aria-label="Close"><i
+                    class="fa-solid fa-xmark"></i></button>
+        </div>
+        <p>Enter the manufacturer's name to make it available in the medication catalogue.</p>
+        <label for="mfCreateName">Manufacturer name</label>
+        <input id="mfCreateName" name="Name" maxlength="200" minlength="2" required autocomplete="off"
+               placeholder="Manufacturer name"/>
+        <div class="mf-dialog-actions add-edit-manufacturer">
+            <button class="admin-btn" type="button" data-close-dialog>Cancel</button>
+            <button class="admin-btn primary apply-btn" type="submit"><i class="fa-solid fa-plus" aria-hidden="true"></i>
+                Add manufacturer
+            </button>
+        </div>
+    </form>
+</dialog>
+
+<dialog class="mf-dialog" id="mfRenameDialog" aria-labelledby="mfDialogTitle">
+    <form asp-action="RenameManufacturer" method="post" id="mfRenameForm">
+        @Html.AntiForgeryToken()
+        <div class="mf-dialog-head"><h2 id="mfDialogTitle">Rename manufacturer</h2>
+            <button type="button" id="mfClose" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <p>The new name will also appear on medications already linked to this manufacturer.</p>
+        <input type="hidden" id="mfEditId" name="Id"/>
+        <label for="mfEditName">Manufacturer name</label>
+        <input type="text" id="mfEditName" name="Name" maxlength="200" minlength="2" required/>
+        <div class="mf-dialog-actions add-edit-manufacturer">
+            <button class="admin-btn" id="mfCancel" type="button">Cancel</button>
+            <button class="admin-btn primary apply-btn" type="submit">Save changes</button>
+        </div>
+    </form>
+</dialog>
+
+@section Scripts {
+    <script>
+        (() => {
+            const createDialog = document.getElementById('mfCreateDialog');
+            const renameDialog = document.getElementById('mfRenameDialog');
+            document.getElementById('mfOpenCreate').addEventListener('click', () => {
+                createDialog.querySelector('form').reset();
+                createDialog.showModal();
+                document.getElementById('mfCreateName').focus();
+            });
+
+            document.querySelectorAll('.mf-edit').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.getElementById('mfEditId').value = button.dataset.id;
+                    document.getElementById('mfEditName').value = button.dataset.name;
+                    renameDialog.showModal();
+                    document.getElementById('mfEditName').focus();
+                });
+            });
+
+            document.querySelectorAll('[data-close-dialog]').forEach(button => {
+                button.addEventListener('click', () => button.closest('dialog').close());
+            });
+            document.getElementById('mfClose').addEventListener('click', () => renameDialog.close());
+            document.getElementById('mfCancel').addEventListener('click', () => renameDialog.close());
+            for (const dialog of [createDialog, renameDialog]) {
+                dialog.addEventListener('click', event => {
+                    if (event.target === dialog) dialog.close();
+                });
+            }
+            
+
+        })();
+    </script>
+}

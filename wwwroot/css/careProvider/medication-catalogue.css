@@ -1,0 +1,331 @@
+.catalogue-layout {
+    display: grid;
+    grid-template-columns:minmax(0, 1.4fr) minmax(310px, 1fr);
+    gap: 20px;
+    align-items: start
+}
+
+.catalogue-panel, .submissions-panel {
+    border-top: 4px solid #0876c9;
+    overflow: hidden
+}
+
+.submissions-panel {
+    border-top-color: #16a6bc
+}
+
+.catalogue-panel-heading {
+    align-items: flex-start;
+    border-bottom: 1px solid #dce8f2;
+    padding-bottom: 17px
+}
+
+.catalogue-panel-heading h2 {
+    color: #0b3157;
+    margin: 0 0 5px
+}
+
+.catalogue-panel-heading p {
+    color: #6e859a;
+    font-size: 12px;
+    margin: 0
+}
+
+.catalogue-count {
+    border-radius: 20px;
+    background: #e6f3ff;
+    color: #086ab3;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 7px 11px;
+    white-space: nowrap
+}
+
+.catalogue-search-form {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    margin: 20px 0 12px;
+    flex-wrap: wrap
+}
+
+.catalogue-search-form .search-wrap {
+    flex: 1 1 220px;
+    max-width: none;
+    min-width: 0
+}
+
+.catalogue-search-form input {
+    min-width: 0
+}
+
+.catalogue-search-form .btn {
+    min-height: 44px
+}
+
+.catalogue-result-count, .catalogue-limit {
+    font-size: 12px;
+    color: #6b8399;
+    margin: 12px 0
+}
+
+.catalogue-medication-list, .submission-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 16px
+}
+
+.catalogue-medication {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    border: 1px solid #d6e5f1;
+    background: linear-gradient(110deg, #fff, #f7fbff);
+    border-radius: 14px;
+    padding: 15px;
+    min-width: 0
+}
+
+.catalogue-medication-image {
+    flex: 0 0 58px;
+    width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    color: #0876c9;
+    background: #e5f2fc;
+    font-size: 23px;
+    overflow: hidden
+}
+
+.catalogue-medication-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover
+}
+
+.catalogue-medication-info {
+    flex: 1;
+    min-width: 0
+}
+
+.catalogue-medication-info h3, .submission-info h3 {
+    font-size: 14px;
+    font-weight: 800;
+    color: #0b3157;
+    margin: 0 0 5px;
+    overflow-wrap: anywhere
+}
+
+.catalogue-medication-info p, .submission-info p {
+    font-size: 12px;
+    color: #657f94;
+    margin: 0 0 7px;
+    overflow-wrap: anywhere
+}
+
+.catalogue-tags {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap
+}
+
+.catalogue-tags span {
+    padding: 4px 7px;
+    border-radius: 7px;
+    background: #eaf3fa;
+    color: #386887;
+    font-size: 10px;
+    font-weight: 700
+}
+
+.catalogue-approved {
+    color: #168257;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap
+}
+
+.catalogue-approved i {
+    margin-right: 3px
+}
+
+.submission-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 16px;
+    border-radius: 13px;
+    background: #f8fbfe;
+    border: 1px solid #dce8f2
+}
+
+.submission-info {
+    min-width: 0
+}
+
+.submission-info small {
+    color: #7a8fa2;
+    font-size: 11px
+}
+
+.submission-status {
+    border-radius: 20px;
+    padding: 6px 9px;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap
+}
+
+.submission-status.pending {
+    background: #fff2d8;
+    color: #976007
+}
+
+.submission-status.approved {
+    background: #e4f6ed;
+    color: #17764d
+}
+
+.submission-status.rejected {
+    background: #ffebed;
+    color: #ac3945
+}
+
+.submissions-panel .empty-state .btn {
+    margin-top: 18px
+}
+
+@media (max-width: 1100px) {
+    .catalogue-layout {
+        grid-template-columns:1fr
+    }
+}
+
+@media (max-width: 650px) {
+    .catalogue-medication {
+        align-items: flex-start;
+        flex-wrap: wrap
+    }
+
+    .catalogue-approved {
+        margin-left: 72px
+    }
+
+    .catalogue-search-form .btn {
+        flex: 1
+    }
+
+    .catalogue-search-form .search-wrap {
+        flex-basis: 100%
+    }
+
+    .catalogue-panel, .submissions-panel {
+        padding: 18px
+    }
+}
+
+@media (max-width: 420px) {
+    .catalogue-medication-image {
+        flex-basis: 48px;
+        width: 48px;
+        height: 48px
+    }
+
+    .catalogue-approved {
+        margin-left: 62px
+    }
+
+    .submission-item {
+        flex-wrap: wrap
+    }
+}
+
+/* Server-side approved-catalogue pagination */
+.catalogue-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid #dce7f0
+}
+
+.pagination-info {
+    font-size: 12px;
+    color: #667f96;
+    font-weight: 650
+}
+
+.pagination-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap
+}
+
+.pagination-current {
+    font-size: 12px;
+    font-weight: 800;
+    color: #0b3157;
+    white-space: nowrap
+}
+
+.pagination-disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    pointer-events: none
+}
+
+@media (max-width: 650px) {
+    .catalogue-pagination {
+        align-items: stretch;
+        flex-direction: column
+    }
+
+    .pagination-actions {
+        justify-content: space-between;
+        gap: 6px
+    }
+
+    .pagination-actions .btn {
+        flex: 0 1 auto;
+        padding: 9px 11px;
+        font-size: 11px
+    }
+
+    .pagination-current {
+        font-size: 11px
+    }
+}
+
+.catalogue-statuses {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.catalogue-inactive {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #eef1f4;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+@media (max-width: 650px) {
+    .catalogue-statuses {
+        justify-content: flex-start;
+    }
+}

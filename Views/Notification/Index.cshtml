@@ -1,0 +1,124 @@
+﻿@model MediDropProject.Models.Notification.NotificationsViewModel
+
+@{
+    var notificationProfile = ViewData["CurrentProfile"]?.ToString() switch
+    {
+        "Admin" => "admin",
+        "CareProvider" => "provider",
+        _ => "patient"
+    };
+    Layout = ViewData["CurrentProfile"]?.ToString() switch
+    {
+        "CareProvider" => "_CareProviderLayout",
+        "Patient" => "_PatientLayout",
+        "Admin" => "_AdminLayout",
+        _ => "_PatientLayout"
+    };
+}
+
+
+<link rel="stylesheet" href="~/css/notification/notifications.css" asp-append-version="true" />
+
+
+<div class="notification-portal notification-theme-@notificationProfile">
+<div class="page-intro notification-heading">
+    <div>
+        <h1>Notifications</h1>
+
+        @switch (ViewData["CurrentProfile"]?.ToString())
+        {
+            case "Admin":
+                <p>Updates on care provider registrations and medication catalogue submissions requiring review.</p>
+                break;
+
+            case "CareProvider":
+                <p>Updates on patient relationships, prescription collections, registration status and medication submissions.</p>
+                break;
+
+            default:
+                <p>Medication reminders, prescription activity, care requests and dispenser alerts</p>
+                break;
+        }
+    </div>
+
+    @if (Model.UnreadCount > 0)
+    {
+        <form asp-action="MarkAllNotificationsRead" method="post">
+            <button class="btn" type="submit">Mark all as read</button>
+        </form>
+    }
+</div>
+
+<div class="notification-summary">
+    <strong>@Model.UnreadCount</strong>
+    <span>@(Model.UnreadCount == 1 ? "unread notification" : "unread notifications")</span>
+</div>
+
+@if (Model.Notifications.Count == 0)
+{
+    <div class="card notification-empty">
+        <div class="notification-empty-icon"><i class="fa-regular fa-bell"></i></div>
+        <h2>You're all caught up</h2>
+        <p>New medication, care-provider and dispenser updates will appear here.</p>
+    </div>
+}
+else
+{
+    <div class="notification-list">
+        @foreach (var notification in Model.Notifications)
+        {
+          
+
+            <article class="notification-card @(notification.IsRead ? "is-read" : "is-unread")">
+                <div class="notification-icon">
+                    <i class="@(notification.IsRead ? "fa-regular fa-envelope-open" : "fa-solid fa-bell")"></i>
+                </div>
+
+                <div class="notification-content">
+                    <div class="notification-title-row">
+                        <div>
+                            <h2>@notification.Title</h2>
+                            <div class="notification-meta">
+                                <span>@notification.Type</span>
+                                <span>•</span>
+                                <time datetime="@notification.CreatedAt.ToString("O")">@notification.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</time>
+                            </div>
+                        </div>
+
+                        @if (!notification.IsRead)
+                        {
+                            <span class="unread-badge">Unread</span>
+                        }
+                    </div>
+
+                    <p>@notification.Message</p>
+
+                    <div class="notification-actions">
+                        @if (!string.IsNullOrWhiteSpace(notification.ActionUrl) && Url.IsLocalUrl(notification.ActionUrl))
+                        {
+                            <a class="btn notification-view" asp-action="Open" asp-route-id="@notification.Id">View</a>
+                        }
+
+                        @if (!notification.IsRead)
+                        {
+                            <form asp-action="MarkNotificationRead" method="post">
+                                <input type="hidden" name="id" value="@notification.Id" />
+                                <button class="btn notification-read" type="submit">
+                                    <i class="fa-solid fa-check"></i> Mark as read
+                                </button>
+                            </form>
+                        }
+
+                        <form asp-action="RemoveNotification" method="post">
+                            <input type="hidden" name="id" value="@notification.Id" />
+                            <button class="btn notification-remove" type="submit">
+                                <i class="fa-regular fa-trash-can"></i> Remove
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+}
+</div>

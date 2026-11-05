@@ -1,0 +1,125 @@
+@model MediDropProject.Models.Patient.InventoryDetailsViewModel
+@{
+    Layout = "_PatientLayout";
+    ViewData["Title"] = Model.MedicationName;
+    ViewData["Eyebrow"] = "Medication";
+}
+
+<link rel="stylesheet" href="~/css/patient/inventory-details.css" asp-append-version="true" />
+
+<div class="page-intro inventory-details-intro">
+    <div>
+        <a class="back-link" asp-action="Inventory">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Inventory
+        </a>
+        <h1>@Model.MedicationName</h1>
+        <p>@(!string.IsNullOrWhiteSpace(Model.GenericName) ? Model.GenericName : "Medication details and inventory information")</p>
+    </div>
+    <div class="page-actions">
+        <a class="btn" asp-action="EditMedication" asp-route-id="@Model.Id">
+            <i class="fa-solid fa-pen" aria-hidden="true"></i> Edit inventory
+        </a>
+    </div>
+</div>
+
+@if (TempData["InventoryMessage"] is string message)
+{
+    <div class="notice success" role="status">@message</div>
+}
+
+<section class="card inventory-medication-summary" aria-label="Medication summary">
+    <div class="inventory-medication-thumbnail">
+        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" alt="@Model.MedicationName packaging" loading="lazy" />
+        }
+        else
+        {
+            <i class="fa-solid fa-capsules" aria-hidden="true"></i>
+        }
+    </div>
+    <div class="inventory-medication-identity">
+        <span class="inventory-medication-kicker">MEDICATION PROFILE</span>
+        <h2>@Model.MedicationName</h2>
+        @if (!string.IsNullOrWhiteSpace(Model.GenericName))
+        {
+            <p>@Model.GenericName</p>
+        }
+        <div class="inventory-medication-tags">
+            @if (!string.IsNullOrWhiteSpace(Model.Strength))
+            {
+                <span>@Model.Strength</span>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.Form))
+            {
+                <span>@Model.Form</span>
+            }
+            <span class="inventory-source-tag">@(Model.IsFromPrescription ? "Prescription inventory" : "Personal inventory")</span>
+        </div>
+    </div>
+    <div class="inventory-stock">
+        <span>Available</span>
+        <strong>@Model.Quantity</strong>
+        <span class="status-pill green">@Model.Status</span>
+    </div>
+</section>
+
+<div class="grid cols-2 medication-detail-grid">
+    <section class="card medication-detail-card">
+        <div class="card-head"><h2>Inventory information</h2></div>
+        <dl class="detail-list">
+            <div><dt>Quantity remaining</dt><dd>@Model.Quantity</dd></div>
+            <div><dt>Status</dt><dd><span class="status-pill green">@Model.Status</span></dd></div>
+            <div><dt>Source</dt><dd>@(Model.IsFromPrescription ? "Prescription" : "Personal")</dd></div>
+            <div><dt>Added to inventory</dt><dd>@Model.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</dd></div>
+            <div><dt>Last updated</dt><dd>@Model.UpdatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</dd></div>
+            @if (Model.LastDispensedAt.HasValue)
+            {
+                <div><dt>Last dispensed</dt><dd>@Model.LastDispensedAt.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm")</dd></div>
+            }
+        </dl>
+    </section>
+
+    <section class="card medication-detail-card">
+        <div class="card-head"><h2>Medication details</h2></div>
+        <dl class="detail-list">
+            <div><dt>Generic name</dt><dd>@(Model.GenericName ?? "—")</dd></div>
+            <div><dt>Strength</dt><dd>@(Model.Strength ?? "—")</dd></div>
+            <div><dt>Form</dt><dd>@(Model.Form ?? "—")</dd></div>
+            <div><dt>Manufacturer</dt><dd>@(Model.ManufacturerName ?? "—")</dd></div>
+            <div><dt>Barcode</dt><dd class="inventory-barcode">@(Model.Barcode ?? "—")</dd></div>
+        </dl>
+    </section>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.Description) ||
+     !string.IsNullOrWhiteSpace(Model.ActiveIngredients) ||
+     !string.IsNullOrWhiteSpace(Model.SafetyInformation))
+{
+    <section class="card medication-information-card" aria-labelledby="medication-information-heading">
+        <div class="card-head"><h2 id="medication-information-heading">About this medication</h2></div>
+        <div class="inventory-information-grid">
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <div class="inventory-info-block">
+                    <h3><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Description</h3>
+                    <p>@Model.Description</p>
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.ActiveIngredients))
+            {
+                <div class="inventory-info-block">
+                    <h3><i class="fa-solid fa-flask" aria-hidden="true"></i> Active ingredients</h3>
+                    <p>@Model.ActiveIngredients</p>
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.SafetyInformation))
+            {
+                <div class="inventory-info-block inventory-safety-block">
+                    <h3><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Safety information</h3>
+                    <p>@Model.SafetyInformation</p>
+                </div>
+            }
+        </div>
+    </section>
+}

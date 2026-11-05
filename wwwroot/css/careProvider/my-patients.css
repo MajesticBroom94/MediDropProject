@@ -1,0 +1,159 @@
+/* MediDrop Care Provider — My Patients */
+.patients-panel {
+    min-height: 320px;
+    border: 1px solid #cfdfed;
+    border-top: 4px solid #0876c9;
+    background: linear-gradient(180deg, #f0f8fe 0, #ffffff 125px);
+    box-shadow: 0 12px 32px #0b315714;
+}
+
+.patients-panel .panel-head h2 {
+    margin-bottom: 6px;
+    color: #0b3157;
+}
+
+.patients-panel .panel-head p,
+.patients-panel .panel-head span {
+    color: #456f91;
+}
+
+.patients-toolbar { margin: 18px 0 24px; }
+.patients-toolbar .search-wrap { max-width: 510px; }
+.patients-toolbar .search-wrap input {
+    border-color: #bdd8ec;
+    background-color: #fff;
+    color: #0b3157;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+.patients-toolbar .search-wrap input:focus {
+    border-color: #0876c9;
+    outline: none;
+    box-shadow: 0 0 0 3px #0876c928;
+}
+
+/* Full-width horizontal connected patient rows; scoped to this page only. */
+.patient-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+}
+
+.patient-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-width: 0;
+    padding: 20px 24px;
+    border: 1px solid #c9dfee;
+    border-left: 4px solid #0876c9;
+    border-radius: 15px;
+    background: #fff;
+    box-shadow: 0 8px 24px #0b315712;
+    transition: box-shadow .2s ease, border-color .2s ease;
+}
+.patient-card:hover {
+    border-color: #69b1dd;
+    border-left-color: #0876c9;
+    box-shadow: 0 12px 28px #0b315720;
+}
+.patient-card-identity {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 18px;
+    flex: 1 1 auto;
+}
+.patient-avatar {
+    display: grid;
+    place-items: center;
+    flex: 0 0 54px;
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #0b3157, #0876c9);
+    color: #fff;
+    font-size: 17px;
+    font-weight: 800;
+    box-shadow: 0 6px 15px #0876c930;
+}
+.patient-card-details { min-width: 0; }
+.patient-card h3 {
+    margin: 0 0 4px;
+    font-size: 18px;
+    color: #0b3157;
+    overflow-wrap: anywhere;
+}
+.patient-email {
+    margin: 0;
+    color: #49728f;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+.patient-connected-since {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    color: #52728c;
+    font-size: 12px;
+}
+.patient-card-end {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    flex: 0 0 auto;
+}
+
+.patient-status i { font-size: 7px; }
+.patient-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.patient-card-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.patient-card-actions .btn-primary {
+    background: #0876c9;
+    border-color: #0876c9;
+    color: #fff;
+}
+.patient-card-actions .btn-primary:hover { background: #075b9b; border-color: #075b9b; }
+.patient-card[hidden], #patient-filter-empty[hidden] { display: none !important; }
+.patients-panel .empty-state .btn { margin-top: 22px; }
+
+@media (max-width: 850px) {
+    .patient-card { flex-wrap: wrap; gap: 16px; }
+    .patient-card-end {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        border-top: 1px solid #dbeaf4;
+        padding-top: 13px;
+    }
+}
+@media (max-width: 550px) {
+    .patient-card { padding: 16px; }
+    .patient-card-identity { gap: 12px; }
+    .patient-avatar { width: 48px; height: 48px; flex-basis: 48px; }
+    .patient-card-end { align-items: stretch; flex-direction: column; }
+    .patient-status { align-self: flex-start; }
+    .patient-card-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .patient-card-actions .btn { white-space: normal; text-align: center; }
+}
+@media (max-width: 380px) {
+    .patient-card-actions { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .patient-card { transition: none; }
+}

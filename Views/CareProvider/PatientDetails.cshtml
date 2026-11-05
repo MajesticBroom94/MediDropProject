@@ -1,0 +1,235 @@
+
+@using MediDropProject.Domain.Enums
+@model MediDropProject.Models.CareProvider.PatientOverviewViewModel
+
+@{
+    Layout = "_CareProviderLayout";
+    ViewData["Title"] = "Patient overview";
+    ViewData["Tab"] = "Overview";
+}
+
+<link rel="stylesheet"href="~/css/careProvider/patient-overview.css"asp-append-version="true" />
+
+
+@await Html.PartialAsync(
+    "_PatientWorkspaceHeader",
+    (MediDropProject.Models.CareProvider.PatientTabBaseViewModel)Model)
+
+<div class="ov-section-heading">
+    <div>
+        <h2>Patient at a glance</h2>
+        <p>Last 7 days of dispenser activity</p>
+    </div>
+</div>
+
+<div class="ov-stats">
+
+    <section class="ov-stat ov-stat-highlight">
+        <span>
+            Removal adherence
+            <i class="fa-solid fa-chart-line"></i>
+        </span>
+
+        <strong>
+            @(Model.AdherencePercent.HasValue
+                ? $"{Model.AdherencePercent.Value:0.#}%"
+                : "—")
+        </strong>
+
+        <small>
+            @(Model.AssessedCount == 0
+                ? "No concluded slots yet"
+                : $"{Model.RemovedCount} of {Model.AssessedCount} slot items removed")
+        </small>
+    </section>
+
+    <section class="ov-stat">
+        <span>
+            Past scheduled operations
+            <i class="fa-regular fa-calendar"></i>
+        </span>
+
+        <strong>@Model.ScheduledCount</strong>
+        <small>Past 7 days, including cancelled slots</small>
+    </section>
+
+    <section class="ov-stat">
+        <span>
+            Missed
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </span>
+
+        <strong>@Model.MissedCount</strong>
+        <small>Timed-out scheduled slots</small>
+    </section>
+
+    <section class="ov-stat">
+        <span>
+            Cancelled
+            <i class="fa-solid fa-circle-xmark"></i>
+        </span>
+
+        <strong>@Model.CancelledCount</strong>
+        <small>Cancelled scheduled slots</small>
+    </section>
+
+    <section class="ov-stat">
+        <span>
+            Available medications
+            <i class="fa-solid fa-pills"></i>
+        </span>
+
+        <strong>@Model.MedicationCount</strong>
+        <small>Active personal medication</small>
+    </section>
+
+</div>
+
+<div class="ov-content-grid">
+
+    <!-- Recent dispenser activity -->
+    <section class="ov-panel">
+
+        <div class="ov-panel-title">
+            <div>
+                <h2>Recent medication slots</h2>
+                <p>Latest scheduled dispenser activity</p>
+            </div>
+
+            <i class="fa-solid fa-clock-rotate-left"></i>
+        </div>
+
+        @if (Model.RecentSlots.Count == 0)
+        {
+            <div class="ov-empty">
+                <i class="fa-solid fa-capsules"></i>
+
+                <strong>No dispensing history yet</strong>
+
+                <p>
+                    Scheduled medication activity will appear here
+                    once medication rounds are created.
+                </p>
+            </div>
+        }
+        else
+        {
+            <div class="ov-slot-list">
+
+                @foreach (var slot in Model.RecentSlots)
+                {
+                    var statusClass =
+                        slot.Status == MedicationRoundSlotStatus.Removed
+                            ? "good"
+                            : slot.Status is
+                                MedicationRoundSlotStatus.DispenseTimeout or
+                                MedicationRoundSlotStatus.RemoveTimeout
+                                    ? "bad"
+                                    : "neutral";
+
+                    <div class="ov-slot">
+                        <div>
+                            <strong>
+                                @slot.ScheduledFor.ToLocalTime().ToString("dd MMM yyyy · HH:mm")
+                            </strong>
+
+                            <small>
+                                @string.Join(", ", slot.MedicationNames)
+                            </small>
+                        </div>
+
+                        <span class="ov-pill @statusClass">
+                            @slot.Status
+                        </span>
+                    </div>
+                }
+
+            </div>
+        }
+
+    </section>
+
+    <!-- Treatment and prescription summaries -->
+    <div class="ov-right-stack">
+
+        <section class="ov-panel ov-treatment">
+
+            <div class="ov-panel-title">
+                <div>
+                    <h2>Treatment summary</h2>
+                    <p>Current patient record</p>
+                </div>
+
+                <i class="fa-solid fa-notes-medical"></i>
+            </div>
+
+            <div class="ov-summary-line">
+                <span>Active prescriptions</span>
+                <strong>@Model.ActivePrescriptionCount</strong>
+            </div>
+
+            <div class="ov-summary-line">
+                <span>Active medication round</span>
+
+                <strong>
+                    @(Model.ActiveRoundId.HasValue ? "Yes" : "No")
+                </strong>
+            </div>
+
+            <div class="ov-summary-line">
+                <span>Connected since</span>
+
+                <strong>
+                    @Model.ConnectedSince?.ToString("dd MMM yyyy")
+                </strong>
+            </div>
+
+        </section>
+
+        <section class="ov-panel">
+
+            <div class="ov-panel-title">
+                <div>
+                    <h2>Recent prescriptions</h2>
+                    <p>Prescriptions for this patient</p>
+                </div>
+
+                <i class="fa-solid fa-file-prescription"></i>
+            </div>
+
+            @if (Model.RecentPrescriptions.Count == 0)
+            {
+                <div class="ov-empty compact">
+                    <strong>No prescriptions recorded</strong>
+
+                    <p>
+                        Prescriptions issued for this patient
+                        will appear here.
+                    </p>
+                </div>
+            }
+            else
+            {
+                @foreach (var rx in Model.RecentPrescriptions)
+                {
+                    <div class="ov-summary-line">
+                        <span>
+                            <strong>@rx.PrescriptionNumber</strong>
+
+                            <small>
+                                @rx.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")
+                            </small>
+                        </span>
+
+                        <span class="ov-pill neutral">
+                            @rx.Status
+                        </span>
+                    </div>
+                }
+            }
+
+        </section>
+
+    </div>
+
+</div>

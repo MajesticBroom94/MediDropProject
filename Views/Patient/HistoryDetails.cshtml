@@ -1,0 +1,171 @@
+@model MediDropProject.Models.Patient.RoundHistoryDetailsViewModel
+@using MediDropProject.Domain.Enums
+
+@{
+    Layout = "_PatientLayout";
+    ViewData["Title"] = $"Round #{Model.RoundId}";
+    ViewData["Eyebrow"] = "History details";
+
+    string StatusClass(MedicationRoundSlotStatus status) => status switch
+    {
+        MedicationRoundSlotStatus.Removed => "green",
+        MedicationRoundSlotStatus.Dispensed or MedicationRoundSlotStatus.Ready => "blue",
+        MedicationRoundSlotStatus.Cancelled => "amber",
+        MedicationRoundSlotStatus.DispenseTimeout or MedicationRoundSlotStatus.RemoveTimeout  => "red",
+        _ => "amber"
+    };
+
+    string StatusText(MedicationRoundSlotStatus status) => status switch
+    {
+        MedicationRoundSlotStatus.Removed => "Removed",
+        MedicationRoundSlotStatus.Dispensed => "Dispensed",
+        MedicationRoundSlotStatus.Ready => "Ready",
+        MedicationRoundSlotStatus.Pending => "Pending",
+        MedicationRoundSlotStatus.DispenseTimeout => "Missed dispense",
+        MedicationRoundSlotStatus.RemoveTimeout => "Missed collection",
+        MedicationRoundSlotStatus.Cancelled => "Cancelled",
+        _ => status.ToString()
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/patient/dashboard-history.css" asp-append-version="true" />
+}
+
+<div class="page-intro history-details-intro">
+    <div>
+        <a class="history-back-link" asp-action="History">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to history
+        </a>
+        <h1>Round #@Model.RoundId</h1>
+        <p>@Model.DeviceName · @Model.DeviceUid · started @Model.StartedAt.ToString("dd MMM yyyy HH:mm")</p>
+    </div>
+    <div class="page-actions">
+        <a class="btn" asp-action="PrintRound" asp-route-id="@Model.RoundId">
+            <i class="fa-solid fa-print" aria-hidden="true"></i>
+            <text>&nbsp; Print / Save PDF</text>
+        </a>
+        <span class="status-pill @(Model.Status == MedicationRoundStatus.Completed ? "green" : Model.Status == MedicationRoundStatus.Cancelled ? "red" : "blue")">
+            @Model.Status
+        </span>
+    </div>
+</div>
+
+<div class="history-metrics history-details-metrics">
+    <div class="card metric history-metric history-metric-primary">
+        <strong>@Model.CompletionRate.ToString("0.#")%</strong>
+        <span>Removal adherence</span>
+    </div>
+    <div class="card metric history-metric"><strong>@Model.EligibleOperationCount</strong><span>Past operations</span></div>
+    <div class="card metric history-metric"><strong>@Model.RemovedCount</strong><span>Removed</span></div>
+    <div class="card metric history-metric"><strong>@Model.CancelledCount</strong><span>Cancelled past doses</span></div>
+    <div class="card metric history-metric"><strong>@Model.MissedCount</strong><span>Missed doses</span></div>
+</div>
+
+<section class="history-operation-section">
+    <div class="history-section-heading">
+        <div>
+            <h2>Dispense operations</h2>
+            <p>Medication names and quantities are historical snapshots from when this round was created.</p>
+        </div>
+        <span>@Model.Slots.Count operation@(Model.Slots.Count == 1 ? "" : "s")</span>
+    </div>
+
+    @if (Model.Slots.Count == 0)
+    {
+        <div class="card history-empty">
+            <strong>No populated operations</strong>
+            <span>This round did not contain medication dispense operations.</span>
+        </div>
+    }
+    else
+    {
+        <div class="history-day-list">
+            @foreach (var dayGroup in Model.Slots
+                .GroupBy(s => DateOnly.FromDateTime(s.ScheduledFor.DateTime))
+                .OrderBy(g => g.Key))
+            {
+                <section class="history-day-group">
+
+                    <div class="history-day-group-heading">
+                        <strong>@dayGroup.Key.ToString("dddd")</strong>
+                        <span>@dayGroup.Key.ToString("dd MMMM yyyy")</span>
+                    </div>
+
+                    <div class="history-operation-list">
+                        @foreach (var slot in dayGroup.OrderBy(s => s.ScheduledFor))
+                        {
+                            <article class="card history-operation-card">
+
+                                <div class="history-operation-head">
+                                    <div>
+                                        <span class="history-operation-date">
+                                            @slot.ScheduledFor.ToString("ddd, dd MMM yyyy")
+                                        </span>
+
+                                        <h3>
+                                            @slot.PeriodName · @slot.ScheduledFor.ToString("HH:mm")
+                                        </h3>
+
+                                        <span class="history-slot-number">
+                                            Physical slot @slot.DeviceSlotNumber
+                                        </span>
+                                    </div>
+
+                                    <span class="status-pill @StatusClass(slot.Status)">
+                                        @StatusText(slot.Status)
+                                    </span>
+                                </div>
+
+                                <div class="history-medication-list">
+                                    @foreach (var item in slot.Items)
+                                    {
+                                        <div class="history-medication-row">
+                                            <i class="fa-solid fa-capsules"></i>
+
+                                            <div>
+                                                <strong>@item.DisplayName</strong>
+                                                <span>Quantity @item.Quantity</span>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="history-timeline">
+                                    <div>
+                                        <span>Scheduled</span>
+                                        <strong>
+                                            @slot.ScheduledFor.ToString("dd MMM HH:mm")
+                                        </strong>
+                                    </div>
+
+                                    <div>
+                                        <span>Dispensed</span>
+                                        <strong>
+                                            @(slot.DispensedAt?.ToString("dd MMM HH:mm") ?? "—")
+                                        </strong>
+                                    </div>
+
+                                    <div>
+                                        <span>Removed</span>
+                                        <strong>
+                                            @(slot.RemovedAt?.ToString("dd MMM HH:mm") ?? "—")
+                                        </strong>
+                                    </div>
+                                </div>
+
+                                <details class="history-operation-id">
+                                    <summary>Operation reference</summary>
+                                    <code>@slot.OperationId</code>
+                                </details>
+
+                            </article>
+                        }
+                </div>
+
+            </section>
+        }
+    </div>
+    }
+</section>

@@ -1,0 +1,37 @@
+@using MediDropProject.Domain.Entities
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> SupportUsers
+@{
+    // The seeded SuperAdmin is the support contact
+    var superAdmins = await SupportUsers.GetUsersInRoleAsync("SuperAdmin");
+    var contact = superAdmins.FirstOrDefault(u => !string.IsNullOrWhiteSpace(u.Email))?.Email;
+}
+<div class="md-support-control">
+    <button type="button" class="md-support-trigger" data-support-open
+            aria-label="Help and support" title="Help and support">
+        <i class="fa-regular fa-circle-question" aria-hidden="true"></i>
+    </button>
+    <dialog class="md-support-dialog" aria-labelledby="md-support-title">
+        <div class="md-support-header">
+            <div class="md-support-heading">
+                <i class="fa-regular fa-circle-question" aria-hidden="true"></i>
+                <h2 id="md-support-title">MediDrop Support</h2>
+            </div>
+            <button class="md-support-close" type="button" data-support-close
+                    aria-label="Close support window"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+        </div>
+        <p>Need help with MediDrop? Contact our team by email.</p>
+        @if (!string.IsNullOrWhiteSpace(contact))
+        {
+            <a class="md-support-email" href="mailto:@contact">
+                <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+                <span>@contact</span>
+                <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+            </a>
+        }
+        else
+        {
+            <p class="md-support-unavailable">Support email is currently unavailable.</p>
+        }
+    </dialog>
+</div>

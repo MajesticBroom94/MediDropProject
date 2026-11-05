@@ -1,0 +1,78 @@
+/* Care provider notification indicators and account footer. */
+.provider-nav-count {
+    margin-left: auto;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 999px;
+    background: #e65c65;
+    color: #fff;
+    font-size: 11px;
+    line-height: 1;
+}
+.provider-top-notice {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    min-height: 34px;
+    color: inherit;
+    text-decoration: none;
+    font-size: 19px;
+}
+.provider-notice-count {
+    position: absolute;
+    right: -7px;
+    top: -6px;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 4px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: #e65c65;
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1;
+}
+.sidebar-bottom.provider-account-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+}
+.provider-profile-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+.provider-profile-chip .avatar { flex-shrink: 0; }
+.provider-profile-details { min-width: 0; }
+.provider-profile-details strong,
+.provider-profile-details small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.provider-profile-details strong { font-size: 13px; }
+.provider-profile-details small { margin-top: 3px; font-size: 11px; opacity: .75; }
+.provider-logout-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 0;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    opacity: .8;
+}
+.provider-logout-button:hover { opacity: 1; }

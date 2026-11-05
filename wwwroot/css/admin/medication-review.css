@@ -1,0 +1,251 @@
+/* Scoped to Admin medication review/details. Does not modify admin.css. */
+.med-review-grid {
+    display: grid;
+    grid-template-columns:minmax(0, 2.2fr) minmax(270px, 1fr);
+    gap: 18px;
+    align-items: start
+}
+
+.med-review-main, .med-review-side {
+    display: grid;
+    gap: 18px;
+    min-width: 0
+}
+
+.med-review-panel {
+    padding: 0;
+    overflow: hidden;
+    border-color: #bdd8e4
+}
+
+.med-review-panel-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 18px;
+    background: linear-gradient(110deg, #123858, #087e91);
+    color: white
+}
+
+.med-review-panel-head h2 {
+    font-size: 15px;
+    margin: 0;
+    color: white
+}
+
+.med-review-panel-head i {
+    color: #80eee7
+}
+
+.med-review-panel-body {
+    padding: 19px
+}
+
+.med-review-fields {
+    display: grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap: 16px
+}
+
+.med-review-fields label, .med-review-status {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+    font-size: 12px;
+    font-weight: 800;
+    color: #345b73
+}
+
+.med-review-fields input, .med-review-fields select, .med-review-fields textarea, .med-review-status select {
+    width: 100%;
+    min-width: 0;
+    border: 1px solid #c6dce7;
+    border-radius: 10px;
+    background: #fbfdff;
+    color: #143b57;
+    padding: 10px 12px;
+    font: inherit;
+    font-weight: 500;
+    outline: 0
+}
+
+.med-review-fields input, .med-review-fields select, .med-review-status select {
+    min-height: 43px
+}
+
+.med-review-fields textarea {
+    resize: vertical;
+    min-height: 85px
+}
+
+.med-review-fields input:focus, .med-review-fields select:focus, .med-review-fields textarea:focus, .med-review-status select:focus {
+    border-color: #12a3aa;
+    box-shadow: 0 0 0 3px #0cb3b31f
+}
+
+.med-review-wide {
+    grid-column: 1/-1
+}
+
+.med-review-fields label span:not(:empty), .med-review-field-error:not(:empty) {
+    font-size: 11px;
+    color: #a43c49
+}
+
+.med-review-image {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    height: 175px;
+    border: 1px solid #d9e8ee;
+    border-radius: 13px;
+    background: #f4f9fb;
+    color: #7892a3;
+    overflow: hidden;
+    font-size: 12px;
+    text-align: center
+}
+
+.med-review-image i {
+    font-size: 36px;
+    color: #0b8f98
+}
+
+.med-review-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain
+}
+
+.med-review-upload {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 13px;
+    cursor: pointer;
+    padding: 11px;
+    border: 1px solid #abd2df;
+    border-radius: 10px;
+    background: #eff9fb;
+    color: #0b7089;
+    font-size: 12px;
+    font-weight: 800;
+    text-align: center
+}
+
+.med-review-upload:hover {
+    background: #dff4f7
+}
+
+.med-review-file {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    font-size: 11px;
+    max-width: 100%;
+    color: #526b7e
+}
+
+.med-review-hint {
+    display: block;
+    margin-top: 8px;
+    color: #6c8495;
+    font-size: 11px
+}
+
+.med-review-save, .med-review-cancel {
+    display: flex;
+    width: 100%;
+    margin-top: 12px
+}
+
+.med-review-validation:empty {
+    display: none
+}
+
+.med-review-validation {
+    color: #a33b44;
+    font-size: 12px;
+    margin-bottom: 12px
+}
+
+.med-review-readonly > .admin-panel {
+    overflow: hidden
+}
+
+@media (max-width: 1040px) {
+    .med-review-grid {
+        grid-template-columns:minmax(0, 1.6fr) minmax(250px, 1fr)
+    }
+}
+
+@media (max-width: 780px) {
+    .med-review-grid {
+        grid-template-columns:1fr
+    }
+
+    .med-review-side {
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+        align-items: start
+    }
+}
+
+@media (max-width: 600px) {
+    .med-review-side, .med-review-fields {
+        grid-template-columns:1fr
+    }
+
+    .med-review-panel-body {
+        padding: 15px
+    }
+
+    .med-review-wide {
+        grid-column: auto
+    }
+}
+
+
+/* Read-only Medication Details page — isolated styling */
+.med-review-readonly {
+    gap: 18px;
+    align-items: start;
+}
+
+.med-review-readonly .med-review-panel-body {
+    min-width: 0;
+}
+
+.med-review-readonly .admin-medicine-heading {
+    margin-bottom: 12px;
+}
+
+.med-review-readonly .admin-details > div:nth-child(even) {
+    background: #f5fafc;
+}
+
+.med-review-readonly .admin-details > div {
+    padding: 12px 10px;
+}
+
+.med-review-readonly .admin-details dt {
+    color: #57778d;
+}
+
+.med-review-readonly .admin-details dd {
+    color: #123858;
+}
+
+.med-review-readonly .admin-subheading:first-child {
+    margin-top: 0;
+}
+
+.med-review-readonly .admin-safety {
+    margin-top: 8px;
+}
+
+.med-review-panel.admin-margin-top .admin-help {
+    margin-top: 0;
+}

@@ -1,0 +1,239 @@
+﻿.error-page-shell {
+    position: relative;
+    min-height: calc(100vh - 90px);
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    padding: 2rem 1rem;
+    background: linear-gradient(180deg, #dff4fb 0%, #fff6e1 48%, #f7dfb2 100%);
+}
+
+.error-card {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 760px;
+    padding: 2rem;
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(4px);
+    border: 1px solid #e8d7b5;
+    box-shadow: 0 20px 60px rgba(28, 69, 96, 0.18);
+}
+
+.error-brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.error-logo {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    padding: 0.6rem;
+    border-radius: 18px;
+    background: linear-gradient(145deg, #f2fbff, #ffffff);
+    border: 1px solid #d9eef6;
+    box-shadow: 0 8px 18px rgba(15, 84, 122, 0.08);
+}
+
+.error-kicker {
+    display: inline-block;
+    margin-bottom: 0.25rem;
+    color: #0f6d9b;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+}
+
+.error-brand h1 {
+    margin: 0;
+    color: #0d3557;
+    font-size: clamp(2.6rem, 6vw, 4.4rem);
+    line-height: 1;
+    font-weight: 900;
+}
+
+.error-content h2 {
+    margin: 0 0 0.75rem;
+    color: #163b5c;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+}
+
+.error-content p {
+    margin: 0 0 0.8rem;
+    color: #4b6375;
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.error-subtext {
+    color: #7c8f9d;
+    font-style: italic;
+}
+
+.error-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    margin-top: 1.8rem;
+}
+
+.error-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 0.8rem 1.15rem;
+    border-radius: 12px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.error-btn:hover {
+    transform: translateY(-1px);
+}
+
+.error-btn-primary {
+    background: linear-gradient(135deg, #0b5d89, #1a87c4);
+    color: #fff;
+    box-shadow: 0 10px 22px rgba(16, 98, 145, 0.25);
+}
+
+.error-btn-primary:hover {
+    color: #fff;
+}
+
+.error-btn-secondary {
+    background: #fff;
+    color: #20516f;
+    border: 1px solid #cfe3ee;
+}
+
+.error-btn-secondary:hover {
+    color: #163b5c;
+    background: #f7fbfd;
+}
+
+/* Desert scene */
+.error-scene {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.error-sun {
+    position: absolute;
+    top: 80px;
+    right: 12%;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff8d8 0%, #ffe08a 45%, #ffc85e 100%);
+    box-shadow: 0 0 60px rgba(255, 201, 94, 0.45);
+    opacity: 0.95;
+}
+
+.error-dune {
+    position: absolute;
+    left: -10%;
+    width: 120%;
+    border-radius: 50%;
+}
+
+.dune-back {
+    bottom: 170px;
+    height: 220px;
+    background: #efd39e;
+}
+
+.dune-mid {
+    bottom: 80px;
+    height: 240px;
+    background: #e8bf7f;
+}
+
+.dune-front {
+    bottom: -70px;
+    height: 260px;
+    background: #dca965;
+}
+
+.error-cactus {
+    position: absolute;
+    bottom: 120px;
+    width: 22px;
+    height: 92px;
+    border-radius: 14px;
+    background: #3e8f67;
+    opacity: 0.75;
+}
+
+.error-cactus::before,
+.error-cactus::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 40px;
+    border-radius: 12px;
+    background: #3e8f67;
+}
+
+.error-cactus::before {
+    left: -12px;
+    top: 24px;
+}
+
+.error-cactus::after {
+    right: -12px;
+    top: 12px;
+}
+
+.cactus-left {
+    left: 10%;
+}
+
+.cactus-right {
+    right: 14%;
+    transform: scale(0.9);
+}
+
+@media (max-width: 700px) {
+    .error-card {
+        padding: 1.4rem;
+        border-radius: 22px;
+    }
+
+    .error-brand {
+        align-items: flex-start;
+    }
+
+    .error-logo {
+        width: 58px;
+        height: 58px;
+        border-radius: 14px;
+    }
+
+    .error-sun {
+        width: 100px;
+        height: 100px;
+        top: 55px;
+        right: 8%;
+    }
+
+    .dune-back {
+        bottom: 150px;
+    }
+
+    .dune-mid {
+        bottom: 70px;
+    }
+
+    .error-cactus {
+        bottom: 105px;
+    }
+}

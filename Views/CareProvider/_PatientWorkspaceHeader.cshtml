@@ -1,0 +1,67 @@
+
+@model MediDropProject.Models.CareProvider.PatientTabBaseViewModel
+
+<div class="ov-return">
+    <a asp-action="Patients">
+        <i class="fa-solid fa-arrow-left"></i> Back to my patients
+    </a>
+</div>
+
+<header class="ov-hero">
+    <div class="ov-profile">
+        <div class="ov-avatar">@Model.Initials</div>
+
+        <div class="ov-profile-text">
+            <span class="ov-eyebrow">PATIENT WORKSPACE</span>
+            <h1>@Model.FullName</h1>
+            <p>@Model.Email</p>
+        </div>
+    </div>
+
+    <div class="ov-hero-actions">
+        <div class="ov-connection">
+            <i class="fa-solid fa-circle-check"></i>
+            Connected since @Model.ConnectedSince?.ToString("dd MMM yyyy")
+        </div>
+
+        <form asp-controller="CareProvider"
+              asp-action="RemovePatient"
+              method="post"
+              class="ov-remove-form"
+              onsubmit="return confirm('Are you sure you want to remove this patient? You will lose access to their patient information.');">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="relationshipId"
+                   value="@Model.RelationshipId"/>
+
+            <button type="submit" class="ov-remove-btn">
+                <i class="fa-solid fa-user-minus" aria-hidden="true"></i>
+                Remove patient
+            </button>
+        </form>
+    </div>
+</header>
+
+<nav class="ov-tabs" aria-label="Patient details sections">
+    <a class="@(ViewData["Tab"]?.ToString() == "Overview" ? "active" : "")"
+       asp-action="PatientDetails"
+       asp-route-id="@Model.PatientId">Overview</a>
+
+    <a class="@(ViewData["Tab"]?.ToString() == "Adherence" ? "active" : "")"
+       asp-action="Adherence"
+       asp-route-id="@Model.PatientId">Adherence</a>
+
+    <a class="@(ViewData["Tab"]?.ToString() == "Medications" ? "active" : "")"
+       asp-action="PatientMedications"
+       asp-route-id="@Model.PatientId">Medications</a>
+
+    <a class="@(ViewData["Tab"]?.ToString() == "Schedule" ? "active" : "")"
+       asp-action="PatientSchedule"
+       asp-route-id="@Model.PatientId">Schedule</a>
+
+    <a class="@(ViewData["Tab"]?.ToString() == "Prescriptions" ? "active" : "")"
+       asp-action="PatientPrescriptions"
+       asp-route-id="@Model.PatientId">Prescriptions</a>
+</nav>

@@ -1,0 +1,186 @@
+@using MediDropProject.Domain.Enums
+@model MediDropProject.Models.ProfileSetup.CareProviderSetupViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Care provider registration";
+
+    var isPending = Model.CurrentStatus == ProviderVerificationStatus.Pending;
+    var isRejected = Model.CurrentStatus == ProviderVerificationStatus.Rejected;
+    var isSuspended = Model.CurrentStatus == ProviderVerificationStatus.Revoked;
+    var canSubmit = Model.CurrentStatus is null or ProviderVerificationStatus.Rejected or ProviderVerificationStatus.Revoked;
+
+    var statusStyle = Model.CurrentStatus switch
+    {
+        ProviderVerificationStatus.Pending => "pending",
+        ProviderVerificationStatus.Rejected => "rejected",
+        ProviderVerificationStatus.Revoked => "suspended",
+        _ => "new"
+    };
+
+    var statusIcon = Model.CurrentStatus switch
+    {
+        ProviderVerificationStatus.Pending => "fa-clock",
+        ProviderVerificationStatus.Rejected => "fa-circle-xmark",
+        ProviderVerificationStatus.Revoked => "fa-shield-halved",
+        _ => "fa-file-circle-plus"
+    };
+
+    var statusHeading = Model.CurrentStatus switch
+    {
+        ProviderVerificationStatus.Pending => "Registration under review",
+        ProviderVerificationStatus.Rejected => "Registration not approved",
+        ProviderVerificationStatus.Revoked => "Provider access suspended",
+        _ => "Apply for provider access"
+    };
+
+    var submitLabel = isSuspended ? "Request reinstatement"
+        : isRejected ? "Resubmit registration"
+        : "Submit for verification";
+}
+
+<link rel="stylesheet" href="~/css/profileSetup/provider.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/profileSetup/provider-setup.css" asp-append-version="true" />
+
+<div class="setup-page provider-registration-page">
+    <main class="setup-card">
+        <header class="setup-header">
+            <div class="setup-header-icon" aria-hidden="true"><i class="fa-solid fa-user-doctor"></i></div>
+            <div>
+                <span class="setup-eyebrow">MediDrop · Professional account</span>
+                <h1>Care provider registration</h1>
+                <p>Manage the professional verification required to access your patient workspace.</p>
+            </div>
+        </header>
+
+        @if (TempData["SetupMessage"] is string setupMessage)
+        {
+            <div class="setup-alert is-success" role="status">
+                <div class="setup-alert-icon" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></div>
+                <div class="setup-alert-content"><strong>Submission received</strong><span>@setupMessage</span></div>
+            </div>
+        }
+
+        <section class="registration-state registration-state--@statusStyle" aria-labelledby="registration-state-heading">
+            <div class="registration-state__top">
+                <span class="registration-state__icon" aria-hidden="true"><i class="fa-solid @statusIcon"></i></span>
+                <div class="registration-state__heading">
+                    <span class="registration-state__eyebrow">Current status</span>
+                    <h2 id="registration-state-heading">@statusHeading</h2>
+                </div>
+            </div>
+
+            <p class="registration-state__description">
+                @if (isPending)
+                {
+                    <text>Your application has been submitted and is awaiting administrator review. You will be notified when a decision is made.</text>
+                }
+                else if (isRejected)
+                {
+                    <text>Your previous application was declined. Review the feedback, correct your details and upload a new document to apply again.</text>
+                }
+                else if (isSuspended)
+                {
+                    <text>Your access to patient information and prescriptions is restricted. You can request reinstatement by submitting updated registration information for review.</text>
+                }
+                else
+                {
+                    <text>Complete the form below and upload proof of your professional registration. Access is granted only after administrator approval.</text>
+                }
+            </p>
+
+            @if ((isRejected || isSuspended) && !string.IsNullOrWhiteSpace(Model.StatusReason))
+            {
+                <div class="registration-state__reason">
+                    <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
+                    <div>
+                        <strong>Administrator's explanation</strong>
+                        <p>@Model.StatusReason</p>
+                    </div>
+                </div>
+            }
+
+            @if (isPending)
+            {
+                <div class="registration-state__next"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> No action required right now. You cannot submit another application while this one is pending.</div>
+            }
+            else if (isRejected || isSuspended)
+            {
+                <div class="registration-state__next"><i class="fa-solid fa-arrow-down" aria-hidden="true"></i> Complete the updated registration below to request another review. Your access remains restricted until approval.</div>
+            }
+        </section>
+
+        @if (canSubmit)
+        {
+            <form asp-controller="CareProvider" asp-action="Setup" method="post" enctype="multipart/form-data" class="setup-form">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="setup-validation-summary"></div>
+
+                <section class="setup-form-section" aria-labelledby="professional-information-heading">
+                    <div class="setup-section-heading">
+                        <span id="professional-information-heading">Professional information</span>
+                        <p>Use the details shown on your current professional registration.</p>
+                    </div>
+
+                    <div class="setup-field-grid">
+                        <div class="setup-field">
+                            <label asp-for="ProfessionalTitle">Professional title</label>
+                            <input asp-for="ProfessionalTitle" placeholder="e.g. Dr, Registered Nurse" autocomplete="honorific-prefix" />
+                            <span asp-validation-for="ProfessionalTitle" class="field-validation"></span>
+                        </div>
+                        <div class="setup-field">
+                            <label asp-for="ProviderType">Care provider type</label>
+                            <select asp-for="ProviderType" asp-items="Html.GetEnumSelectList<CareProviderType>()"></select>
+                            <span asp-validation-for="ProviderType" class="field-validation"></span>
+                        </div>
+                        <div class="setup-field">
+                            <label asp-for="RegistrationAuthority">Registration authority</label>
+                            <input asp-for="RegistrationAuthority" placeholder="e.g. HPCSA or SANC" />
+                            <span asp-validation-for="RegistrationAuthority" class="field-validation"></span>
+                        </div>
+                        <div class="setup-field">
+                            <label asp-for="RegistrationNumber">Registration number</label>
+                            <input asp-for="RegistrationNumber" placeholder="Your professional registration number" />
+                            <span asp-validation-for="RegistrationNumber" class="field-validation"></span>
+                        </div>
+                    </div>
+                    <div class="setup-field">
+                        <label asp-for="Bio">Short professional bio <span class="field-optional">Optional</span></label>
+                        <textarea asp-for="Bio" rows="3" placeholder="A short introduction for patients"></textarea>
+                        <span asp-validation-for="Bio" class="field-validation"></span>
+                    </div>
+                </section>
+
+                <section class="setup-form-section" aria-labelledby="registration-document-heading">
+                    <div class="setup-section-heading">
+                        <span id="registration-document-heading">Supporting document</span>
+                        <p>Upload an up-to-date document showing your professional registration.</p>
+                    </div>
+                    <div class="setup-upload">
+                        <div class="setup-upload-icon" aria-hidden="true"><i class="fa-solid fa-file-arrow-up"></i></div>
+                        <div class="setup-upload-content">
+                            <label asp-for="Document">Proof of professional registration</label>
+                            <input asp-for="Document" type="file" accept=".pdf,.png,.jpg,.jpeg" required />
+                            <span asp-validation-for="Document" class="field-validation"></span>
+                            <small>PDF, PNG, JPG or JPEG · Maximum 5 MB · A new document is required for every submission.</small>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="setup-actions">
+                    <p><i class="fa-solid fa-lock" aria-hidden="true"></i> Submitting does not immediately grant access. An administrator must approve your application.</p>
+                    <button class="setup-submit-button" type="submit">
+                        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> @submitLabel
+                    </button>
+                </div>
+            </form>
+        }
+
+        <footer class="setup-footer">
+            <form asp-controller="Account" asp-action="Logout" method="post">
+                @Html.AntiForgeryToken()
+                <button class="setup-signout-button" type="submit"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Sign out</button>
+            </form>
+        </footer>
+    </main>
+</div>

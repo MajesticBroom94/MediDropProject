@@ -1,0 +1,130 @@
+@using MediDropProject.Domain.Enums
+@model MediDropProject.Models.Admin.AdminProviderDetailsViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Registration review";
+    var item = Model.Registration;
+    var reviewable = Model.IsLatest && item.Status == ProviderVerificationStatus.Pending;
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin/provider-registration-details.css" asp-append-version="true" />
+}
+<div class="admin-registration-details-page">
+<a class="admin-back" asp-action="ProviderRegistrations"><i class="fa-solid fa-arrow-left"></i> All registrations</a>
+<div class="admin-heading">
+    <div><span class="admin-eyebrow">APPLICATION #@item.Id</span>
+        <h1>@item.ProviderName</h1>
+        <p>@item.Email</p></div>
+    <span class="admin-pill @item.Status.ToString().ToLowerInvariant()">@item.Status</span></div>
+<div class="admin-registration-layout">
+<section class="admin-panel admin-registration-credentials">
+        <div class="admin-panel-head"><h2>Professional credentials</h2></div>
+        <dl class="admin-details">
+            <div>
+                <dt>Professional title</dt>
+                <dd>@(string.IsNullOrWhiteSpace(item.Title) ? "Not provided" : item.Title)</dd>
+            </div>
+            <div>
+                <dt>Provider type</dt>
+                <dd>@item.ProviderType</dd>
+            </div>
+            <div>
+                <dt>Registration authority</dt>
+                <dd>@item.Authority</dd>
+            </div>
+            <div>
+                <dt>Registration number</dt>
+                <dd>@item.RegistrationNumber</dd>
+            </div>
+            <div>
+                <dt>Submitted</dt>
+                <dd>@item.SubmittedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</dd>
+            </div>
+            @if (item.ReviewedAt.HasValue)
+            {
+                <div>
+                    <dt>Reviewed</dt>
+                    <dd>@item.ReviewedAt.Value.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</dd>
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(item.StatusReason))
+            {
+                <div>
+                    <dt>Status reason</dt>
+                    <dd>@item.StatusReason</dd>
+                </div>
+            }
+            @if (item.LastStatusChangedAt.HasValue)
+            {
+                <div>
+                    <dt>Last status change</dt>
+                    <dd>@item.LastStatusChangedAt.Value.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</dd>
+                </div>
+            }
+        </dl>
+        @if (!string.IsNullOrWhiteSpace(item.Bio))
+        {
+            <h3 class="admin-subheading">Provider profile</h3>
+            <p class="admin-body-copy">@item.Bio</p>
+        }
+    </section>
+
+<section class="admin-panel admin-registration-document">
+    <div class="admin-panel-head"><h2>Verification document</h2></div>
+    @if (item.DocumentId.HasValue)
+    {
+        <div class="admin-registration-file-row">
+            <div class="admin-file">
+                <i class="fa-solid fa-file-shield" aria-hidden="true"></i>
+                <div>
+                    <strong>@item.DocumentFileName</strong>
+                    <small>Private document — admin only</small>
+                </div>
+            </div>
+            <a class="admin-btn primary admin-registration-download" asp-action="ProviderDocument" asp-route-id="@item.Id">
+                <i class="fa-solid fa-download" aria-hidden="true"></i> Download document
+            </a>
+        </div>
+        <p class="admin-help">Confirm the registration number and evidence with the relevant professional authority.</p>
+    }
+    else
+    {
+        <p class="admin-empty">No document attached.</p>
+    }
+</section>
+    <section class="admin-panel admin-registration-review"><div class="admin-panel-head"><h2>@(reviewable ? "Review application" : "Registration management")</h2></div>
+    @if (reviewable) {
+    <form asp-action="ReviewProvider" method="post" class="admin-review-actions">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@item.Id"/>
+    <label class="admin-review-reason"><span>Rejection reason (required when rejecting)</span><textarea name="statusReason" maxlength="500" rows="3"></textarea></label>
+    <div class="admin-action-buttons"><button class="admin-btn success" name="decision" value="verify" onclick="return confirm('Verify this provider?')">Verify provider</button><button class="admin-btn danger" name="decision" value="reject" onclick="return confirm('Reject this registration?')">Reject registration</button></div></form>
+    } else if (Model.IsLatest && item.Status is ProviderVerificationStatus.Verified or ProviderVerificationStatus.Revoked) {
+    <div class="admin-registration-file-row admin-registration-management-row">
+        <div class="admin-file">
+            <i class="fa-solid fa-user-shield" aria-hidden="true"></i>
+            <div>
+                <strong>Account #@item.UserId</strong>
+                <small>Profile access and registration status</small>
+            </div>
+        </div>
+        <a class="admin-btn primary admin-registration-download"
+           asp-action="AccountDetails" asp-route-id="@item.UserId">
+            <i class="fa-solid fa-user-gear" aria-hidden="true"></i> Manage user
+        </a>
+    </div>
+    <p class="admin-help">Provider access restrictions and reinstatement are managed centrally from the account details page.</p>
+    } else { <p class="admin-help">This is not the latest pending registration. Review the newest submission instead.</p> }
+    </section>
+</div>
+<section class="admin-panel admin-margin-top admin-registration-history">
+    <div class="admin-panel-head"><h2>Submission history</h2></div>
+    @foreach (var h in Model.History)
+    {
+        <a class="admin-row-link" asp-action="ProviderRegistrationDetails" asp-route-id="@h.Id">
+            <div><strong>Application
+                    #@h.Id</strong><small>@h.SubmittedAt.ToLocalTime().ToString("dd MMM yyyy") @(!string.IsNullOrWhiteSpace(h.StatusReason) ? " · " + h.StatusReason : "")</small>
+            </div>
+            <span class="admin-pill @h.Status.ToString().ToLowerInvariant()">@h.Status</span></a>
+    }
+</section>
+
+</div>

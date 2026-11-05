@@ -1,0 +1,49 @@
+@model IReadOnlyList<MediDropProject.ViewComponents.AccountAccessHistoryRow>
+
+<details class="admin-panel account-access-history admin-account-card">
+    <summary class="admin-panel-head account-access-history-head admin-account-summary">
+        <div>
+            <h2><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Access history</h2>
+            <p>Recent suspensions, reactivations, revocations and reinstatements for this account and its profiles.</p>
+        </div>
+        <span class="admin-account-summary-right">
+            <i class="fa-solid fa-chevron-down admin-account-chevron" aria-hidden="true"></i>
+        </span>
+    </summary>
+    <div class="account-access-history-content">
+
+    @if (Model.Count == 0)
+    {
+        <p class="account-access-history-empty">No account or profile access changes have been recorded.</p>
+    }
+    else
+    {
+        <div class="account-access-history-scroll">
+            <table class="account-access-history-table">
+                <thead>
+                <tr><th scope="col">When</th><th scope="col">Applies to</th><th scope="col">Action</th><th scope="col">Changed by</th></tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    var scope = item.EventType switch
+                    {
+                        "AccountAdministration" => "Entire account",
+                        "PatientAdministration" => "Patient profile",
+                        "ProviderVerification" => "Care provider",
+                        _ => "Account"
+                    };
+                    var isRestriction = item.Action is "Suspended" or "Revoked";
+                    <tr>
+                        <td data-label="When">@item.OccurredAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</td>
+                        <td data-label="Applies to"><strong>@scope</strong></td>
+                        <td data-label="Action"><span class="account-access-history-status @(isRestriction ? "is-restriction" : "is-restoration")">@item.Action</span></td>
+                        <td data-label="Changed by">@(item.ActorEmail ?? "System / unknown")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+    </div>
+</details>

@@ -1,0 +1,141 @@
+/* Scoped to CareProvider/PrescriptionDetails. Shared CSS remains unchanged. */
+.rx-date-highlights {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin: 0 0 23px;
+}
+.rx-date-highlight {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    padding: 18px 20px;
+    background: linear-gradient(135deg, #f3faff 0%, #eaf5fa 100%);
+    border: 1px solid #d7e8f2;
+    border-left: 4px solid #0c83a9;
+    border-radius: 13px;
+}
+.rx-date-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #4c728b;
+    font-size: 12px;
+    font-weight: 750;
+}
+.rx-date-label i { color: #087eac; }
+.rx-date-highlight strong {
+    color: #0b3157;
+    font-size: clamp(18px, 2.2vw, 23px);
+    font-weight: 850;
+    line-height: 1.25;
+}
+.rx-date-time { color: #638098; font-size: 12px; font-weight: 650; }
+@media (max-width: 580px) {
+    .rx-date-highlights { grid-template-columns: 1fr; gap: 10px; }
+    .rx-date-highlight { padding: 15px 17px; }
+}
+
+/* Collection history on provider prescription details only */
+.rx-collection-count {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 12px;
+    border: 1px solid #d6e8f0;
+    border-radius: 999px;
+    background: #edf7fb;
+    color: #195a78;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+.rx-collection-table td strong { color: #0b3157; }
+.rx-collection-empty {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    color: #58758b;
+    font-size: 13px;
+}
+.rx-collection-empty i { color: #0c83a9; font-size: 18px; }
+@media (max-width: 580px) {
+    .rx-collection-count { white-space: normal; }
+}
+
+/* Header actions */
+
+.rx-page-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+/* Summary heading and status */
+
+.rx-summary-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.rx-summary-heading h2 {
+    margin: 0;
+}
+
+.rx-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.rx-status-badge.active {
+    background: #d1f2e2;
+    color: #086b42;
+}
+
+.rx-status-badge.draft {
+    background: #fff1cc;
+    color: #926000;
+}
+
+.rx-status-badge.cancelled,
+.rx-status-badge.canceled {
+    background: #fce0e3;
+    color: #a12639;
+}
+
+.rx-status-badge.expired,
+.rx-status-badge.completed {
+    background: #e8edf2;
+    color: #516577;
+}
+
+@media (max-width: 650px) {
+    .rx-page-actions {
+        align-items: stretch;
+    }
+
+    .rx-page-actions .btn {
+        flex: 1;
+        justify-content: center;
+    }
+}
+
+@media print {
+    .rx-page-actions {
+        display: none !important;
+    }
+}

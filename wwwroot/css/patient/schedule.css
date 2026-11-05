@@ -1,0 +1,683 @@
+/* ==========================================================
+   MediDrop patient schedule feature
+   ========================================================== */
+
+.schedule-feedback {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.schedule-feedback.success {
+    color: #17693a;
+    background: #ecf9f1;
+    border: 1px solid #bde5ca;
+}
+
+.schedule-feedback.error {
+    color: #9e2d2d;
+    background: #fff0f0;
+    border: 1px solid #f0c5c5;
+}
+
+.schedule-feedback.warning {
+    color: #755711;
+    background: #fff8e4;
+    border: 1px solid #efd796;
+}
+
+.schedule-version {
+    color: #607985;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .03em;
+    text-transform: none;
+}
+
+.schedule-preference-head {
+    align-items: center;
+}
+
+/* Stable field rows for both Create and Edit modes. */
+.schedule-preference-top,
+.schedule-preference-times {
+    display: grid;
+    gap: 14px;
+    align-items: start;
+}
+
+.schedule-preference-top {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 16px;
+}
+
+.schedule-preference-times {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.schedule-preference-top .field,
+.schedule-preference-times .field {
+    min-width: 0;
+}
+
+.schedule-readonly-date {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 43px;
+    padding: 10px 13px;
+    border: 1px solid #dce7eb;
+    border-radius: 10px;
+    color: #244651;
+    background: #f5f8f9;
+    font-weight: 650;
+}
+
+.schedule-field-hint {
+    display: block;
+    margin-top: 5px;
+    color: #7e929b;
+    font-size: 10px;
+}
+
+.schedule-client-error {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border: 1px solid #efc7c7;
+    border-radius: 10px;
+    color: #9d3636;
+    background: #fff4f4;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.committed-medication-name {
+    min-height: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8px 10px;
+    border: 1px solid #dce7eb;
+    border-radius: 9px;
+    background: #f5f8f9;
+}
+
+.committed-medication-name strong {
+    color: #244651;
+    font-size: 12px;
+}
+
+.committed-medication-name span {
+    margin-top: 2px;
+    color: #728791;
+    font-size: 10px;
+}
+
+.readonly-quantity {
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dce7eb;
+    border-radius: 9px;
+    background: #f5f8f9;
+    color: #5c737d;
+    font-weight: 800;
+}
+
+.slot-status-pill {
+    padding: 5px 8px;
+    border-radius: 999px;
+    background: #edf1f3;
+    color: #647983;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.schedule-slot-editor.slot-readonly {
+    background: #f8fafb;
+}
+
+.schedule-slot-editor.slot-readonly .slot-medication-list {
+    opacity: .82;
+}
+
+.schedule-slot-editor.persisted-cancelled .slot-cancelled-message {
+    display: flex;
+}
+
+.schedule-slot-editor.persisted-cancelled .slot-medication-list {
+    opacity: .45;
+}
+
+/* Keep only one selected day visible. */
+.schedule-editor-day {
+    display: none !important;
+}
+
+.schedule-editor-day.active {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+/* Seven evenly-sized day buttons on desktop. */
+.editor-tabs {
+    display: grid !important;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+    overflow: visible;
+}
+
+.editor-tabs .schedule-day {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+}
+
+
+@media (min-width: 821px) {
+    .schedule-day-heading {
+        display: flex;
+        grid-column: 1 / -1;
+    }
+}
+
+/* Only use three columns when the actual content area is wide enough. */
+@media (min-width: 1400px) {
+    .schedule-editor-day.active {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-items: start;
+        gap: 18px;
+    }
+
+    .schedule-day-heading {
+        display: flex;
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 620px) {
+    .schedule-preference-head {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    /* Deliberate 4 + 3 mobile day selector. */
+    .editor-tabs {
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .editor-tabs .schedule-day {
+        grid-column: span 2;
+        min-height: 52px;
+        padding: 8px 4px 7px;
+        border-radius: 11px;
+        font-size: .76rem;
+    }
+
+    .editor-tabs .schedule-day:nth-child(5) {
+        grid-column: 2 / span 2;
+    }
+
+    .editor-tabs .schedule-day:nth-child(6) {
+        grid-column: 4 / span 2;
+    }
+
+    .editor-tabs .schedule-day:nth-child(7) {
+        grid-column: 6 / span 2;
+    }
+
+    .medication-edit-row {
+        grid-template-columns: minmax(0, 1fr) 64px 36px;
+    }
+
+    .committed-medication-name {
+        padding: 7px 8px;
+    }
+
+    .schedule-time-note {
+        align-items: flex-start;
+    }
+}
+
+/* Stabilised fixed-row schedule editor -------------------------------------- */
+.slot-time-passed-message {
+    display: none;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0 0 10px;
+    padding: 10px 11px;
+    border: 1px solid #ecd5a1;
+    border-radius: 10px;
+    background: #fff9e9;
+    color: #80601c;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.schedule-slot-editor.slot-time-passed {
+    background: #fbfbfa;
+    border-color: #e3ded0;
+}
+
+.schedule-slot-editor.slot-time-passed .draft-row {
+    opacity: .6;
+}
+
+.fixed-medication-row {
+    transition: border-color .15s ease, background .15s ease;
+}
+
+.fixed-medication-row.has-medication {
+    border-color: #b9d9d7;
+    background: #f6fbfb;
+}
+
+.fixed-row-number {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dce6e9;
+    border-radius: 10px;
+    background: #f5f8f9;
+    color: #91a1a8;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.slot-editor-actions {
+    grid-template-columns: 1fr;
+}
+
+.slot-cancel-button:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}
+
+.schedule-slot-editor.slot-cancelled .draft-row {
+    display: none;
+}
+
+@media (max-width: 620px) {
+    .fixed-row-number {
+        width: 36px;
+    }
+}
+
+
+/* ==========================================================
+   Scheduler clarity/stability pass
+   ========================================================== */
+
+.schedule-overview-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 16px;
+    padding: 18px 20px;
+    background: #ffffff;
+    border: 1px solid #bfd4dd;
+    border-left: 5px solid #138f94;
+    box-shadow: 0 8px 22px rgba(24, 62, 80, .08);
+}
+
+.schedule-overview-copy {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.schedule-overview-icon {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    background: #e7f6f5;
+    color: #087f83;
+    font-size: 18px;
+}
+
+.schedule-overview-label {
+    display: block;
+    margin-bottom: 2px;
+    color: #67818e;
+    font-size: 10px;
+    font-weight: 850;
+    letter-spacing: .08em;
+}
+
+.schedule-overview-copy h2 {
+    margin: 0;
+    color: #153754;
+    font-size: 18px;
+}
+
+.schedule-overview-copy p {
+    margin: 4px 0 0;
+    color: #738995;
+    font-size: 12px;
+}
+
+.schedule-edit-shell.is-collapsed {
+    display: none;
+}
+
+.schedule-edit-shell:not(.is-collapsed) {
+    animation: schedule-editor-open .16s ease-out;
+}
+
+@keyframes schedule-editor-open {
+    from { opacity: .25; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Stronger separation between the page, schedule cards and medication rows. */
+.schedule-settings-card,
+.schedule-editor-card {
+    background: #ffffff;
+    border-color: #bfd3dc;
+}
+
+.schedule-editor-card {
+    background: #f2f7f9;
+}
+
+.schedule-editor-day.active {
+    background: #ffffff;
+}
+
+.schedule-slot-editor {
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border: 1px solid #c4d7df;
+    box-shadow: 0 5px 15px rgba(29, 63, 82, .075);
+}
+
+.medication-edit-row {
+    background: #f7fafb;
+    border-color: #d5e2e7;
+}
+
+.medication-edit-row.has-medication,
+.committed-row {
+    background: #eef8f7;
+    border-color: #afd3d1;
+}
+
+.medication-edit-row select:disabled,
+.medication-edit-row input:disabled,
+.committed-medication-name,
+.readonly-quantity {
+    background: #e9eff2;
+    color: #7b8e97;
+    border-color: #cfdbdf;
+}
+
+.schedule-slot-editor.slot-readonly {
+    background: #f0f4f6;
+    border-color: #cbd7dc;
+}
+
+.schedule-slot-editor.slot-readonly .slot-medication-list {
+    opacity: .72;
+}
+
+/* Cancelling no longer changes card height. The rows remain in place and the
+   cancellation notice reserves the same space before/after the toggle. */
+.schedule-slot-editor.slot-cancelled .draft-row {
+    display: grid;
+    opacity: .42;
+}
+
+.slot-cancelled-message {
+    display: flex;
+    visibility: hidden;
+    opacity: 0;
+    min-height: 68px;
+    margin-top: 12px;
+    transition: opacity .12s ease;
+}
+
+.schedule-slot-editor.slot-cancelled .slot-cancelled-message,
+.schedule-slot-editor.persisted-cancelled .slot-cancelled-message {
+    visibility: visible;
+    opacity: 1;
+}
+
+.schedule-slot-editor.persisted-cancelled .slot-medication-list {
+    opacity: .42;
+}
+
+/* Keep the date/reminder row paired and all three dispense times inline. */
+@media (max-width: 620px) {
+    .schedule-preference-top {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .schedule-preference-times {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .schedule-preference-times .field {
+        min-width: 0;
+    }
+
+    .schedule-preference-times .field label {
+        display: block;
+        font-size: 12px;
+        margin-bottom: 5px;
+    }
+
+    .schedule-preference-times input[type="time"] {
+        display: block;
+        box-sizing: border-box;
+        width: 100%;
+        min-width: 0;
+        height: 44px;
+        padding: 7px 5px;
+        font-size: 14px;
+        font-variant-numeric: tabular-nums;
+        border-radius: 10px;
+    }
+
+    .schedule-preference-times input[type="time"]::-webkit-calendar-picker-indicator {
+        width: 13px;
+        height: 13px;
+        margin: 0;
+        padding: 0;
+    }
+
+    .schedule-preference-times .schedule-field-hint {
+        font-size: 9px;
+        white-space: nowrap;
+    }
+
+    .schedule-overview-card {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    .schedule-edit-toggle {
+        width: 100%;
+    }
+}
+
+@media (max-width: 420px) {
+    .schedule-preference-top {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Mobile day navigation --------------------------------------------------- */
+.schedule-mobile-day-nav {
+    display: none;
+}
+
+@media (max-width: 1400px) {
+    .schedule-mobile-day-nav {
+        position: sticky;
+        bottom: calc(68px + env(safe-area-inset-bottom));
+        z-index: 35;
+
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: center;
+        gap: 8px;
+
+        margin: 14px 10px 18px;
+        padding: 8px;
+
+        border: 1px solid #cfe0e7;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.97);
+        box-shadow: 0 10px 28px rgba(17, 52, 68, 0.16);
+        backdrop-filter: blur(10px);
+    }
+
+    .schedule-mobile-day-button {
+        min-width: 0;
+        min-height: 46px;
+        padding: 0 12px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        border: 1px solid #d5e5ea;
+        border-radius: 11px;
+        background: #eef7f8;
+        color: #0a626a;
+        font: inherit;
+        font-size: 0.82rem;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .schedule-mobile-day-button:disabled {
+        opacity: 0.4;
+        cursor: default;
+    }
+
+    .schedule-mobile-day-current {
+        min-width: 78px;
+        text-align: center;
+        line-height: 1.15;
+    }
+
+    .schedule-mobile-day-current strong,
+    .schedule-mobile-day-current span {
+        display: block;
+    }
+
+    .schedule-mobile-day-current strong {
+        color: #143f52;
+        font-size: 0.82rem;
+        white-space: nowrap;
+    }
+
+    .schedule-mobile-day-current span {
+        margin-top: 3px;
+        color: #718995;
+        font-size: 0.66rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .schedule-editor-day {
+        scroll-margin-top: 76px;
+    }
+}
+
+@media (max-width: 420px) {
+    .schedule-mobile-day-button span {
+        display: none;
+    }
+
+    .schedule-mobile-day-button {
+        padding-inline: 10px;
+    }
+}
+
+.schedule-sync-status {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    margin: 16px 0;
+    padding: 14px 16px;
+
+    border-radius: 13px;
+}
+
+.schedule-sync-status > i {
+    margin-top: 2px;
+    font-size: 17px;
+    flex: 0 0 auto;
+}
+
+.schedule-sync-status strong,
+.schedule-sync-status span {
+    display: block;
+}
+
+.schedule-sync-status strong {
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.schedule-sync-status span {
+    margin-top: 3px;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.schedule-sync-status.warning {
+    border: 1px solid #f0bd68;
+    background: #fff7e7;
+    color: #704b0b;
+}
+
+.schedule-sync-status.warning > i {
+    color: #db8d10;
+}
+
+.schedule-sync-status.warning span {
+    color: #8b672d;
+}
+
+.schedule-sync-status.success {
+    border: 1px solid #b9dfc8;
+    background: #eefaf2;
+    color: #1f6840;
+}
+
+.schedule-sync-status.success > i {
+    color: #2f9b62;
+}
+
+.schedule-sync-status.success span {
+    color: #4f8064;
+}
+/* Print link is available only while an active round exists. */
+.schedule-overview-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.schedule-print-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #e8f5f5; border: 1px solid #bcdfe1; color: #0b6570; text-decoration: none; font-weight: 750; }
+.schedule-print-button:hover { background: #d6eded; color: #084d56; }

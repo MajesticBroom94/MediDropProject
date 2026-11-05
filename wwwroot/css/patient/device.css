@@ -1,0 +1,813 @@
+
+.device-page-intro {
+    margin-bottom: 22px;
+}
+
+.device-page-intro h1 {
+    margin-bottom: 6px;
+}
+
+.device-page-intro p {
+    max-width: 720px;
+}
+
+
+/* ---------------------------------------------------------
+   Feedback messages
+   --------------------------------------------------------- */
+
+.device-feedback {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-bottom: 18px;
+    padding: 13px 15px;
+
+    border-radius: 12px;
+
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.device-feedback.success {
+    color: #17693a;
+    background: #ecf9f1;
+    border: 1px solid #bde5ca;
+}
+
+.device-feedback.error {
+    color: #9e2d2d;
+    background: #fff0f0;
+    border: 1px solid #f0c5c5;
+}
+
+.device-feedback i {
+    flex: 0 0 auto;
+}
+
+
+/* ---------------------------------------------------------
+   General cards
+   --------------------------------------------------------- */
+
+.device-overview-card,
+.pair-device-card {
+    margin-bottom: 20px;
+
+    border: 1px solid #dce8ed;
+    box-shadow: 0 8px 28px rgba(28, 65, 83, 0.055);
+}
+
+.device-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+
+    margin-bottom: 18px;
+}
+
+.device-card-head h2 {
+    margin: 3px 0 0;
+}
+
+.device-kicker {
+    display: block;
+
+    margin-bottom: 2px;
+
+    color: #178a94;
+
+    font-size: 0.73rem;
+    font-weight: 800;
+
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.device-section-copy {
+    margin: -4px 0 18px;
+
+    color: #667f8b;
+    font-size: 0.91rem;
+    line-height: 1.55;
+}
+
+
+/* ---------------------------------------------------------
+   Status pills
+   --------------------------------------------------------- */
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 6px 10px;
+
+    border-radius: 999px;
+
+    font-size: 0.77rem;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+.status-pill.green {
+    color: #197244;
+    background: #eaf8ef;
+    border: 1px solid #bee7cd;
+}
+
+.status-pill.red {
+    color: #a53b3b;
+    background: #fff0f0;
+    border: 1px solid #f0cccc;
+}
+
+
+/* ---------------------------------------------------------
+   Device status
+   --------------------------------------------------------- */
+
+.device-status-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.device-stat {
+    min-width: 0;
+
+    padding: 14px;
+
+    border: 1px solid #dde9ed;
+    border-radius: 13px;
+
+    background: #f9fcfd;
+}
+
+.device-stat span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #718995;
+
+    font-size: 0.73rem;
+    font-weight: 700;
+
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.device-stat strong {
+    display: block;
+
+    overflow-wrap: anywhere;
+
+    color: #254652;
+
+    font-size: 0.93rem;
+}
+
+
+/* ---------------------------------------------------------
+   Pair / recovery forms
+   --------------------------------------------------------- */
+
+.device-pair-form,
+.device-recovery-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+
+    align-items: end;
+}
+
+.device-field {
+    position: relative;
+    min-width: 0;
+}
+
+.device-field input {
+    width: 100%;
+}
+
+.device-form-button {
+    min-height: 44px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    white-space: nowrap;
+}
+
+
+/* ---------------------------------------------------------
+   Field labels and help popups
+   --------------------------------------------------------- */
+
+.field-label-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    margin-bottom: 7px;
+}
+
+.field-label-row label {
+    margin: 0;
+
+    color: #294956;
+
+    font-size: 0.84rem;
+    font-weight: 700;
+}
+
+.field-help {
+    position: relative;
+
+    display: inline-flex;
+
+    flex: 0 0 auto;
+}
+
+.field-help summary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 21px;
+    height: 21px;
+
+    padding: 0;
+
+    border: 0;
+    border-radius: 50%;
+
+    color: #188b94;
+    background: transparent;
+
+    font-size: 0.81rem;
+
+    cursor: pointer;
+    list-style: none;
+
+    transition:
+            color 0.15s ease,
+            background 0.15s ease;
+}
+
+.field-help summary::-webkit-details-marker {
+    display: none;
+}
+
+.field-help summary::marker {
+    display: none;
+}
+
+.field-help summary:hover,
+.field-help summary:focus-visible {
+    color: #075f67;
+    background: #e8f6f7;
+
+    outline: none;
+}
+
+.field-help-popup {
+    position: absolute;
+    z-index: 100;
+
+    top: calc(100% + 9px);
+    left: 50%;
+
+    width: 270px;
+
+    padding: 11px 13px;
+
+    transform: translateX(-50%) translateY(-3px);
+
+    color: #ffffff;
+    background: #173d4c;
+
+    border-radius: 10px;
+
+    box-shadow:
+            0 12px 28px rgba(18, 47, 59, 0.22);
+
+    font-size: 0.78rem;
+    font-weight: 500;
+    line-height: 1.45;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition:
+            opacity 0.15s ease,
+            transform 0.15s ease,
+            visibility 0.15s ease;
+}
+
+.field-help-popup::before {
+    content: "";
+
+    position: absolute;
+
+    top: -5px;
+    left: 50%;
+
+    width: 10px;
+    height: 10px;
+
+    transform:
+            translateX(-50%)
+            rotate(45deg);
+
+    background: #173d4c;
+}
+
+.field-help[open] .field-help-popup {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+
+    transform: translateX(-50%) translateY(0);
+}
+
+@media (hover: hover) {
+
+    .field-help:hover .field-help-popup {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+
+/* ---------------------------------------------------------
+   Accordion
+   --------------------------------------------------------- */
+
+.device-accordion-stack {
+    display: grid;
+    gap: 14px;
+}
+
+.device-accordion {
+    overflow: visible;
+    margin-top: 20px;
+    border: 1px solid #d8e6eb;
+    border-radius: 15px;
+
+    background: #ffffff;
+
+    box-shadow:
+            0 7px 24px rgba(28, 65, 83, 0.045);
+}
+
+.device-accordion > summary {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+
+    padding: 15px 17px;
+
+    list-style: none;
+
+    cursor: pointer;
+    user-select: none;
+}
+
+.device-accordion > summary::-webkit-details-marker {
+    display: none;
+}
+
+.device-accordion > summary::marker {
+    display: none;
+}
+
+.accordion-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+
+    border-radius: 11px;
+
+    color: #168993;
+    background: #eaf7f8;
+
+    font-size: 0.93rem;
+}
+
+.accordion-copy {
+    display: grid;
+    gap: 2px;
+
+    min-width: 0;
+}
+
+.accordion-copy strong {
+    color: #244550;
+    font-size: 0.94rem;
+}
+
+.accordion-copy small {
+    color: #708893;
+    font-size: 0.79rem;
+    line-height: 1.35;
+}
+
+.accordion-chevron {
+    color: #8298a1;
+
+    transition: transform 0.18s ease;
+}
+
+.device-accordion[open] .accordion-chevron {
+    transform: rotate(180deg);
+}
+
+.device-accordion-content {
+    padding: 0 17px 17px;
+
+    border-top: 1px solid #edf3f5;
+}
+
+
+/* ---------------------------------------------------------
+   Commands
+   --------------------------------------------------------- */
+
+.device-command-list {
+    display: grid;
+}
+
+.device-command-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 18px;
+
+    padding: 16px 0;
+
+    border-bottom: 1px solid #edf3f5;
+}
+
+.device-command-row:last-child {
+    border-bottom: 0;
+}
+
+.command-copy {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    min-width: 0;
+}
+
+.command-copy > div {
+    min-width: 0;
+}
+
+.command-copy strong {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #274854;
+    font-size: 0.9rem;
+}
+
+.command-copy p {
+    margin: 0;
+
+    color: #718891;
+
+    font-size: 0.8rem;
+    line-height: 1.45;
+}
+
+.command-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+
+    width: 36px;
+    height: 36px;
+
+    border-radius: 10px;
+
+    font-size: 0.88rem;
+}
+
+.command-icon.blue {
+    color: #3277b6;
+    background: #edf5fc;
+}
+
+.command-icon.teal {
+    color: #128590;
+    background: #eaf8f8;
+}
+
+.command-icon.red {
+    color: #b64747;
+    background: #fff0f0;
+}
+
+.danger-row {
+    margin-top: 1px;
+}
+
+
+/* ---------------------------------------------------------
+   Support / recovery
+   --------------------------------------------------------- */
+
+.support-explanation {
+    margin: 15px 0 17px;
+}
+
+.support-explanation strong {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #284a56;
+    font-size: 0.9rem;
+}
+
+.support-explanation p {
+    margin: 0;
+
+    max-width: 720px;
+
+    color: #708892;
+    font-size: 0.81rem;
+    line-height: 1.5;
+}
+
+
+/* ---------------------------------------------------------
+   Recovery code
+   --------------------------------------------------------- */
+
+.recovery-code-panel {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    margin-top: 16px;
+    padding: 14px;
+
+    border: 1px solid #bfe1d0;
+    border-radius: 13px;
+
+    background: #f1faf5;
+}
+
+.recovery-code-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 40px;
+    height: 40px;
+
+    flex: 0 0 auto;
+
+    border-radius: 11px;
+
+    color: #1f8150;
+    background: #dff3e7;
+}
+
+.recovery-code-copy {
+    display: grid;
+    gap: 2px;
+
+    min-width: 0;
+}
+
+.recovery-code-copy span {
+    color: #56766a;
+
+    font-size: 0.72rem;
+    font-weight: 700;
+
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.recovery-code-copy strong {
+    color: #21543b;
+
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+
+    overflow-wrap: anywhere;
+}
+
+.recovery-code-copy small {
+    color: #6c8379;
+}
+
+.recovery-note {
+    margin: 7px 0 0;
+
+    color: #718991;
+    font-size: 0.76rem;
+}
+
+
+/* =========================================================
+   Tablet
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+    .device-status-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+/* =========================================================
+   Mobile
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .device-page-intro {
+        margin-bottom: 17px;
+    }
+
+    .device-card-head {
+        gap: 10px;
+    }
+
+    .device-card-head h2 {
+        font-size: 1.08rem;
+    }
+
+    .device-status-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .device-stat {
+        padding: 11px;
+    }
+
+    .device-stat strong {
+        font-size: 0.84rem;
+    }
+
+
+    /* Forms */
+
+    .device-pair-form,
+    .device-recovery-form {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .device-form-button {
+        width: 100%;
+    }
+
+
+    /* Tooltip */
+
+    .field-help-popup {
+        left: 0;
+
+        width: min(270px, calc(100vw - 54px));
+
+        transform: translateY(-3px);
+    }
+
+    .field-help-popup::before {
+        left: 7px;
+
+        transform: rotate(45deg);
+    }
+
+    .field-help[open] .field-help-popup {
+        transform: translateY(0);
+    }
+
+
+    /* Accordion */
+
+    .device-accordion > summary {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+
+        gap: 9px;
+
+        padding: 13px;
+    }
+
+    .accordion-icon {
+        width: 34px;
+        height: 34px;
+    }
+
+    .accordion-copy strong {
+        font-size: 0.87rem;
+    }
+
+    .accordion-copy small {
+        font-size: 0.73rem;
+    }
+
+    .device-accordion-content {
+        padding: 0 13px 13px;
+    }
+
+
+    /* Commands */
+
+    .device-command-row {
+        grid-template-columns: 1fr;
+
+        gap: 11px;
+
+        padding: 14px 0;
+    }
+
+    .device-command-row form {
+        width: 100%;
+    }
+
+    .device-command-row form .btn {
+        width: 100%;
+    }
+
+    .command-copy p {
+        font-size: 0.76rem;
+    }
+}
+
+
+/* =========================================================
+   Small phones
+   ========================================================= */
+
+@media (max-width: 420px) {
+
+    .device-status-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .status-pill {
+        padding: 5px 8px;
+
+        font-size: 0.69rem;
+    }
+
+    .device-card-head {
+        align-items: flex-start;
+    }
+
+    .device-feedback {
+        padding: 11px 12px;
+
+        font-size: 0.82rem;
+    }
+}
+
+/* Unpair action is isolated from device command controls. */
+.device-unpair-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 18px;
+}
+.device-unpair-copy { flex: 1 1 260px; }
+.device-unpair-copy h2 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+    color: #0b3157;
+}
+.device-unpair-copy h2 i { color: #a83a47; margin-right: 7px; }
+.device-unpair-copy p { margin: 0; color: #56758f; font-size: .85rem; line-height: 1.6; }
+.device-unpair-card form { margin: 0; }
+@media (max-width: 650px) {
+    .device-unpair-card form, .device-unpair-card form button { width: 100%; }
+}

@@ -1,0 +1,91 @@
+@model MediDropProject.Models.Patient.EditMedicationViewModel
+@{
+    Layout = "_PatientLayout";
+    ViewData["Title"] = "Edit medication";
+    ViewData["Eyebrow"] = "Medication";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/patient/edit-medication.css" asp-append-version="true" />
+}
+
+<div class="page-intro edit-medication-intro">
+    <div>
+        <a class="back-link" asp-action="Inventory">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Inventory
+        </a>
+        <h1>Edit medication</h1>
+        <p>Update the number of medication units you have on hand.</p>
+    </div>
+</div>
+
+<div class="edit-medication-workspace">
+    <div class="edit-medication-main">
+        <section class="card edit-medication-overview" aria-label="Selected medication">
+            <div class="edit-medication-identity">
+                <span class="edit-medication-icon"><i class="fa-solid fa-capsules" aria-hidden="true"></i></span>
+                <div class="edit-medication-name">
+                    <span class="edit-medication-label">Selected medication</span>
+                    <h2>@Model.MedicationName</h2>
+                    <p>@(Model.Strength ?? "Strength not specified") <span aria-hidden="true">·</span> @(Model.Form ?? "Form not specified")</p>
+                </div>
+            </div>
+            <a class="btn edit-medication-details-link"
+               asp-action="InventoryDetails" asp-route-id="@Model.Id">
+                <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                <text>&nbsp; Item details</text>
+            </a>
+        </section>
+
+        <form asp-action="EditMedication" method="post" class="card edit-medication-form">
+            @Html.AntiForgeryToken()
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="MedicationName" type="hidden" />
+            <input asp-for="Strength" type="hidden" />
+            <input asp-for="Form" type="hidden" />
+            <input asp-for="CurrentQuantity" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="notice error"></div>
+
+            <div class="edit-medication-section-heading">
+                <span class="edit-medication-section-icon"><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i></span>
+                <div>
+                    <h2>Update inventory quantity</h2>
+                    <p>Set the total number of units you currently have.</p>
+                </div>
+            </div>
+
+            <div class="field edit-medication-quantity-field">
+                <label asp-for="Quantity">Quantity on hand</label>
+                <input asp-for="Quantity" type="number" min="0" max="10000" step="1" inputmode="numeric" />
+                <span asp-validation-for="Quantity"></span>
+                <small>Enter your current total, not the number to add. Use 0 if none remain.</small>
+            </div>
+
+            <div class="edit-medication-form-actions">
+                <a class="btn" asp-action="Inventory">Cancel</a>
+                <button class="btn primary" type="submit">
+                    <i class="fa-solid fa-check" aria-hidden="true"></i> 
+                    <text>&nbsp; Save changes</text>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <section class="card edit-medication-remove" aria-labelledby="edit-medication-remove-title">
+        <div class="edit-medication-remove-icon"><i class="fa-solid fa-box-archive" aria-hidden="true"></i></div>
+        <div class="edit-medication-remove-copy">
+            <h2 id="edit-medication-remove-title">Remove from inventory</h2>
+            <p>Remove this medication from your active inventory. Its history will be kept.</p>
+        </div>
+        <form asp-action="RemoveMedication" method="post"
+              onsubmit="return confirm('Remove this medication from your active inventory?');">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button class="btn danger" type="submit">
+                <i class="fa-solid fa-box-archive" aria-hidden="true"></i> 
+                <text>&nbsp; Remove medication</text>
+            </button>
+        </form>
+    </section>
+</div>

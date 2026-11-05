@@ -1,0 +1,125 @@
+@using MediDropProject.Domain.Enums
+@model MediDropProject.Models.Admin.AdminMedicationEditViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Review medication";
+    var isPending = Model.Status == MedicationStatus.Pending;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin/medication-review.css" asp-append-version="true"/>
+}
+
+<a class="admin-back" asp-action="Medications"><i class="fa-solid fa-arrow-left"></i> Medication catalogue</a>
+<div class="admin-heading med-review-heading">
+    <div>
+        <span class="admin-eyebrow">CATALOGUE MANAGEMENT</span>
+        <h1>@(isPending ? "Review medication" : "Edit medication") #@Model.Id</h1>
+        <p>Review the catalogue information and choose the medication status before saving.</p>
+    </div>
+    <span class="admin-pill @Model.Status.ToString().ToLowerInvariant()">@Html.DisplayFor(m => m.Status)</span>
+</div>
+<form asp-action="EditMedication" method="post" enctype="multipart/form-data" class="med-review-form">
+    @Html.AntiForgeryToken()
+    <input asp-for="Id" type="hidden"/>
+    <div asp-validation-summary="ModelOnly" class="med-review-validation"></div>
+    <div class="med-review-grid">
+        <div class="med-review-main">
+            <section class="admin-panel med-review-panel">
+                <div class="med-review-panel-head"><i class="fa-solid fa-capsules"></i>
+                    <h2>Medication details</h2></div>
+                <div class="med-review-panel-body med-review-fields">
+                    <label>Name <input asp-for="Name" required maxlength="200"/><span asp-validation-for="Name"></span></label>
+                    <label>Generic name <input asp-for="GenericName"/></label>
+                    <label>Strength <input asp-for="Strength"/></label>
+                    <label>Form 
+                        <select asp-for="Form">
+                            <option value="Tablet">Tablet</option>
+                            <option value="Capsule">Capsule</option>
+                            <option value="Gastro-resistant capsule">Suppository</option>
+                            <option value="Syrup">Syrup</option>
+                            <option value="Drops">Drops</option>
+                            <option value="Cream">Cream</option>
+                            <option value="Ointment">Ointment</option>
+                            <option value="Injection">Injection</option>
+                            <option value="Inhaler">Inhaler</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </label>
+                    <label>Barcode <input asp-for="Barcode"/><span asp-validation-for="Barcode"></span></label>
+                    <label>Manufacturer <select asp-for="ManufacturerId" asp-items="ViewBag.Manufacturers">
+                            <option value="">Not specified</option>
+                        </select><span asp-validation-for="ManufacturerId"></span></label>
+                </div>
+            </section>
+            <section class="admin-panel med-review-panel">
+                <div class="med-review-panel-head"><i class="fa-solid fa-file-medical"></i>
+                    <h2>Additional information</h2></div>
+                <div class="med-review-panel-body med-review-fields med-review-long-fields">
+                    <label>Description <textarea asp-for="Description" rows="3"></textarea></label>
+                    <label>Active ingredients <textarea asp-for="ActiveIngredients" rows="3"></textarea></label>
+                    <label class="med-review-wide">Safety information <textarea asp-for="SafetyInformation"
+                                                                                rows="3"></textarea></label>
+                </div>
+            </section>
+        </div>
+        <div class="med-review-side">
+            <section class="admin-panel med-review-panel">
+                <div class="med-review-panel-head"><i class="fa-solid fa-image"></i>
+                    <h2>Medication image</h2></div>
+                <div class="med-review-panel-body">
+                    <div class="med-review-image" id="medicationImagePreview">
+                        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                        {
+                            <img src="@Model.ImageUrl" alt="Current medication image"/>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-pills" aria-hidden="true"></i>
+                            <span>No image uploaded</span>
+                        }
+                    </div>
+                    <label class="med-review-upload" for="medicationImage"><i class="fa-solid fa-upload"></i> Upload /
+                        replace image</label>
+                    <input asp-for="Image" id="medicationImage" type="file" accept="image/jpeg,image/png,image/webp"
+                           class="med-review-file"/>
+                    <span asp-validation-for="Image" class="med-review-field-error"></span>
+                    <small class="med-review-hint">JPG, PNG or WebP · Maximum 2 MB</small>
+                </div>
+            </section>
+            <section class="admin-panel med-review-panel med-review-status-panel">
+                <div class="med-review-panel-head"><i class="fa-solid fa-clipboard-check"></i>
+                    <h2>Status &amp; actions</h2></div>
+                <div class="med-review-panel-body">
+                    <label class="med-review-status">Medication status
+                        <select asp-for="Status" asp-items="Html.GetEnumSelectList<MedicationStatus>()"></select>
+                        <span asp-validation-for="Status" class="med-review-field-error"></span>
+                    </label>
+                    <button class="admin-btn primary med-review-save" type="submit"><i class="fa-solid fa-check"></i>
+                        Save changes
+                    </button>
+                    <a class="admin-btn med-review-cancel"
+                       asp-action="@(isPending ? "Medications" : "MedicationDetails")"
+                       asp-route-id="@Model.Id">Cancel</a>
+                </div>
+            </section>
+        </div>
+    </div>
+</form>
+<script>
+    (() => {
+        const input = document.getElementById('medicationImage');
+        const holder = document.getElementById('medicationImagePreview');
+        let objectUrl;
+        input?.addEventListener('change', () => {
+            const file = input.files?.[0];
+            if (!file) return;
+            if (objectUrl) URL.revokeObjectURL(objectUrl);
+            objectUrl = URL.createObjectURL(file);
+            const img = document.createElement('img');
+            img.src = objectUrl;
+            img.alt = 'New medication image preview';
+            holder.replaceChildren(img);
+        });
+    })();
+</script>

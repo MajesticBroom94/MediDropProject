@@ -1,0 +1,235 @@
+@using MediDropProject.Domain.Enums
+@using MediDropProject.Data
+@using MediDropProject.Domain.Entities
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext Db
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    string Active(params string[] names) => names.Contains(action, StringComparer.OrdinalIgnoreCase) ? "active" : "";
+    string NotificationActive() => controller.Equals("Notification", StringComparison.OrdinalIgnoreCase) ? "active" : "";
+    string DashboardActive(params string[] names) => controller.Equals("CareProvider", StringComparison.OrdinalIgnoreCase) 
+                                                     && names.Contains(action, StringComparer.OrdinalIgnoreCase) ? "active" : "";
+
+    ApplicationUser? currentUser = null;
+    var unreadNotificationCount = 0;
+
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        currentUser = await UserManager.GetUserAsync(User);
+        if (currentUser != null)
+        {
+            unreadNotificationCount = await Db.Notifications
+                .AsNoTracking()
+                .CountAsync(n => n.UserId == currentUser.Id && n.RecipientProfile == LastSelectedProfile.CareProvider && n.ReadAt == null && n.RemovedAt == null);
+        }
+    }
+
+    var canSwitchProfile = currentUser != null &&
+        User.IsInRole("Patient") &&
+        await Db.Patients.AsNoTracking().AnyAsync(p => p.UserId == currentUser.Id);
+
+    var notificationBadge = unreadNotificationCount > 99 ? "99+" : unreadNotificationCount.ToString();
+    var firstName = currentUser?.FirstName?.Trim() ?? "";
+    var lastName = currentUser?.LastName?.Trim() ?? "";
+    var providerName = $"{firstName} {lastName}".Trim();
+    if (string.IsNullOrWhiteSpace(providerName)) providerName = "Care provider";
+    var initials = ((firstName.Length > 0 ? firstName[..1] : "") +
+                    (lastName.Length > 0 ? lastName[..1] : "")).ToUpperInvariant();
+    if (string.IsNullOrEmpty(initials)) initials = "CP";
+
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>@ViewData["Title"] · MediDrop Provider</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link rel="icon" type="image/png" href="~/images/medidrop-logo.png" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/careProvider/provider.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/careProvider/patient-workspace-header.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/careProvider/provider-account.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/account/profile-switch.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/account/account-profile.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/shared/support-popup.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/notification/live-notifications.css" asp-append-version="true"/>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="provider-body">
+<div class="provider-shell">
+    <div class="provider-drawer-backdrop" id="provider-drawer-backdrop" aria-hidden="true"></div>
+    <aside class="provider-sidebar" id="provider-sidebar" aria-label="Care provider menu">
+        <div class="provider-sidebar-header">
+            <a class="provider-brand" asp-controller="CareProvider" asp-action="Index">
+                <img src="~/images/medidrop-logo.png" alt="MediDrop" />
+                <span><strong>MediDrop</strong><small>Care provider portal</small></span>
+            </a>
+            <button type="button" class="provider-sidebar-close" id="provider-sidebar-close" aria-label="Close menu">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <nav class="provider-nav" aria-label="Care provider navigation">
+            <span class="nav-label">Workspace</span>
+            
+            <a class="@DashboardActive("Index")" asp-controller="CareProvider" asp-action="Index"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+            
+            <span class="nav-label">Patient care</span>
+            <a class="@Active("Patients",
+                          "PatientDetails", 
+                          "Adherence",
+                          "PatientSchedule",
+                          "PatientMedications",
+                          "PatientPrescriptions",
+                          "PrescriptionDetails",
+                          "EditDraftPrescription", 
+                          "CreatePrescription")" 
+               asp-controller="CareProvider" asp-action="Patients"><i class="fa-solid fa-users"></i> My patients</a>
+            
+            <a class="@Active("RequestPatient")" asp-controller="CareProvider" asp-action="RequestPatient">
+                <i class="fa-solid fa-user-plus"></i> Request patient
+            </a>
+            
+            <span class="nav-label">Medication</span>
+           
+            <a class="@Active("Medications", "SubmitMedication")" asp-controller="CareProvider" asp-action="Medications">
+                <i class="fa-solid fa-capsules"></i> Catalogue
+            </a>
+           
+            <span class="nav-label">Account</span>
+            
+            <a class="@NotificationActive()" data-notification-link asp-controller="Notification" asp-action="Index">
+                <i class="fa-regular fa-bell"></i> Notifications
+                @if (unreadNotificationCount > 0)
+                {
+                    <b class="provider-nav-count">@notificationBadge</b>
+                }
+            </a>
+        </nav>
+        <div class="sidebar-bottom provider-account-bottom">
+            <details class="profile-switch-menu">
+            <summary class="provider-profile-chip profile-switch-trigger">
+                <span class="avatar" aria-hidden="true">@initials</span>
+                <span class="provider-profile-details">
+                    <strong>@providerName</strong>
+                    <small>@(currentUser?.Email ?? "")</small>
+                </span>
+                
+                <span class="profile-switch-toggle-icon" aria-hidden="true">
+                    <i class="fa-solid fa-chevron-up profile-switch-chevron"></i>
+                    <i class="fa-solid fa-xmark profile-switch-x"></i>
+                </span>
+            </summary>
+                <div class="profile-switch-popup">
+                    <div class="profile-switch-popup-title">Current profile: Care provider</div>
+                    <a class="profile-switch-action profile-switch-edit" asp-controller="AccountProfile" asp-action="Index">
+                        <i class="fa-solid fa-user-gear" aria-hidden="true"></i>
+                        Edit profile &amp; security
+                    </a>
+                    @if (canSwitchProfile)
+                    {
+                        <form asp-controller="Account" asp-action="SwitchProfile" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="selectedProfile" value="Patient" />
+                            <button class="profile-switch-action" type="submit">
+                                <i class="fa-solid fa-right-left" aria-hidden="true"></i>
+                                Switch profile
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="profile-switch-unavailable">No other profile available</span>
+                    }
+                </div>
+            </details>
+            <form asp-controller="Account" asp-action="Logout" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="provider-logout-button">
+                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Sign out
+                </button>
+            </form>
+        </div>
+    </aside>
+    <div class="provider-workspace">
+        <header class="provider-topbar">
+            <button type="button" class="provider-menu-toggle" id="provider-menu-toggle" aria-label="Open menu" aria-controls="provider-sidebar" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <a class="topbar-brand" asp-controller="CareProvider" asp-action="Index">MediDrop</a>
+            <span class="topbar-caption">@ViewData["Title"]</span>
+            <div class="topbar-actions">
+                
+                @await Html.PartialAsync("_SupportPopup")
+                
+                <a class="provider-top-notice" data-notification-link asp-controller="Notification" asp-action="Index" aria-label="Notifications">
+                    <i class="fa-regular fa-bell" aria-hidden="true"></i>
+                    @if (unreadNotificationCount > 0)
+                    {
+                        <span class="provider-notice-count">@notificationBadge</span>
+                    }
+                </a>
+            </div>
+        </header>
+        <main class="provider-content">@RenderBody()</main>
+    </div>
+</div>
+<nav class="provider-mobile-nav" aria-label="Mobile care provider navigation">
+    <a class="@Active("Index")" asp-controller="CareProvider" asp-action="Index"><i class="fa-solid fa-house"></i><span>Home</span></a>
+    <a class="@Active("Patients", "PatientDetails", "Adherence", "PatientSchedule", "PatientMedications")" asp-controller="CareProvider" asp-action="Patients"><i class="fa-solid fa-users"></i><span>Patients</span></a>
+    <a class="@Active("Medications", "SubmitMedication")" asp-controller="CareProvider" asp-action="Medications"><i class="fa-solid fa-capsules"></i><span>Catalogue</span></a>
+    <button type="button" id="provider-mobile-more" aria-label="More navigation options" aria-controls="provider-sidebar" aria-expanded="false"><i class="fa-solid fa-ellipsis"></i><span>More</span></button>
+</nav>
+<script>
+(() => {
+    const body = document.body;
+    const sidebar = document.getElementById('provider-sidebar');
+    const toggle = document.getElementById('provider-menu-toggle');
+    const more = document.getElementById('provider-mobile-more');
+    const close = document.getElementById('provider-sidebar-close');
+    const backdrop = document.getElementById('provider-drawer-backdrop');
+    const mobile = window.matchMedia('(max-width: 760px)');
+    let previousFocus = null;
+    const focusables = () => [...sidebar.querySelectorAll('a, button')].filter(el => el.getClientRects().length);
+    function setOpen(open) {
+        const show = open && mobile.matches;
+        body.classList.toggle('drawer-open', show);
+        toggle.setAttribute('aria-expanded', String(show));
+        more.setAttribute('aria-expanded', String(show));
+        sidebar.inert = mobile.matches && !show;
+        if (show) {
+            previousFocus = document.activeElement;
+            close.focus();
+        } else if (previousFocus && mobile.matches) {
+            previousFocus.focus();
+            previousFocus = null;
+        }
+    }
+    toggle.addEventListener('click', () => setOpen(true));
+    more.addEventListener('click', () => setOpen(true));
+    close.addEventListener('click', () => setOpen(false));
+    backdrop.addEventListener('click', () => setOpen(false));
+    sidebar.querySelectorAll('nav a').forEach(link => link.addEventListener('click', () => setOpen(false)));
+    document.addEventListener('keydown', e => {
+        if (!body.classList.contains('drawer-open')) return;
+        if (e.key === 'Escape') { setOpen(false); return; }
+        if (e.key !== 'Tab') return;
+        const items = focusables();
+        if (!items.length) return;
+        if (e.shiftKey && document.activeElement === items[0]) { e.preventDefault(); items[items.length - 1].focus(); }
+        else if (!e.shiftKey && document.activeElement === items[items.length - 1]) { e.preventDefault(); items[0].focus(); }
+    });
+    mobile.addEventListener('change', () => setOpen(false));
+    setOpen(false);
+})();
+</script>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/js/live-notifications.js" asp-append-version="true" defer></script>
+<script src="~/js/support-popup.js" asp-append-version="true" defer></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,256 @@
+.notification-heading {
+    align-items: flex-end
+}
+
+.notification-heading form {
+    margin: 0
+}
+
+.notification-heading h1 {
+    margin-top: 1px;
+}
+
+.notification-summary {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 0 0 16px;
+    color: #5f747d
+}
+
+.notification-summary strong {
+    font-size: 1.35rem;
+    color: #123b49
+}
+
+.notification-list {
+    display: grid;
+    gap: 14px
+}
+
+.notification-card {
+    position: relative;
+    display: grid;
+    grid-template-columns:48px minmax(0, 1fr);
+    gap: 15px;
+    padding: 18px;
+    border: 1px solid #d8e3e7;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 5px 15px rgba(24, 62, 78, .045);
+    transition: .18s ease
+}
+
+.notification-card.is-unread {
+    border-color: #91d0d0;
+    border-left: 5px solid #118b91;
+    background: linear-gradient(90deg, #f1fbfb 0, #fff 32%);
+    box-shadow: 0 7px 18px rgba(17, 139, 145, .08)
+}
+
+.notification-card.is-read {
+    background: #fbfcfc;
+    color: #667a82
+}
+
+.notification-card.is-read h2 {
+    color: #415a64
+}
+
+.notification-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background: #e9f6f6;
+    color: #0d7d84;
+    font-size: 1.05rem
+}
+
+.notification-card.is-read .notification-icon {
+    background: #eef1f2;
+    color: #85949a
+}
+
+.notification-title-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start
+}
+
+.notification-title-row h2 {
+    margin: 0 0 5px;
+    font-size: 1.02rem;
+    color: #173e4b
+}
+
+.notification-content > p {
+    margin: 11px 0 15px;
+    color: #536b75;
+    line-height: 1.55
+}
+
+.notification-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: .77rem;
+    color: #87969c
+}
+
+.unread-badge {
+    flex: 0 0 auto;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: #dff6f4;
+    color: #08767a;
+    font-size: .72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .04em
+}
+
+.notification-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center
+}
+
+.notification-actions form {
+    margin: 0
+}
+
+.notification-actions .btn {
+    min-height: 38px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: .82rem
+}
+
+.notification-read {
+    background: #edf8f8 !important;
+    border-color: #a6d9d8 !important;
+    color: #0c7479 !important
+}
+
+.notification-remove {
+    background: #fff7f7 !important;
+    border-color: #e7caca !important;
+    color: #a44949 !important
+}
+
+.notification-view {
+    background: #123f51 !important;
+    border-color: #123f51 !important;
+    color: #fff !important;
+    text-decoration: none
+}
+
+.notification-empty {
+    text-align: center;
+    padding: 48px 22px
+}
+
+.notification-empty-icon {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 14px;
+    border-radius: 18px;
+    display: grid;
+    place-items: center;
+    background: #edf7f7;
+    color: #0c7b81;
+    font-size: 1.4rem
+}
+
+.notification-empty h2 {
+    margin: 0 0 6px
+}
+
+.notification-empty p {
+    margin: 0;
+    color: #74868d
+}
+
+.notification-card.high, .notification-card.urgent, .notification-card.critical {
+    border-top-color: #e3b56c
+}
+
+@media (max-width: 640px) {
+    .notification-heading {
+        align-items: stretch
+    }
+
+    .notification-heading form, .notification-heading .btn {
+        width: 100%
+    }
+
+    .notification-card {
+        grid-template-columns:38px minmax(0, 1fr);
+        gap: 11px;
+        padding: 14px;
+        border-radius: 15px
+    }
+
+    .notification-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px
+    }
+
+    .notification-title-row {
+        gap: 8px
+    }
+
+    .notification-title-row h2 {
+        font-size: .96rem
+    }
+
+    .unread-badge {
+        font-size: .65rem;
+        padding: 4px 7px
+    }
+
+    .notification-content > p {
+        font-size: .9rem;
+        margin: 9px 0 13px
+    }
+
+    .notification-actions {
+        display: grid;
+        grid-template-columns:1fr 1fr
+    }
+
+    .notification-actions form {
+        display: contents
+    }
+
+    .notification-actions .btn {
+        width: 100%;
+        justify-content: center
+    }
+
+    .notification-actions .notification-view:last-child {
+        grid-column: 1/-1
+    }
+}
+
+
+/* One shared notifications view; theme is selected by current portal profile. */
+.notification-portal {--nt-accent:#118b91;--nt-dark:#123f51;--nt-tint:#f1fbfb;--nt-border:#91d0d0;--nt-icon:#e9f6f6;--nt-ink:#0d7d84;--nt-soft:#dff6f4;--nt-badge:#08767a}
+.notification-theme-provider {--nt-accent:#0c7797;--nt-dark:#123858;--nt-tint:#eef7fc;--nt-border:#a7cddd;--nt-icon:#e4f1f8;--nt-ink:#14658d;--nt-soft:#e5f2fb;--nt-badge:#155c86}
+.notification-theme-admin {--nt-accent:#087d94;--nt-dark:#123858;--nt-tint:#edf6fb;--nt-border:#87bfd0;--nt-icon:#e3f1f7;--nt-ink:#0b6e8a;--nt-soft:#deeff7;--nt-badge:#145b7b}
+.notification-portal .notification-heading {border-bottom:1px solid #d9e8ee;padding-bottom:16px;margin-bottom:16px}
+.notification-portal .notification-heading h1 {color:var(--nt-dark)}
+.notification-portal .notification-heading .btn {border:1px solid var(--nt-border);background:var(--nt-tint);color:var(--nt-dark);font-weight:800}
+.notification-portal .notification-summary strong {color:var(--nt-dark)}
+.notification-portal .notification-card.is-unread {border-color:var(--nt-border);border-left:5px solid var(--nt-accent);background:linear-gradient(90deg,var(--nt-tint),#fff 38%)}
+.notification-portal .notification-icon {background:var(--nt-icon);color:var(--nt-ink)}
+.notification-portal .unread-badge {background:var(--nt-soft);color:var(--nt-badge)}
+.notification-portal .notification-view {background:var(--nt-dark)!important;border-color:var(--nt-dark)!important;color:#fff!important}
+.notification-portal .notification-read {background:var(--nt-tint)!important;border-color:var(--nt-border)!important;color:var(--nt-ink)!important}
+.notification-portal .notification-empty-icon {background:var(--nt-icon);color:var(--nt-ink)}
+.notification-theme-admin .notification-heading h1,.notification-theme-provider .notification-heading h1 {font-size:clamp(1.5rem,2.5vw,2rem)}

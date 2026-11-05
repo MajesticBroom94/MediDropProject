@@ -1,0 +1,102 @@
+@model MediDropProject.Models.Admin.AdminDevicesViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Devices";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin/device-provisioning.css" asp-append-version="true" />
+}
+<div class="admin-heading admin-devices-heading">
+    <div>
+        <span class="admin-eyebrow">DEVICE OVERSIGHT</span>
+        <h1>Registered dispensers</h1>
+        <p>Registration and patient assignments for MediDrop devices.</p>
+    </div>
+    @if (User.IsInRole("SuperAdmin"))
+    {
+        <form asp-controller="Admin" asp-action="ProvisionDevice" method="post"
+              onsubmit="return confirm('Provision a new dispenser and download its one-time credentials?');">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="admin-btn admin-device-provision-button">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Provision new device
+            </button>
+        </form>
+    }
+</div>
+<section class="admin-panel admin-list-shell admin-devices-page admin-device-inventory">
+    <div class="admin-panel-head admin-modern-head">
+        <div class="admin-modern-head-label">
+            <i class="fa-solid fa-microchip" aria-hidden="true"></i>
+            <div><h2>Device inventory</h2>
+                <p>Registered devices and their assigned patients</p></div>
+        </div>
+        <span class="admin-modern-count">@Model.Pagination.Total device@(Model.Pagination.Total == 1 ? "" : "s")</span>
+    </div>
+    @if (Model.Items.Count == 0)
+    {
+        <p class="admin-empty">No registered dispensers.</p>
+    }
+    else
+    {
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>Device</th>
+                    <th>Assigned patient</th>
+                    <th>Status</th>
+                    <th>Assigned since</th>
+                    <th>Registered</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var d in Model.Items)
+                {
+                    <tr>
+                        <td data-label="Device">
+                            <strong>@(d.Name ?? "MediDrop Dispenser")</strong>
+                            <small><b>UID:</b> @d.Uid</small>
+                        </td>
+                        <td data-label="Assigned patient">
+                            @if (d.AssignedPatient != null)
+                            {
+                                <a class="admin-device-patient-link" asp-action="AccountDetails"
+                                   asp-route-id="@d.AssignedPatient.PatientAccountId">@(string.IsNullOrWhiteSpace(d.AssignedPatient.PatientName) ? "Patient account" : d.AssignedPatient.PatientName)</a>
+                                <small>@d.AssignedPatient.PatientEmail</small>
+                            }
+                            else
+                            {
+                                <span class="admin-device-muted">Unassigned</span>
+                            }
+                        </td>
+                        <td data-label="Status"><span class="admin-pill neutral">@d.Status</span></td>
+                        <td data-label="Assigned since">@(d.AssignedPatient?.AssignedAt.ToLocalTime().ToString("dd MMM yyyy") ?? "—")</td>
+                        <td data-label="Registered">@d.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                        <td data-label="Details"><a class="admin-btn small admin-modern-row-action"
+                                                    asp-action="DeviceDetails" asp-route-id="@d.Id">View details <i
+                                    class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+    @if (Model.Pagination.TotalPages > 1)
+    {
+        <nav class="admin-pagination" aria-label="Device pages">
+            <span>Page @Model.Pagination.Page of @Model.Pagination.TotalPages</span>
+            <div>
+                @if (Model.Pagination.HasPrevious)
+                {
+                    <a class="admin-btn" asp-action="Devices" asp-route-pageNumber="@(Model.Pagination.Page - 1)">Previous</a>
+                }
+                @if (Model.Pagination.HasNext)
+                {
+                    <a class="admin-btn" asp-action="Devices"
+                       asp-route-pageNumber="@(Model.Pagination.Page + 1)">Next</a>
+                }
+            </div>
+        </nav>
+    }
+</section>

@@ -1,0 +1,164 @@
+@model MediDropProject.Models.CareProvider.ProviderDashboardViewModel
+@{
+    Layout = "_CareProviderLayout";
+    ViewData["Title"] = "Dashboard";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/careProvider/dashboard.css" asp-append-version="true" />
+}
+
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">Practice overview</span>
+        <h1>Dashboard</h1>
+    </div>
+</div>
+<p class="page-subtitle">An overview of your connected patients, prescription work and medication submissions.</p>
+
+<div class="stats-grid provider-dashboard-stats">
+    <a class="stat-card dashboard-stat-link" asp-action="Patients">
+        <span><i class="fa-solid fa-users" aria-hidden="true"></i> Connected patients</span>
+        <strong>@Model.ConnectedPatients</strong>
+        <small>Active care relationships</small>
+    </a>
+    <a class="stat-card dashboard-stat-link" asp-action="RequestPatient">
+        <span><i class="fa-solid fa-user-clock" aria-hidden="true"></i> Pending requests</span>
+        <strong>@Model.PendingRequests</strong>
+        <small>Awaiting patient acceptance</small>
+    </a>
+    <div class="stat-card">
+        <span><i class="fa-solid fa-file-prescription" aria-hidden="true"></i> Active prescriptions</span>
+        <strong>@Model.ActivePrescriptions</strong>
+        <small>Issued and marked active</small>
+    </div>
+    <div class="stat-card">
+        <span><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i> Draft prescriptions</span>
+        <strong>@Model.DraftPrescriptions</strong>
+        <small>Not yet issued</small>
+    </div>
+</div>
+
+<div class="dashboard-columns">
+    <section class="panel dashboard-panel">
+        <div class="panel-head">
+            <h2>Recently connected patients</h2>
+            <a class="text-link" asp-action="Patients">All patients <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        </div>
+        @if (Model.RecentPatients.Count == 0)
+        {
+            <div class="dashboard-empty">
+                <i class="fa-solid fa-users" aria-hidden="true"></i>
+                <p>No connected patients yet. Send a request to begin.</p>
+                <a class="btn btn-ghost" asp-action="RequestPatient">Request patient</a>
+            </div>
+        }
+        else
+        {
+            <div class="dashboard-list">
+                @foreach (var patient in Model.RecentPatients)
+                {
+                    <div class="dashboard-list-row">
+                        <div class="dashboard-avatar" aria-hidden="true"><i class="fa-solid fa-user"></i></div>
+                        <div class="dashboard-row-copy">
+                            <strong>@(string.IsNullOrWhiteSpace(patient.Name) ? "Patient" : patient.Name)</strong>
+                            <small>Connected @patient.ConnectedSince?.ToString("dd MMM yyyy")</small>
+                        </div>
+                        <a class="btn btn-ghost" asp-action="PatientDetails" asp-route-id="@patient.PatientId">Open</a>
+                    </div>
+                }
+            </div>
+        }
+    </section>
+
+    <section class="panel dashboard-panel">
+        <div class="panel-head">
+            <h2>Quick actions</h2>
+        </div>
+        <div class="action-list dashboard-actions">
+            <a class="action-tile" asp-action="Patients"><i class="fa-solid fa-users"></i> View connected patients <i class="fa-solid fa-arrow-right dashboard-action-arrow"></i></a>
+            <a class="action-tile" asp-action="RequestPatient"><i class="fa-solid fa-user-plus"></i> Request patient access <i class="fa-solid fa-arrow-right dashboard-action-arrow"></i></a>
+            <a class="action-tile" asp-action="Medications"><i class="fa-solid fa-capsules"></i> Browse medication catalogue <i class="fa-solid fa-arrow-right dashboard-action-arrow"></i></a>
+            <a class="action-tile" asp-action="SubmitMedication"><i class="fa-solid fa-plus-circle"></i> Submit medication for review <i class="fa-solid fa-arrow-right dashboard-action-arrow"></i></a>
+        </div>
+        <div class="dashboard-review-note">
+            <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>
+            <div><strong>@Model.PendingMedicationSubmissions pending medication submission(s)</strong><span>Waiting for catalogue review</span></div>
+        </div>
+    </section>
+</div>
+
+
+<section class="panel dashboard-panel dashboard-recent-rx">
+    <div class="panel-head">
+        <h2>Recent prescriptions</h2>
+        <span class="quiet">Your five most recently created prescriptions</span>
+    </div>
+
+    @if (Model.RecentPrescriptions.Count == 0)
+    {
+        <div class="dashboard-empty">
+            <i class="fa-solid fa-file-prescription" aria-hidden="true"></i>
+            <p>No prescriptions to display. Open a connected patient's profile to create one.</p>
+        </div>
+    }
+    else
+    {
+        <div class="dashboard-rx-table-wrap">
+            <table class="dashboard-rx-table">
+                <thead>
+                <tr>
+                    <th>Prescription</th>
+                    <th>Patient</th>
+                    <th>Created at</th>
+                    <th>Issued at</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                @foreach (var prescription in Model.RecentPrescriptions)
+                {
+                    <tr>
+                        <td data-label="Prescription">
+                            <strong>@prescription.PrescriptionNumber</strong>
+                        </td>
+
+                        <td data-label="Patient">
+                            @(string.IsNullOrWhiteSpace(prescription.PatientName)
+                                ? "Patient"
+                                : prescription.PatientName)
+                        </td>
+
+                        <td data-label="Created at">
+                            @prescription.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")
+                        </td>
+
+                        <td data-label="Issued at">
+                            @(prescription.IssuedAt?.ToLocalTime().ToString("dd MMM yyyy, HH:mm") ?? "—")
+                        </td>
+
+                        <td data-label="Status">
+                            <span class="dashboard-rx-status">
+                                @prescription.Status
+                            </span>
+                        </td>
+
+                        <td data-label="Action">
+                            <a class="btn btn-ghost"
+                               asp-action="PrescriptionDetails"
+                               asp-route-id="@prescription.Id"
+                               asp-route-patientId="@prescription.PatientId">
+                                <i class="fa-solid fa-arrow-up-right-from-square"
+                                   aria-hidden="true"></i>
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

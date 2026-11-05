@@ -1,0 +1,109 @@
+@model MediDropProject.Models.Patient.PrintableScheduleViewModel
+@{
+    Layout = null;
+    var endDate = Model.StartDate.AddDays(6);
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MediDrop medication schedule - @Model.StartDate.ToString("dd MMM yyyy")</title>
+    <link rel="stylesheet" href="~/css/patient/print-schedule.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="print-actions">
+        <a asp-controller="Patient" asp-action="Schedule" class="back-link">Back to schedule</a>
+        <button type="button" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+
+    <main class="sheet">
+        <header class="sheet-head">
+            <div>
+                <div class="brand">MediDrop <span>PERSONAL MEDICATION PLAN</span></div>
+                <h1>Weekly medication schedule for @(string.IsNullOrWhiteSpace(Model.PatientName) ? "Patient" : Model.PatientName)</h1>
+            </div>
+            <div class="sheet-details">
+                <div><span>Week</span><strong>@Model.StartDate.ToString("dd MMM") – @endDate.ToString("dd MMM yyyy")</strong></div>
+                <div><span>Generated on</span><strong>@Model.GeneratedAtLocal.ToString("dd MMM yyyy, HH:mm")</strong></div>
+            </div>
+        </header>
+
+        <table class="weekly-grid">
+            <thead>
+                <tr>
+                    <th scope="col" class="day-heading">Day</th>
+                    <th scope="col">Morning</th>
+                    <th scope="col">Midday</th>
+                    <th scope="col">Evening</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var day in Model.Days)
+                {
+                    <tr>
+                        <th scope="row" class="day-cell">
+                            <strong>@day.Date.ToString("dddd")</strong>
+                            <span>@day.Date.ToString("dd MMM")</span>
+                        </th>
+                        @foreach (var slot in day.Slots)
+                        {
+                            <td class="dose-cell @(slot.Cancelled || slot.IsMissed ? "is-cancelled" : slot.IsPast ? "is-past" : "")">
+                                @if (slot.Medications.Count == 0)
+                                {
+                                    <span class="empty">No medication</span>
+                                }
+                                else if (slot.Cancelled)
+                                {
+                                    <div class="dose-time">@slot.ScheduledTime</div>
+                                    <strong class="cancelled-label">DISPENSING OF SLOT CANCELLED</strong>
+                                    @foreach (var medication in slot.Medications)
+                                    {
+                                        <div class="medication cancelled-medication">
+                                            @medication.Name
+                                            @if (!string.IsNullOrWhiteSpace(medication.Strength))
+                                            {
+                                                <span>@medication.Strength</span>
+                                            }
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="dose-time">@slot.ScheduledTime</div>
+                                    @foreach (var medication in slot.Medications)
+                                    {
+                                        <div class="medication">
+                                            <strong>@medication.Name</strong>
+                                            <span>
+                                                @if (!string.IsNullOrWhiteSpace(medication.Strength))
+                                                {
+                                                    @medication.Strength
+                                                }
+                                                @if (!string.IsNullOrWhiteSpace(medication.Form))
+                                                {
+                                                    @medication.Form.ToLowerInvariant()
+                                                }
+                                                <b>× @medication.Quantity</b>
+                                            </span>
+                                        </div>
+                                    }
+                                }
+                                @if (slot.IsPast && slot.Medications.Count > 0)
+                                {
+                                    <div class="reported-status">Reported status: <strong>@slot.ReportedStatus</strong></div>
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <footer class="sheet-footer">
+            <p><strong>Important:</strong> This schedule is for visualisation purposes only and is not intended for tracking medication adherence.</p>
+            <p class="footer-note">Generated on @Model.GeneratedAtLocal.ToString("dd MMM yyyy 'at' HH:mm") · Active round #@Model.RoundId · Reprint after changes</p>
+        </footer>
+    </main>
+</body>
+</html>

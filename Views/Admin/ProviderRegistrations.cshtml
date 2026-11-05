@@ -1,0 +1,90 @@
+@using MediDropProject.Domain.Enums
+@model MediDropProject.Models.Admin.AdminProviderListViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Provider registrations";
+}
+<div class="admin-heading admin-provider-reg-heading">
+    <div><span class="admin-eyebrow">VERIFICATION</span>
+        <h1>Care provider registrations</h1>
+        <p>Review practitioners before granting access to the provider portal.</p></div>
+</div>
+<section class="admin-panel admin-search-panel admin-provider-registration-page">
+    <form class="admin-filters admin-provider-reg-filters" asp-action="ProviderRegistrations" method="get">
+        <label>
+            <span>Search</span>
+            <input type="search" name="search" value="@Model.Search" maxlength="100"
+                   placeholder="Name, email, authority, registration number"/>
+        </label>
+        <label>
+            <span>Status</span>
+            <select asp-for="ProviderStatus" asp-items="Html.GetEnumSelectList<ProviderVerificationStatus>()">
+                    <option value="">All</option>
+            </select>
+        </label>
+        <button class="admin-btn primary" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+        <a class="admin-btn" asp-action="ProviderRegistrations">Reset</a>
+    </form>
+</section>
+<section class="admin-panel admin-results-panel admin-provider-registration-page">
+    <div class="admin-panel-head admin-provider-reg-list-head">
+        <div class="admin-provider-reg-list-title">
+            <i class="fa-solid fa-user-doctor" aria-hidden="true"></i>
+            <div><h2>Provider registrations</h2><p>Review submitted professional credentials</p></div>
+        </div>
+        <span class="admin-provider-reg-total">@Model.Pagination.Total matching</span>
+    </div>
+    @if (Model.Items.Count == 0)
+    {
+        <p class="admin-empty">No matching care provider registrations.</p>
+    }
+    else
+    {
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>Practitioner</th>
+                    <th>Registration</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var r in Model.Items)
+                {
+                    <tr>
+                        <td data-label="Practitioner">
+                            <strong>@r.ProviderName</strong><small>@r.Email · @r.ProviderType</small></td>
+                        <td data-label="Registration">@r.Authority <small>@r.RegistrationNumber</small></td>
+                        <td data-label="Submitted">@r.SubmittedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                        <td data-label="Status"><span
+                                class="admin-pill @r.Status.ToString().ToLowerInvariant()">@r.Status</span></td>
+                        <td><a class="admin-btn small" asp-action="ProviderRegistrationDetails" asp-route-id="@r.Id">Review
+                                <i class="fa-solid fa-arrow-right"></i></a></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+    @if (Model.Pagination.TotalPages > 1)
+    {
+        <nav class="admin-pagination" aria-label="Registration pages">
+            <span>Page @Model.Pagination.Page of @Model.Pagination.TotalPages</span>
+            <div>
+                @if (Model.Pagination.HasPrevious)
+                {
+                    <a class="admin-btn" asp-action="ProviderRegistrations" asp-route-providerStatus="@Model.ProviderStatus"
+                       asp-route-search="@Model.Search" asp-route-pageNumber="@(Model.Pagination.Page - 1)">Previous</a>
+                }
+                @if (Model.Pagination.HasNext)
+                {
+                    <a class="admin-btn" asp-action="ProviderRegistrations" asp-route-providerStatus="@Model.ProviderStatus"
+                       asp-route-search="@Model.Search" asp-route-pageNumber="@(Model.Pagination.Page + 1)">Next</a>
+                }
+            </div>
+        </nav>
+    }
+</section>

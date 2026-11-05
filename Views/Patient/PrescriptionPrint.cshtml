@@ -1,0 +1,316 @@
+@using MediDropProject.Domain.Enums
+@model MediDropProject.Domain.Entities.Prescription
+
+@{
+    Layout = null;
+
+    var prescriber = ViewData["PrescriberName"]?.ToString() ?? "Care provider";
+    var isDraft = Model.Status == PrescriptionStatus.Draft;
+
+    var totalCollections = Model.RepeatCount + 1;
+    var remainingCollections = Math.Max(0, totalCollections - Model.CollectedCount);
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <title>MediDrop prescription @Model.PrescriptionNumber</title>
+
+    <link rel="stylesheet"
+          href="~/css/careProvider/print-documents.css"
+          asp-append-version="true"/>
+
+    <style>
+        /* Prescription-specific print layout */
+        .prescription-document {
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .prescription-document .doc-header {
+            align-items: center;
+            gap: 24px;
+            padding-bottom: 15px;
+            margin-bottom: 22px;
+        }
+
+        .prescription-prescriber {
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .prescription-prescriber .doc-tag {
+            margin-bottom: 7px;
+        }
+
+        .prescription-prescriber span {
+            display: block;
+            color: #607b91;
+            font-size: 11px;
+        }
+
+        .prescription-prescriber strong {
+            display: block;
+            color: #123650;
+            font-size: 15px;
+            margin-top: 3px;
+        }
+
+        .prescription-document h1 {
+            font-size: 25px;
+            margin: 0 0 3px;
+        }
+
+        .prescription-document .lead {
+            font-size: 12px;
+            margin: 0 0 22px;
+            overflow-wrap: anywhere;
+        }
+
+        .prescription-document .details {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            column-gap: 30px;
+            row-gap: 0;
+            margin-bottom: 22px;
+        }
+
+        .prescription-document .detail {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 0;
+            min-width: 0;
+            border-bottom: 1px solid #dde8ec;
+        }
+
+        .prescription-document .detail span {
+            flex: 0 0 35%;
+            font-size: 11px;
+            color: #627d90;
+        }
+
+        .prescription-document .detail strong {
+            flex: 1;
+            min-width: 0;
+            color: #143650;
+            font-size: 12px;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .prescription-document h2 {
+            font-size: 15px;
+            margin: 20px 0 9px;
+        }
+
+        .prescription-document table {
+            font-size: 11px;
+        }
+
+        .prescription-document th,
+        .prescription-document td {
+            padding: 9px 10px;
+            vertical-align: top;
+        }
+
+        .prescription-document .report-section {
+            margin-top: 19px;
+            break-inside: avoid;
+        }
+
+        .prescription-document .report-section h2 {
+            padding-top: 11px;
+            border-top: 1px solid #b8d7dc;
+            margin-bottom: 7px;
+        }
+
+        .prescription-document .report-section p {
+            margin: 0;
+            white-space: pre-line;
+            overflow-wrap: anywhere;
+        }
+
+        .prescription-document .footer {
+            font-size: 10px;
+            color: #678092;
+        }
+
+        @@media (max-width: 600px) {
+            .prescription-document .details {
+                grid-template-columns: 1fr;
+            }
+
+            .prescription-document .doc-header {
+                align-items: flex-start;
+            }
+        }
+
+        @@media print {
+            .prescription-document .details {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .prescription-document .report-section {
+                break-inside: avoid;
+            }
+
+            .prescription-document thead {
+                display: table-header-group;
+            }
+
+            .prescription-document tr {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="print-toolbar">
+    <a asp-action="PrescriptionDetails"
+       asp-route-id="@Model.Id">
+        ← Back to prescription
+    </a>
+
+    <button type="button" onclick="window.print()">
+        Print / Save as PDF
+    </button>
+</div>
+
+<main class="document prescription-document">
+
+    <header class="doc-header">
+        <div class="doc-branding">
+            <img src="~/images/medidrop-logo.png"
+                 alt="MediDrop logo"
+                 class="doc-logo"/>
+
+            <div>
+                <div class="doc-brand">MediDrop</div>
+                <div class="doc-subtitle">Patient medication records</div>
+            </div>
+        </div>
+
+        <div class="prescription-prescriber">
+            <div class="doc-tag">PRESCRIPTION DOCUMENT</div>
+            <span>Prescribed by</span>
+            <strong>@prescriber</strong>
+        </div>
+    </header>
+
+    <h1>Prescription @(isDraft ? "(DRAFT)" : "")</h1>
+    <p class="lead">Reference @Model.PrescriptionNumber</p>
+
+    <div class="details">
+
+        <div class="detail">
+            <span>Patient</span>
+            <strong>@(Model.Patient.User.FirstName + " "+ Model.Patient.User.LastName)</strong>
+        </div>
+
+        <div class="detail">
+            <span>Patient email</span>
+            <strong>@Model.Patient.User.Email</strong>
+        </div>
+
+        <div class="detail">
+            <span>Status</span>
+            <strong>@Model.Status</strong>
+        </div>
+
+        <div class="detail">
+            <span>Repeat / collections</span>
+            <strong>
+                @Model.CollectedCount of @totalCollections
+                (@remainingCollections remaining)
+            </strong>
+        </div>
+
+        <div class="detail">
+            <span>Created</span>
+            <strong>
+                @Model.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")
+            </strong>
+        </div>
+
+        <div class="detail">
+            <span>Issued</span>
+            <strong>
+                @(Model.IssuedAt?.ToLocalTime().ToString("dd MMM yyyy, HH:mm")
+                  ?? "Not issued")
+            </strong>
+        </div>
+
+        <div class="detail">
+            <span>Start date</span>
+            <strong>
+                @(Model.StartDate?.ToString("dd MMM yyyy") ?? "Not specified")
+            </strong>
+        </div>
+
+        <div class="detail">
+            <span>End date</span>
+            <strong>
+                @(Model.EndDate?.ToString("dd MMM yyyy") ?? "Not specified")
+            </strong>
+        </div>
+
+    </div>
+
+    <h2>Prescribed medication</h2>
+
+    <table>
+        <thead>
+        <tr>
+            <th style="width:26%">Medication</th>
+            <th style="width:18%">Dose</th>
+            <th style="width:19%">Frequency</th>
+            <th style="width:12%">Qty</th>
+            <th style="width:25%">Instructions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.Medication.Name</td>
+                <td>@item.DosageAmount.ToString("0.####") @item.DosageUnit</td>
+                <td>@(item.Frequency ?? "—")</td>
+                <td>@(item.QuantityPrescribed?.ToString() ?? "—")</td>
+                <td>@(item.Instructions ?? "—")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Instructions))
+    {
+        <section class="report-section">
+            <h2>General instructions</h2>
+            <p>@Model.Instructions</p>
+        </section>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.Notes))
+    {
+        <section class="report-section">
+            <h2>Notes</h2>
+            <p>@Model.Notes</p>
+        </section>
+    }
+
+    <footer class="footer">
+        Generated by MediDrop
+    </footer>
+
+</main>
+
+</body>
+</html>

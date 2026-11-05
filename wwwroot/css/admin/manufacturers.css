@@ -1,0 +1,280 @@
+/* Manufacturer page only. No shared Admin styles are changed. */
+.mf-page-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap
+}
+
+.admin-btn.mf-create-trigger,
+.add-edit-manufacturer .apply-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    min-height: 44px;
+    padding: 0 20px;
+
+    background: #0c6b76;
+    border: 1px solid #0c6b76;
+    border-radius: 12px;
+
+    color: #fff;
+    font-weight: 800;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.admin-btn.mf-create-trigger:hover,
+.add-edit-manufacturer .apply-btn:hover {
+    background: #09525d;
+    border-color: #09525d;
+    color: #fff;
+}
+
+.mf-tools {
+    margin: 18px 0 20px;
+    padding: 17px 20px;
+    background: #edf6fa;
+    border: 1px solid #c7dbe5;
+    border-radius: 15px
+}
+
+
+.mf-search > label {
+    display: block;
+    margin-bottom: 8px;
+    color: #174963;
+    font-size: 12px;
+    font-weight: 800
+}
+
+.mf-search-controls {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0
+}
+
+.mf-search input, .mf-dialog input {
+    width: 100%;
+    min-width: 0;
+    height: 43px;
+    padding: 9px 12px;
+    border: 1px solid #b8d1dd;
+    border-radius: 10px;
+    background: #fff;
+    color: #123858
+}
+
+.mf-search input:focus, .mf-dialog input:focus {
+    outline: 2px solid #22b6b9;
+    outline-offset: 1px
+}
+
+.mf-results {
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #bcd5e4;
+    border-radius: 18px;
+    box-shadow: 0 10px 27px #0d385416
+}
+
+.mf-results-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 18px 20px;
+    background: linear-gradient(110deg, #123858, #096383);
+    color: #fff
+}
+
+.mf-head-title {
+    display: flex;
+    align-items: center;
+    gap: 12px
+}
+
+.mf-head-title > i {
+    width: 39px;
+    height: 39px;
+    flex: 0 0 39px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #ffffff40;
+    background: #ffffff1b;
+    border-radius: 11px;
+    color: #81f0e9;
+    font-size: 17px
+}
+
+.mf-head-title h2 {
+    margin: 0;
+    font-size: 17px
+}
+
+.mf-head-title p {
+    margin: 4px 0 0;
+    color: #d6eaf0;
+    font-size: 11px
+}
+
+.mf-count {
+    background: #ffffff20;
+    border: 1px solid #ffffff35;
+    border-radius: 99px;
+    padding: 7px 11px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap
+}
+
+.mf-table {
+    width: 100%
+}
+
+.mf-table th {
+    background: #f0f7fb;
+    color: #355e75
+}
+
+.mf-table tbody tr:nth-child(even) {
+    background: #f8fcfd
+}
+
+.mf-table tbody tr:hover {
+    background: #eaf8fa
+}
+
+.mf-table th:last-child, .mf-table td:last-child {
+    text-align: right
+}
+
+.mf-actions {
+    white-space: nowrap
+}
+
+.mf-actions .admin-btn, .mf-delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    margin-left: 6px
+}
+
+.mf-table td:first-child small {
+    display: block;
+    margin-top: 4px;
+    color: #71869a
+}
+
+.mf-results .admin-pagination {
+    margin: 0;
+    padding: 17px 20px
+}
+
+.mf-dialog {
+    border: 1px solid #c5dae5;
+    border-radius: 18px;
+    max-width: calc(100vw - 24px);
+    width: 440px;
+    padding: 22px;
+    color: #123858;
+    box-shadow: 0 28px 80px #061e3060
+}
+
+.mf-dialog::backdrop {
+    background: #102c4566;
+    backdrop-filter: blur(2px)
+}
+
+.mf-dialog-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #eaf1f5;
+    padding-bottom: 12px
+}
+
+.mf-dialog h2 {
+    margin: 0;
+    font-size: 18px
+}
+
+.mf-dialog-head button {
+    background: transparent;
+    border: 0;
+    color: #607686;
+    font-size: 17px;
+    cursor: pointer
+}
+
+.mf-dialog p {
+    font-size: 12px;
+    line-height: 1.55;
+    color: #607686;
+    margin: 14px 0
+}
+
+.mf-dialog label {
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    color: #355e75;
+    margin-bottom: 7px
+}
+
+.mf-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+    margin-top: 18px
+}
+
+@media (max-width: 620px) {
+    .mf-create-trigger {
+        width: 100%;
+        justify-content: center
+    }
+
+    .mf-tools {
+        padding: 15px
+    }
+
+    .mf-search-controls {
+        flex-wrap: wrap
+    }
+
+    .mf-search-controls input {
+        flex-basis: 100%
+    }
+
+    .mf-search-controls .admin-btn {
+        flex: 1
+    }
+
+    .mf-table .mf-actions {
+        text-align: left
+    }
+
+    .mf-actions .admin-btn, .mf-delete {
+        margin: 4px 5px 4px 0
+    }
+
+    .mf-results .admin-table-wrap {
+        padding: 12px
+    }
+
+    .mf-dialog-actions .admin-btn {
+        flex: 1
+    }
+}
+
+.btn.danger:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+}

@@ -1,0 +1,68 @@
+@model MediDropProject.Models.CareProvider.PatientScheduleViewModel
+@{
+    Layout = "_CareProviderLayout";
+    ViewData["Title"] = "Patient schedule";
+    ViewData["Tab"] = "Schedule";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/careProvider/patient-overview.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/careProvider/patient-tabs.css" asp-append-version="true"/> }
+
+@await Html.PartialAsync("_PatientWorkspaceHeader", (MediDropProject.Models.CareProvider.PatientTabBaseViewModel)Model)
+<div class="ov-section-heading">
+    <div><h2>Medication schedule</h2>
+        <p>View of the patient's medication rounds and dispenser slots</p></div>
+</div>
+@if (Model.Rounds.Count == 0)
+{
+    <section class="ov-panel">
+        <div class="ov-empty"><i class="fa-solid fa-calendar-days"></i><strong>No rounds recorded</strong>
+            <p>Medication rounds will appear here once created.</p></div>
+    </section>
+}
+else
+{
+    @foreach (var round in Model.Rounds)
+    {
+        <section class="ov-panel tab-panel">
+            <div class="ov-panel-title">
+                <div><h2>Round #@round.Id <span class="tab-status">@round.Status</span></h2>
+                    <p>
+                        Started @round.StartedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm") · @round.Slots.Count slots</p>
+                </div>
+            </div>
+            @if (round.Slots.Count == 0)
+            {
+                <p class="tab-muted">No slots.</p>
+            }
+            else
+            {
+                <div class="tab-table-wrap">
+                    <table class="tab-table">
+                        <thead>
+                        <tr>
+                            <th>Scheduled</th>
+                            <th>Medication</th>
+                            <th>Dispensed</th>
+                            <th>Removed</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
+                        <tbody>@foreach (var slot in round.Slots)
+                        {
+                            <tr>
+                                <td>@slot.ScheduledFor.ToLocalTime().ToString("ddd dd MMM · HH:mm")</td>
+                                <td>@(slot.Medications.Count == 0 ? "—" : string.Join(", ", slot.Medications))</td>
+                                <td>@(slot.DispensedAt?.ToLocalTime().ToString("dd MMM HH:mm") ?? "—")</td>
+                                <td>@(slot.RemovedAt?.ToLocalTime().ToString("dd MMM HH:mm") ?? "—")</td>
+                                <td><span class="tab-status">@slot.Status</span></td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    }
+}

@@ -1,0 +1,141 @@
+@using MediDropProject.Domain.Enums
+@using MediDropProject.Models.Patient
+@model IReadOnlyList<MediDropProject.Models.Patient.PatientPrescriptionListItemViewModel>
+
+@{
+    Layout = "_PatientLayout";
+    ViewData["Title"] = "Prescriptions";
+    ViewData["Eyebrow"] = "Medication";
+
+    var today = DateOnly.FromDateTime(DateTime.UtcNow);
+    var now = DateTimeOffset.UtcNow;
+    
+    bool IsCurrent(PatientPrescriptionListItemViewModel p) =>
+        p.Status == PrescriptionStatus.Active &&
+        (!p.StartDate.HasValue || today >= p.StartDate.Value) &&
+        (!p.EndDate.HasValue || today <= p.EndDate.Value) &&
+        p.CollectedCount < p.RepeatCount + 1;
+
+    var current = Model.Where(IsCurrent).ToList();
+    var previous = Model.Where(p => !IsCurrent(p)).ToList();
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/patient/prescriptions.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/patient/prescriptions-list.css" asp-append-version="true" />
+}
+
+<div class="page-intro">
+    <div>
+        <h1>Prescriptions</h1>
+        <p>View prescriptions issued by your care providers and record medication once you collect it from the pharmacy.</p>
+    </div>
+</div>
+
+@if (TempData["PrescriptionMessage"] is string message)
+{
+    <div class="inline-message success">@message</div>
+}
+
+@if (TempData["PrescriptionError"] is string error)
+{
+    <div class="inline-message error">@error</div>
+}
+
+@if (current.Count == 0)
+{
+    <section class="card empty-state-card">
+        <i class="fa-solid fa-file-prescription"></i>
+        <h2>No active prescriptions</h2>
+        <p>Prescriptions issued by your care providers will appear here.</p>
+    </section>
+}
+else
+{
+    <div class="rx-horizontal-list">
+        @foreach (var prescription in current)
+        {
+            var total = prescription.RepeatCount + 1;
+
+            <section class="card rx-horizontal-card">
+                <div class="rx-horizontal-info">
+                    <div class="rx-horizontal-title">
+                        <span class="eyebrow-label">@prescription.Number</span>
+                        <h2>Medication prescription</h2>
+                        <span class="muted">@prescription.ProviderName · Issued @prescription.IssuedAt?.ToLocalTime().ToString("dd MMM yyyy")</span>
+                    </div>
+
+                    <div class="rx-horizontal-items">
+                        <i class="fa-solid fa-capsules" aria-hidden="true"></i>
+                        <span>Contains @prescription.MedicationCount
+                            @(prescription.MedicationCount == 1 ? "medication" : "medications")</span>
+                    </div>
+                </div>
+
+                <div class="rx-horizontal-meta">
+                    <div>
+                        <span>Collections</span>
+                        <strong>@prescription.CollectedCount of @total</strong>
+                    </div>
+                    <div>
+                        <span>Last collected</span>
+                        <strong>@(prescription.LastCollectedAt?.ToLocalTime().ToString("dd MMM yyyy, HH:mm") ?? "Not yet collected")</strong>
+                    </div>
+                    <div>
+                        <span>Valid until</span>
+                        <strong>@(prescription.EndDate?.ToString("dd MMM yyyy") ?? "No end date")</strong>
+                    </div>
+                </div>
+
+                <div class="rx-horizontal-actions">
+                    <span class="status-pill green">Active</span>
+                    <a class="btn" asp-action="PrescriptionDetails" asp-route-id="@prescription.Id">View prescription</a>
+                </div>
+            </section>
+        }
+    </div>
+}
+
+<h2 class="section-title">Previous prescriptions</h2>
+
+@if (previous.Count == 0)
+{
+    <section class="card"><span class="muted">No previous prescriptions yet.</span></section>
+}
+else
+{
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th>Prescription</th>
+                <th>Provider</th>
+                <th>Issued</th>
+                <th>Collections</th>
+                <th>Last collected</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var prescription in previous)
+            {
+                var expired = prescription.EndDate.HasValue && today > prescription.EndDate.Value;
+                var displayStatus = expired && prescription.Status == PrescriptionStatus.Active
+                    ? PrescriptionStatus.Expired.ToString()
+                    : prescription.Status.ToString();
+
+                <tr>
+                    <td><strong>@prescription.Number</strong></td>
+                    <td>@prescription.ProviderName</td>
+                    <td>@prescription.IssuedAt?.ToLocalTime().ToString("dd MMM yyyy")</td>
+                    <td>@prescription.CollectedCount / @(prescription.RepeatCount + 1)</td>
+                    <td>@(prescription.LastCollectedAt?.ToLocalTime().ToString("dd MMM yyyy") ?? "—")</td>
+                    <td><span class="status-pill blue">@displayStatus</span></td>
+                    <td><a class="btn small" asp-action="PrescriptionDetails" asp-route-id="@prescription.Id">View</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

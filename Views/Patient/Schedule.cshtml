@@ -1,0 +1,486 @@
+@model MediDropProject.Models.Patient.ScheduleViewModel
+@using MediDropProject.Domain.Enums
+
+@{
+    Layout = "_PatientLayout";
+    ViewData["Title"] = "Medication schedule";
+    ViewData["Eyebrow"] = "Routine";
+    var minimumStartDate = Model.StartDate.ToString("yyyy-MM-dd");
+    const int fixedMedicationRows = 3;
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/patient/schedule.css" asp-append-version="true" />
+}
+
+<div class="page-intro schedule-page-intro">
+    <div>
+        <div class="eyebrow-line">
+            7-day dispenser round
+
+            <span class="status-pill green">
+                @(Model.ScheduleExists ? "Active" : "New")
+            </span>
+        </div>
+        <h1>@(Model.ScheduleExists ? "Medication schedule" : "Create medication schedule")</h1>
+        <p>
+            @(Model.ScheduleExists
+                ? "Your current dispenser round is active. Open the editor only when you want to make changes."
+                : "Choose a start date and fill only the dispenser slots you actually need. Empty slots can stay empty.")
+        </p>
+    </div>
+</div>
+
+@if (TempData["ScheduleMessage"] is string message)
+{
+    <div class="schedule-feedback success">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>@message</span>
+    </div>
+}
+
+@if (TempData["ScheduleError"] is string error)
+{
+    <div class="schedule-feedback error">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>@error</span>
+    </div>
+}
+
+@if (!Model.CanApply)
+{
+    <div class="schedule-feedback warning">
+        <i class="fa-solid fa-microchip"></i>
+        <span>You must pair a dispenser before you can create or apply a medication schedule.</span>
+    </div>
+}
+
+@if (Model.ScheduleExists)
+{
+    if (Model.DeviceSchedulePending)
+    {
+        <div class="schedule-sync-status warning">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+
+            <div>
+                <strong>Dispenser schedule not yet updated</strong>
+                <span>
+                    Your changes are saved, but the dispenser has not yet confirmed the latest schedule.
+                </span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="schedule-sync-status success">
+            <i class="fa-solid fa-circle-check"></i>
+
+            <div>
+                <strong>Dispenser schedule is up to date</strong>
+                <span>
+                    Your dispenser has confirmed the latest medication schedule.
+                </span>
+            </div>
+        </div>
+    }
+}
+
+@if (Model.ScheduleExists)
+{
+    var activeOperations = Model.Slots.Count(s =>
+        s.HadCommittedMedication && s.Status != MedicationRoundSlotStatus.Cancelled);
+
+    <section class="card schedule-overview-card">
+        <div class="schedule-overview-copy">
+            <div class="schedule-overview-icon">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <div>
+                <span class="schedule-overview-label">CURRENT SCHEDULE</span>
+                <h2>7-day dispenser round</h2>
+                <p>Started @Model.StartDate.ToString("dd MMM yyyy") · @activeOperations active dispense operation@(activeOperations == 1 ? "" : "s")</p>
+            </div>
+        </div>
+
+        <div class="schedule-overview-actions">
+            <a class="btn schedule-print-button"
+               asp-controller="Patient"
+               asp-action="PrintSchedule"
+               target="_blank"
+               rel="noopener">
+                <i class="fa-solid fa-print" aria-hidden="true"></i>
+                Print / Save PDF
+            </a>
+
+        <button class="btn primary schedule-edit-toggle" id="scheduleEditToggle" type="button" aria-expanded="false">
+            <i class="fa-solid fa-pen"></i>
+            <text>&nbsp; Edit schedule</text>
+            
+        </button>
+        </div>
+    </section>
+}
+
+<div class="schedule-edit-shell @(Model.ScheduleExists ? "is-collapsed" : "")" id="scheduleEditShell">
+
+<form asp-action="ApplySchedule"
+      method="post"
+      id="scheduleForm"
+      data-schedule-mode="@(Model.ScheduleExists ? "edit" : "create")"
+      data-max-medication-lines="@fixedMedicationRows"
+      data-start-date="@Model.StartDate.ToString("yyyy-MM-dd")">
+
+    <input asp-for="RoundId" type="hidden" />
+
+    @if (Model.ScheduleExists)
+    {
+        <input asp-for="StartDate" type="hidden" />
+    }
+
+    <section class="card schedule-settings-card">
+        <div class="card-head schedule-preference-head">
+            <div>
+                <h2>Schedule preferences</h2>
+                <span class="muted">These values apply to all seven days and are saved as your patient defaults.</span>
+            </div>
+
+        </div>
+
+        <div class="schedule-preference-top">
+            <div class="field schedule-start-date-field">
+                <label asp-for="StartDate">Start date</label>
+                @if (Model.ScheduleExists)
+                {
+                    <div class="schedule-readonly-date">
+                        <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                        @Model.StartDate.ToString("dd MMM yyyy")
+                    </div>
+                    <span class="schedule-field-hint">Start date is fixed for this round.</span>
+                }
+                else
+                {
+                    <input asp-for="StartDate"
+                           id="scheduleStartDate"
+                           type="date"
+                           min="@minimumStartDate" />
+                    <span class="schedule-field-hint">Today or a future date.</span>
+                }
+            </div>
+
+            <div class="field">
+                <label asp-for="ReminderLeadMinutes">Reminder</label>
+                <select asp-for="ReminderLeadMinutes" id="reminderLeadMinutes">
+                    <option value="">Off</option>
+                    <option value="5">5 minutes before</option>
+                    <option value="10">10 minutes before</option>
+                    <option value="15">15 minutes before</option>
+                    <option value="30">30 minutes before</option>
+                    <option value="45">45 minutes before</option>
+                    <option value="60">1 hour before</option>
+                </select>
+                <span class="schedule-field-hint">Used for medication reminder notifications.</span>
+            </div>
+        </div>
+
+        <div class="schedule-preference-times">
+            <div class="field">
+                <label asp-for="MorningTime">Morning</label>
+                <input asp-for="MorningTime" id="morningTime" type="time" min="00:00" max="11:59" step="60" />
+                <span class="schedule-field-hint">00:00–11:59</span>
+            </div>
+
+            <div class="field">
+                <label asp-for="MiddayTime">Midday</label>
+                <input asp-for="MiddayTime" id="middayTime" type="time" min="12:00" max="17:59" step="60" />
+                <span class="schedule-field-hint">12:00–17:59</span>
+            </div>
+
+            <div class="field">
+                <label asp-for="EveningTime">Evening</label>
+                <input asp-for="EveningTime" id="eveningTime" type="time" min="18:00" max="23:59" step="60" />
+                <span class="schedule-field-hint">18:00–23:59</span>
+            </div>
+        </div>
+
+        <div class="schedule-time-note">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>Each dispense time must be at least 2 hours apart. Periods already passed will not be editable.</span>
+        </div>
+
+        <div class="schedule-client-error" id="scheduleClientError" hidden></div>
+    </section>
+
+    <section class="card schedule-editor-card">
+        <div class="card-head schedule-editor-head">
+            <div>
+                <h2>Weekly editor</h2>
+                <span class="muted">Each physical slot has three medication lines. Leave unused lines blank.</span>
+            </div>
+        </div>
+
+        <div class="schedule-day-tabs editor-tabs" role="tablist" aria-label="Schedule day">
+            @for (var day = 0; day < 7; day++)
+            {
+                var date = Model.StartDate.AddDays(day);
+                var key = $"day-{day}";
+
+                <button type="button"
+                        class="schedule-day @(day == 0 ? "active" : "")"
+                        data-day="@key"
+                        data-day-offset="@day"
+                        role="tab"
+                        aria-selected="@(day == 0 ? "true" : "false")">
+                    @date.ToString("ddd")
+                    <span>@date.Day</span>
+                </button>
+            }
+        </div>
+
+        <div class="schedule-editor-days">
+            @for (var day = 0; day < 7; day++)
+            {
+                var date = Model.StartDate.AddDays(day);
+                var dayKey = $"day-{day}";
+                var slots = Model.Slots
+                    .Where(s => s.DayIndex == day)
+                    .OrderBy(s => s.DeviceSlotNumber)
+                    .ToList();
+
+                <div class="schedule-editor-day @(day == 0 ? "active" : "")" data-day-panel="@dayKey">
+                    <div class="schedule-day-heading">
+                        <div>
+                            <span data-day-name="@day">@date.ToString("dddd")</span>
+                            <strong data-day-date="@day">@date.ToString("dd MMMM yyyy")</strong>
+                        </div>
+                    </div>
+
+                    @foreach (var slot in slots)
+                    {
+                        var slotKey = $"s{slot.DeviceSlotNumber}";
+                        var isCancelled = slot.Status == MedicationRoundSlotStatus.Cancelled;
+                        var isTerminal = !slot.IsEditable;
+                        var showPassedMessage = !Model.ScheduleExists &&
+                                                slot.IsPastForNewSchedule &&
+                                                !slot.HadCommittedMedication &&
+                                                slot.Status == MedicationRoundSlotStatus.Empty;
+
+                        var time = slot.PeriodIndex switch
+                        {
+                            0 => Model.MorningTime,
+                            1 => Model.MiddayTime,
+                            _ => Model.EveningTime
+                        };
+
+                        var rowCount = Math.Max(fixedMedicationRows, slot.Items.Count);
+
+                        <div class="schedule-slot-editor @(isCancelled ? "slot-cancelled persisted-cancelled" : "") @(isTerminal ? "slot-readonly" : "") @(showPassedMessage ? "slot-time-passed" : "")"
+                             data-slot-key="@slotKey"
+                             data-day-offset="@day"
+                             data-period-index="@slot.PeriodIndex"
+                             data-server-editable="@(slot.IsEditable ? "true" : "false")"
+                             data-has-committed="@(slot.HadCommittedMedication ? "true" : "false")">
+
+                            <input type="hidden" name="Slots.Index" value="@slotKey" />
+                            <input type="hidden" name="Slots[@slotKey].ExistingSlotId" value="@slot.ExistingSlotId" />
+                            <input type="hidden" name="Slots[@slotKey].DeviceSlotNumber" value="@slot.DeviceSlotNumber" />
+                            <input type="hidden" name="Slots[@slotKey].ScheduledDate" value="@slot.ScheduledDate.ToString("yyyy-MM-dd")" />
+                            <input type="hidden" name="Slots[@slotKey].Status" value="@slot.Status" />
+                            <input type="hidden" class="cancelled-input" name="Slots[@slotKey].Cancelled" value="@(slot.Cancelled ? "true" : "false")" />
+
+                            <div class="slot-editor-heading">
+                                <div>
+                                    <span class="slot-period">@slot.PeriodName</span>
+                                    <strong data-time-label="@slot.PeriodKey">@time.ToString("HH:mm")</strong>
+                                </div>
+
+                                @if (isCancelled)
+                                {
+                                    <span class="slot-status-pill">Cancelled</span>
+                                }
+                                else if (isTerminal && slot.HadCommittedMedication)
+                                {
+                                    <span class="slot-status-pill">@slot.Status</span>
+                                }
+                                else
+                                {
+                                    <span class="slot-count">@slot.Items.Count / @fixedMedicationRows used</span>
+                                }
+                            </div>
+
+                            <div class="slot-time-passed-message" style="@(showPassedMessage ? "display:flex" : "display:none")">
+                                <i class="fa-solid fa-clock"></i>
+                                <span>This dispense time has already passed for this day.</span>
+                            </div>
+
+                            <div class="slot-medication-list">
+                                @for (var rowIndex = 0; rowIndex < rowCount; rowIndex++)
+                                {
+                                    var item = rowIndex < slot.Items.Count ? slot.Items[rowIndex] : null;
+                                    var itemKey = $"r{rowIndex}";
+                                    var isCommitted = item?.ExistingItemId.HasValue == true;
+                                    var controlsDisabled = isCancelled || !slot.IsEditable || showPassedMessage;
+
+                                    <div class="medication-edit-row @(isCommitted ? "committed-row" : "draft-row fixed-medication-row")">
+                                        <input type="hidden" name="Slots[@slotKey].Items.Index" value="@itemKey" />
+                                        <input type="hidden" name="Slots[@slotKey].Items[@itemKey].ExistingItemId" value="@item?.ExistingItemId" />
+                                        <input type="hidden" name="Slots[@slotKey].Items[@itemKey].OriginalQuantity" value="@(item?.OriginalQuantity ?? 0)" />
+
+                                        @if (isCommitted)
+                                        {
+                                            <input type="hidden"
+                                                   name="Slots[@slotKey].Items[@itemKey].PatientMedicationId"
+                                                   value="@item!.PatientMedicationId" />
+
+                                            <div class="field grow committed-medication-copy">
+                                                <label>Medication @(rowIndex + 1)</label>
+                                                <div class="committed-medication-name">
+                                                    <strong>@item.MedicationName</strong>
+                                                    <span>@string.Join(" · ", new[] { item.Strength, item.Form }.Where(x => !string.IsNullOrWhiteSpace(x)))</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="field qty-field">
+                                                <label>Qty</label>
+                                                @if (!controlsDisabled)
+                                                {
+                                                    <input class="schedule-item-control committed-quantity"
+                                                           type="number"
+                                                           name="Slots[@slotKey].Items[@itemKey].Quantity"
+                                                           min="@item.OriginalQuantity"
+                                                           max="10000"
+                                                           value="@item.Quantity" />
+                                                }
+                                                else
+                                                {
+                                                    <input type="hidden"
+                                                           name="Slots[@slotKey].Items[@itemKey].Quantity"
+                                                           value="@item.Quantity" />
+                                                    <div class="readonly-quantity">@item.Quantity</div>
+                                                }
+                                            </div>
+
+                                            <div class="locked-row-indicator" title="Already loaded in the dispenser">
+                                                <i class="fa-solid fa-lock"></i>
+                                                <span>Loaded</span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="field grow">
+                                                <label>Medication @(rowIndex + 1)</label>
+                                                <select class="schedule-item-control schedule-medication-select"
+                                                        name="Slots[@slotKey].Items[@itemKey].PatientMedicationId"
+                                                        disabled="@controlsDisabled">
+                                                    <option value="0">Unused</option>
+                                                    @foreach (var medication in Model.MedicationOptions)
+                                                    {
+                                                        <option value="@medication.PatientMedicationId" data-stock="@medication.AvailableQuantity">
+                                                            @medication.DisplayName — @medication.AvailableQuantity available
+                                                        </option>
+                                                    }
+                                                </select>
+                                            </div>
+
+                                            <div class="field qty-field">
+                                                <label>Qty</label>
+                                                <input class="schedule-item-control schedule-quantity-input"
+                                                       type="number"
+                                                       name="Slots[@slotKey].Items[@itemKey].Quantity"
+                                                       min="1"
+                                                       max="10000"
+                                                       value=""
+                                                       placeholder="—"
+                                                       disabled="@controlsDisabled" />
+                                            </div>
+
+                                            <div class="fixed-row-number" aria-hidden="true">@(rowIndex + 1)</div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+
+                            @if (Model.ScheduleExists && slot.HadCommittedMedication && slot.IsEditable)
+                            {
+                                <div class="slot-editor-actions">
+                                    <button class="slot-cancel-button cancel-slot" type="button">
+                                        @if (isCancelled)
+                                        {
+                                            <i class="fa-solid fa-arrow-rotate-left"></i>
+                                            <text>Restore dispense slot</text>
+                                        }
+                                        else
+                                        {
+                                            <i class="fa-solid fa-ban"></i>
+                                            <text>Cancel dispense slot</text>
+                                        }
+                                    </button>
+                                </div>
+                            }
+
+                            @if (slot.HadCommittedMedication && (slot.IsEditable || isCancelled))
+                            {
+                                <div class="slot-cancelled-message">
+                                    <i class="fa-solid fa-ban"></i>
+                                    <div>
+                                        <strong>Dispense slot will not dispense</strong>
+                                        <span>Note: Loaded medication cannot be removed from schedule and will be recorded</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="schedule-mobile-day-nav" id="scheduleMobileDayNav" aria-label="Schedule day navigation">
+            <button type="button" class="schedule-mobile-day-button" id="previousScheduleDay">
+                <i class="fa-solid fa-chevron-left"></i>
+                <span>Previous</span>
+            </button>
+
+            <div class="schedule-mobile-day-current" aria-live="polite">
+                <strong id="mobileCurrentDay">Thu 29</strong>
+                <span id="mobileDayPosition">Day 1 of 7</span>
+            </div>
+
+            <button type="button" class="schedule-mobile-day-button" id="nextScheduleDay">
+                <span>Next</span>
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <div class="schedule-save-bar">
+            <div>
+                <strong>@(Model.ScheduleExists ? "Apply schedule changes" : "Create this dispenser round")</strong>
+                <span class="muted">
+                    Only slots with medication will be added to your dispenser's schedule. Empty slots will be skipped automatically.
+                </span>
+            </div>
+
+            <div class="row-actions">
+                <a class="btn" asp-action="Schedule">Discard changes</a>
+
+                @if (Model.CanApply)
+                {
+                    <button class="btn primary" type="submit">
+                        <i class="fa-solid fa-check"></i>
+                        @(Model.ScheduleExists ? "Apply changes" : "Create schedule")
+                    </button>
+                }
+                else
+                {
+                    <button class="btn primary" type="button" disabled>
+                        <i class="fa-solid fa-check"></i>
+                        @(Model.ScheduleExists ? "Apply changes" : "Create schedule")
+                    </button>
+                }
+            </div>
+        </div>
+    </section>
+</form>
+</div>
+
+@section Scripts {
+    <script src="~/js/patient-schedule.js" asp-append-version="true"></script>
+}
+

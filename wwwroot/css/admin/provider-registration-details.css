@@ -1,0 +1,135 @@
+/* Provider Registration Details palette — page-specific; shared admin.css untouched. */
+.admin-registration-details-page .admin-registration-layout > .admin-panel,
+.admin-registration-details-page > .admin-panel.admin-registration-history {
+    padding: 0;
+    overflow: hidden;
+    border-color: #bcd5e4;
+    box-shadow: 0 10px 27px rgba(13, 56, 84, .085);
+}
+
+.admin-registration-details-page .admin-registration-layout > .admin-panel > .admin-panel-head,
+.admin-registration-details-page > .admin-registration-history > .admin-panel-head {
+    margin: 0;
+    padding: 19px 22px;
+    border: 0;
+    background: linear-gradient(110deg, #123858, #096383);
+    color: #fff;
+}
+
+.admin-registration-details-page .admin-registration-layout > .admin-panel > .admin-panel-head h2,
+.admin-registration-details-page > .admin-registration-history > .admin-panel-head h2 {
+    color: #fff;
+}
+
+.admin-registration-details-page .admin-registration-credentials > .admin-details,
+.admin-registration-details-page .admin-registration-credentials > .admin-subheading,
+.admin-registration-details-page .admin-registration-credentials > .admin-body-copy {
+    margin-left: 22px;
+    margin-right: 22px;
+}
+
+.admin-registration-details-page .admin-registration-credentials > .admin-details {
+    margin-top: 14px;
+    margin-bottom: 20px;
+}
+
+.admin-registration-details-page .admin-registration-credentials .admin-details > div {
+    padding: 12px 9px;
+}
+
+.admin-registration-details-page .admin-registration-credentials .admin-details > div:nth-child(4n+3),
+.admin-registration-details-page .admin-registration-credentials .admin-details > div:nth-child(4n+4) {
+    background: #f5fafc;
+}
+
+.admin-registration-details-page .admin-registration-credentials .admin-details dt {
+    color: #54768a;
+}
+
+.admin-registration-details-page .admin-registration-credentials .admin-details dd {
+    color: #123858;
+}
+
+.admin-registration-details-page .admin-registration-credentials > .admin-body-copy {
+    margin-bottom: 20px;
+}
+
+.admin-registration-details-page .admin-registration-document > .admin-registration-file-row,
+.admin-registration-details-page .admin-registration-review > .admin-registration-file-row {
+    margin: 20px 22px 12px;
+    background: #f3f9fc;
+    border-color: #cbdfe9;
+}
+
+.admin-registration-details-page .admin-registration-document > .admin-help,
+.admin-registration-details-page .admin-registration-review > .admin-help,
+.admin-registration-details-page .admin-registration-document > .admin-empty,
+.admin-registration-details-page .admin-registration-review > .admin-help {
+    margin: 13px 22px 20px;
+}
+
+.admin-registration-details-page .admin-registration-review > .admin-review-actions {
+    padding: 20px 22px;
+}
+
+.admin-registration-details-page .admin-registration-review .admin-review-reason {
+    color: #355e75;
+}
+
+.admin-registration-details-page .admin-registration-review .admin-review-reason textarea {
+    background: #fbfdfe;
+    border-color: #b8d1dd;
+}
+
+.admin-registration-details-page .admin-registration-document .admin-registration-download,
+.admin-registration-details-page .admin-registration-review .admin-registration-download {
+    background: linear-gradient(110deg, #0a7496, #078b93);
+    border-color: transparent;
+    color: #fff;
+}
+
+.admin-registration-details-page > .admin-registration-history > .admin-row-link {
+    margin: 0;
+    padding: 14px 22px;
+}
+
+.admin-registration-details-page > .admin-registration-history > .admin-row-link:nth-of-type(even) {
+    background: #f5fafc;
+}
+
+.admin-registration-details-page > .admin-registration-history > .admin-row-link:hover {
+    background: #eaf8fa;
+}
+
+@media (max-width: 620px) {
+    .admin-registration-details-page .admin-registration-layout > .admin-panel > .admin-panel-head,
+    .admin-registration-details-page > .admin-registration-history > .admin-panel-head {
+        padding: 16px;
+    }
+
+    .admin-registration-details-page .admin-registration-credentials > .admin-details,
+    .admin-registration-details-page .admin-registration-credentials > .admin-subheading,
+    .admin-registration-details-page .admin-registration-credentials > .admin-body-copy {
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+
+    .admin-registration-details-page .admin-registration-document > .admin-registration-file-row,
+    .admin-registration-details-page .admin-registration-review > .admin-registration-file-row {
+        margin: 16px 16px 10px;
+    }
+
+    .admin-registration-details-page .admin-registration-document > .admin-help,
+    .admin-registration-details-page .admin-registration-review > .admin-help,
+    .admin-registration-details-page .admin-registration-document > .admin-empty {
+        margin: 12px 16px 16px;
+    }
+
+    .admin-registration-details-page .admin-registration-review > .admin-review-actions {
+        padding: 16px;
+    }
+
+    .admin-registration-details-page > .admin-registration-history > .admin-row-link {
+        padding: 13px 16px;
+    }
+}

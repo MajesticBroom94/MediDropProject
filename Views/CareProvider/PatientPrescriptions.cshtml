@@ -1,0 +1,62 @@
+@model MediDropProject.Models.CareProvider.PatientPrescriptionsViewModel
+@{
+    Layout = "_CareProviderLayout";
+    ViewData["Title"] = "Patient prescriptions";
+    ViewData["Tab"] = "Prescriptions";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/careProvider/patient-overview.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/careProvider/patient-tabs.css" asp-append-version="true"/> }
+
+@await Html.PartialAsync("_PatientWorkspaceHeader", (MediDropProject.Models.CareProvider.PatientTabBaseViewModel)Model)
+<div class="ov-section-heading">
+    <div><h2>Patient prescriptions</h2>
+        <p>Review treatment history and issue prescriptions for this patient</p></div>
+    <a class="btn btn-primary" style="margin-top: 12px" asp-action="CreatePrescription" asp-route-id="@Model.PatientId"><i
+            class="fa-solid fa-plus"></i> Create prescription</a></div>
+@if (TempData["PrescriptionSuccess"] is string message)
+{
+    <div class="tab-success">@message</div>
+}
+<section class="ov-panel tab-panel">@if (Model.Prescriptions.Count == 0)
+    {
+        <div class="ov-empty"><i class="fa-solid fa-file-prescription"></i><strong>No prescriptions recorded</strong>
+            <p>Create a prescription to begin the patient's treatment history.</p></div>
+    }
+    else
+    {
+        <div class="tab-table-wrap">
+            <table class="tab-table">
+                <thead>
+                <tr>
+                    <th>Prescription</th>
+                    <th>Medication</th>
+                    <th>Created</th>
+                    <th>Issued</th>
+                    <th>Collections</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>@foreach (var rx in Model.Prescriptions)
+                {
+                    <tr>
+                        <td><strong>@rx.Number</strong></td>
+                        <td>@string.Join(", ", rx.Items)</td>
+                        <td>@rx.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                        <td>@rx.IssuedAt?.ToLocalTime().ToString("dd MMM yyyy")</td>
+                        <td>@rx.CollectedCount / @(rx.RepeatCount + 1)</td>
+                        <td><span class="tab-status">@rx.Status</span></td>
+                        <td><a asp-action="PrescriptionDetails" asp-route-id="@rx.Id"
+                               asp-route-patientId="@Model.PatientId" class="tab-link">View details
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

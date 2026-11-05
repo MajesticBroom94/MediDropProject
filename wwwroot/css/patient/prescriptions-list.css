@@ -1,0 +1,116 @@
+/* Patient/Prescriptions active cards only. Does not alter shared card styles. */
+.rx-horizontal-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 13px;
+    margin-bottom: 24px;
+}
+
+.rx-horizontal-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, .65fr) auto;
+    align-items: center;
+    gap: 22px;
+    padding: 20px 22px;
+    min-width: 0;
+}
+
+.rx-horizontal-info,
+.rx-horizontal-title,
+.rx-horizontal-items { min-width: 0; }
+
+.rx-horizontal-title h2 {
+    color: var(--navy);
+    font-size: 18px;
+    line-height: 1.3;
+    margin: 5px 0;
+    overflow-wrap: anywhere;
+}
+
+.rx-horizontal-title .muted {
+    display: block;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.rx-horizontal-items {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-top: 11px;
+    color: #557285;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.rx-horizontal-items i {
+    color: var(--teal);
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.rx-horizontal-items span { overflow-wrap: anywhere; }
+
+.rx-horizontal-meta {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    padding: 4px 0 4px 20px;
+    border-left: 1px solid var(--line);
+}
+
+.rx-horizontal-meta > div { display: grid; gap: 5px; }
+.rx-horizontal-meta span { color: var(--muted); font-size: 11px; }
+.rx-horizontal-meta strong { color: var(--navy); font-size: 13px; overflow-wrap: anywhere; }
+
+.rx-horizontal-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 9px;
+    flex-wrap: wrap;
+}
+.rx-horizontal-actions form { margin: 0; }
+.rx-horizontal-actions .btn { white-space: nowrap; }
+.rx-horizontal-actions .status-pill { margin-right: 4px; }
+
+@media (max-width: 1120px) {
+    .rx-horizontal-card { grid-template-columns: minmax(0, 1fr) auto; }
+    .rx-horizontal-meta {
+        grid-column: 1;
+        grid-row: 2;
+        padding: 12px 0 0;
+        border-left: 0;
+        border-top: 1px solid var(--line);
+    }
+    .rx-horizontal-actions { grid-column: 2; grid-row: 1 / 3; max-width: 230px; }
+}
+
+@media (max-width: 720px) {
+    .rx-horizontal-card { grid-template-columns: minmax(0, 1fr); gap: 15px; padding: 17px; }
+    .rx-horizontal-meta { grid-column: 1; grid-row: auto; }
+    .rx-horizontal-actions { grid-column: 1; grid-row: auto; max-width: none; justify-content: flex-start; }
+    .rx-horizontal-actions .status-pill { margin-right: auto; }
+}
+
+@media (max-width: 480px) {
+    .rx-horizontal-actions { display: grid; grid-template-columns: 1fr; }
+    .rx-horizontal-actions .btn,
+    .rx-horizontal-actions form,
+    .rx-horizontal-actions form .btn { width: 100%; }
+    .rx-horizontal-actions .status-pill { justify-self: start; }
+}
+
+/* Keep collection and validity information compact in horizontal cards. */
+.rx-horizontal-meta { gap: 14px; }
+@media (max-width: 720px) {
+    .rx-horizontal-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 420px) {
+    .rx-horizontal-meta { grid-template-columns: 1fr; }
+}
+
+.rx-horizontal-actions .btn[disabled] {
+    opacity: 0.5;
+    background: #555555;
+}

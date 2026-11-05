@@ -1,0 +1,73 @@
+@model MediDropProject.Models.Admin.AdminDeviceDetailsViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Device details";
+    var current = Model.CurrentAssignment;
+}
+<div class="admin-device-details">
+    <a class="admin-device-back" asp-action="Devices"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to devices</a>
+    <div class="admin-device-hero">
+        <div class="admin-device-hero-icon"><i class="fa-solid fa-microchip" aria-hidden="true"></i></div>
+        <div class="admin-device-hero-text">
+            <span>REGISTERED DISPENSER #@Model.Id</span>
+            <h1>@(Model.Name ?? "MediDrop Dispenser")</h1>
+            <p>Device UID: <code>@Model.Uid</code></p>
+        </div>
+        <span class="admin-device-hero-status">@Model.Status</span>
+    </div>
+    <div class="admin-device-detail-grid">
+        <section class="admin-panel admin-device-detail-card">
+            <div class="admin-device-card-title"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><h2>Device information</h2></div>
+            <dl class="admin-device-details-list">
+                <div><dt>Device name</dt><dd>@(Model.Name ?? "MediDrop Dispenser")</dd></div>
+                <div><dt>Device UID</dt><dd class="admin-device-uid">@Model.Uid</dd></div>
+                <div><dt>Status</dt><dd><span class="admin-pill neutral">@Model.Status</span></dd></div>
+                <div><dt>Registered on</dt><dd>@Model.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</dd></div>
+                <div><dt>Last seen</dt><dd>@(Model.LastSeenAt?.ToLocalTime().ToString("dd MMM yyyy, HH:mm") ?? "Never")</dd></div>
+            </dl>
+        </section>
+        <section class="admin-panel admin-device-detail-card">
+            <div class="admin-device-card-title"><i class="fa-solid fa-user-check" aria-hidden="true"></i><h2>Current assignment</h2></div>
+            @if (current == null)
+            {
+                <div class="admin-device-empty-assignment"><i class="fa-regular fa-user" aria-hidden="true"></i><strong>No patient assigned</strong><p>This dispenser is not currently assigned to a patient.</p></div>
+            }
+            else
+            {
+                <dl class="admin-device-details-list">
+                    <div><dt>Patient</dt><dd><a class="admin-device-patient-link" asp-action="AccountDetails" asp-route-id="@current.PatientAccountId">@(string.IsNullOrWhiteSpace(current.PatientName) ? "Patient account" : current.PatientName) <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></dd></div>
+                    <div><dt>Email</dt><dd>@current.PatientEmail</dd></div>
+                    <div><dt>Assigned on</dt><dd>@current.AssignedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</dd></div>
+                    <div><dt>Assignment status</dt><dd><span class="admin-pill active">Currently assigned</span></dd></div>
+                </dl>
+            }
+        </section>
+    </div>
+    <section class="admin-panel admin-device-history">
+        <div class="admin-panel-head admin-modern-head">
+            <div class="admin-modern-head-label"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i><div><h2>Assignment history</h2><p>Recorded patient assignments, newest first</p></div></div>
+            <span class="admin-modern-count">@Model.Assignments.Count record@(Model.Assignments.Count == 1 ? "" : "s")</span>
+        </div>
+        @if (Model.Assignments.Count == 0)
+        {
+            <p class="admin-empty">No patient assignments have been recorded for this dispenser.</p>
+        }
+        else
+        {
+            <div class="admin-table-wrap"><table class="admin-table">
+                <thead><tr><th>Patient</th><th>Assigned on</th><th>Unassigned on</th><th>State</th></tr></thead>
+                <tbody>
+                @foreach (var a in Model.Assignments)
+                {
+                    <tr>
+                        <td data-label="Patient"><a class="admin-device-patient-link" asp-action="AccountDetails" asp-route-id="@a.PatientAccountId">@(string.IsNullOrWhiteSpace(a.PatientName) ? "Patient account" : a.PatientName)</a><small>@a.PatientEmail</small></td>
+                        <td data-label="Assigned on">@a.AssignedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</td>
+                        <td data-label="Unassigned on">@(a.UnassignedAt?.ToLocalTime().ToString("dd MMM yyyy, HH:mm") ?? "—")</td>
+                        <td data-label="State"><span class="admin-pill @(a.UnassignedAt == null ? "active" : "neutral")">@(a.UnassignedAt == null ? "Current" : "Ended")</span></td>
+                    </tr>
+                }
+                </tbody>
+            </table></div>
+        }
+    </section>
+</div>

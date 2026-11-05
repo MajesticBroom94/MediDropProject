@@ -1,0 +1,195 @@
+@model MediDropProject.Models.Patient.DeviceViewModel
+@using MediDropProject.Domain.Enums
+
+@{
+    Layout = "_PatientLayout";
+    ViewData["Title"] = "Dispenser";
+    ViewData["Eyebrow"] = "Device";
+
+    string OperatingStateDisplayName(OperatingState operatingState)
+    {
+        return operatingState switch {
+            OperatingState.StartingTask => "Starting Task",
+            OperatingState.AwaitingMedicationRemoval => "Awaiting Medication Removal",
+            OperatingState.AwaitingDispenseConfirmation => "Awaiting Dispense Confirmation",
+            _ => operatingState.ToString()
+        };
+    }
+}
+
+
+<link rel="stylesheet" href="~/css/patient/device.css" asp-append-version="true" />
+
+
+<div class="page-intro device-page-intro">
+    <div>
+        <h1>Dispenser</h1>
+        <p>Pair your MediDrop dispenser and manage its controls.</p>
+    </div>
+</div>
+
+@if (TempData["DeviceMessage"] is string message)
+{
+    <div class="device-feedback success">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>@message</span>
+    </div>
+}
+
+@if (TempData["DeviceError"] is string error)
+{
+    <div class="device-feedback error">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>@error</span>
+    </div>
+}
+
+@if (Model.IsPaired)
+{
+    <section class="card device-overview-card">
+        <div class="card-head device-card-head">
+            <div>
+                <span class="device-kicker">Paired dispenser</span>
+                <h2>@(Model.DeviceName ?? "MediDrop Dispenser")</h2>
+            </div>
+            <span class="status-pill green"><i class="fa-solid fa-link"></i> Paired</span>
+        </div>
+        <div class="device-status-grid">
+            <div class="device-stat">
+                <span>Device UID</span>
+                <strong>@Model.DeviceUid</strong>
+            </div>
+            <div class="device-stat">
+                <span>Device status</span>
+                <strong>@Model.Status</strong>
+            </div>
+            <div class="device-stat">
+                <span>Operating state</span>
+                <strong>@OperatingStateDisplayName(Model.OperatingState ?? OperatingState.Unknown)</strong>
+            </div>
+            <div class="device-stat">
+                <span>Last seen</span>
+                <strong>@(Model.LastSeenAt?.ToLocalTime().ToString("dd MMM yyyy, HH:mm") ?? "Not yet reported")</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="card device-unpair-card">
+        <div class="device-unpair-copy">
+            <h2><i class="fa-solid fa-link-slash" aria-hidden="true"></i> Unpair dispenser</h2>
+            <p>You can remove this dispenser only when no medication round is active.</p>
+        </div>
+        <form asp-controller="Patient"
+              asp-action="UnpairDevice"
+              method="post"
+              onsubmit="return confirm('Unpair this dispenser? You will need to pair it again using the code shown on its screen.');">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn danger">
+                <i class="fa-solid fa-link-slash" aria-hidden="true"></i> 
+                <text>&nbsp; Unpair device</text>
+            </button>
+        </form>
+    </section>
+
+    <section class="device-accordion-stack">
+        <details class="device-accordion" open>
+            <summary>
+                <span class="accordion-icon"><i class="fa-solid fa-sliders"></i></span>
+                <span class="accordion-copy">
+                    <strong>Commands</strong>
+                    <small>Send maintenance and dispensing commands to your paired dispenser.</small>
+                </span>
+                <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+            </summary>
+
+            <div class="device-accordion-content">
+                <div class="device-command-list">
+                    <div class="device-command-row">
+                        <div class="command-copy">
+                            <span class="command-icon blue"><i class="fa-solid fa-forward-step"></i></span>
+                            <div>
+                                <strong>Dispense upcoming slot early</strong>
+                                <p>Release the next scheduled dispense slot before its normal dispense time.</p>
+                            </div>
+                        </div>
+                        <form asp-action="QueueDeviceCommand" method="post">
+                            <input type="hidden" name="type" value="@DeviceCommandType.EarlyDispense" />
+                            <button class="btn" type="submit">Dispense early</button>
+                        </form>
+                    </div>
+
+                    <div class="device-command-row danger-row">
+                        <div class="command-copy">
+                            <span class="command-icon red"><i class="fa-solid fa-arrow-rotate-left"></i></span>
+                            <div>
+                                <strong>Purge dispenser</strong>
+                                <p>Empty the dispenser and begin recovery for remaining loaded medication.</p>
+                            </div>
+                        </div>
+                        <form asp-action="QueueDeviceCommand" method="post"
+                              onsubmit="return confirm('Purge the dispenser? This is a recovery action and should only be used when necessary.');">
+                            <input type="hidden" name="type" value="@DeviceCommandType.Purge" />
+                            <button class="btn danger" type="submit">Start purge</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </details>
+    </section>
+}
+else
+{
+    <section class="card pair-device-card">
+        <div class="card-head device-card-head">
+            <div>
+                <span class="device-kicker">Setup</span>
+                <h2>Pair a dispenser</h2>
+            </div>
+            <span class="status-pill red"><i class="fa-solid fa-link-slash"></i> Not paired</span>
+        </div>
+
+        <div class="device-pair-instructions">
+            <p class="device-section-copy"><strong>Get your pairing code</strong></p>
+            <ol>
+                <li>Make sure your dispenser is switched on.</li>
+                <li>Press and hold the <strong>right button for 5 seconds</strong>.</li>
+                <li>Enter the <strong>6-digit code</strong> shown on the dispenser screen.</li>
+            </ol>
+        </div>
+
+        <form asp-action="PairDevice" method="post" class="device-pair-form">
+            @Html.AntiForgeryToken()
+            <div class="field device-field">
+                <label for="PairingCode">Pairing code</label>
+                <input id="PairingCode"
+                       name="PairingCode"
+                       type="text"
+                       inputmode="numeric"
+                       pattern="[0-9]{6}"
+                       minlength="6"
+                       maxlength="6"
+                       autocomplete="one-time-code"
+                       placeholder="6-digit code"
+                       required />
+            </div>
+
+            <button class="btn primary device-form-button" type="submit">
+                <i class="fa-solid fa-link" aria-hidden="true"></i> Pair dispenser
+            </button>
+        </form>
+    </section>
+
+}
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.device-accordion').forEach(item => {
+            item.addEventListener('toggle', () => {
+                if (!item.open) return;
+                document.querySelectorAll('.device-accordion').forEach(other => {
+                    if (other !== item) other.open = false;
+                });
+            });
+        });
+    </script>
+}

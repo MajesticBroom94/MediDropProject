@@ -1,0 +1,227 @@
+@using MediDropProject.Domain.Enums
+@model MediDropProject.Models.CareProvider.MedicationCatalogueViewModel
+@{
+    Layout = "_CareProviderLayout";
+    ViewData["Title"] = "Medication catalogue";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/careProvider/medication-catalogue.css" asp-append-version="true" />
+}
+
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">Medication</span>
+        <h1>Medication catalogue</h1>
+    </div>
+    <a class="btn btn-primary" asp-controller="CareProvider" asp-action="SubmitMedication">
+        <i class="fa-solid fa-plus"></i> Submit medication
+    </a>
+</div>
+<p class="page-subtitle">
+    Browse the medication catalogue, including medications awaiting review,
+    rejected submissions and inactive records.
+</p>
+
+<div class="catalogue-layout">
+    <section class="panel catalogue-panel" aria-labelledby="catalogue-heading">
+        <div class="panel-head catalogue-panel-heading">
+            <div>
+                <h2 id="catalogue-heading">Medication catalogue</h2>
+                <p>
+                    All medication records are shown for reference.
+                    Only approved, active medicines can be prescribed.
+                </p>
+            </div>
+
+            <span class="catalogue-count">@Model.TotalMedications records</span>
+        </div>
+        <form asp-controller="CareProvider" asp-action="Medications" method="get" class="catalogue-search-form">
+            <label class="search-wrap" for="medication-search">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                <input id="medication-search" type="search" name="search" value="@Model.Search"
+                       placeholder="Name, generic name, strength, manufacturer" maxlength="100" />
+            </label>
+            <button type="submit" class="btn btn-primary">Search</button>
+            @if (!string.IsNullOrEmpty(Model.Search))
+            {
+                <a class="btn btn-ghost" asp-action="Medications">Clear</a>
+            }
+        </form>
+
+        <p class="catalogue-result-count">
+            @if (string.IsNullOrEmpty(Model.Search))
+            {
+                <text>Showing @Model.FirstResult–@Model.LastResult of @Model.MatchingTotal medications</text>
+            }
+            else
+            {
+                <text>@Model.MatchingTotal match@(Model.MatchingTotal == 1 ? "" : "es") for “@Model.Search” · Showing @Model.FirstResult–@Model.LastResult</text>
+            }
+        </p>
+
+        @if (Model.Medications.Count == 0)
+        {
+            <div class="empty-state">
+                <span class="empty-icon"><i class="fa-solid fa-capsules"></i></span>
+                <h2>
+                    @(string.IsNullOrEmpty(Model.Search)
+                        ? "No medications yet"
+                        : "No matching medications")
+                </h2>
+
+                <p>
+                    @(string.IsNullOrEmpty(Model.Search)
+                        ? "Medication records will appear here once they have been added."
+                        : "Try a different search term or submit a missing medicine for review.")
+                </p>
+            </div>
+        }
+        else
+        {
+            <div class="catalogue-medication-list">
+                @foreach (var medicine in Model.Medications)
+                {
+                    <article class="catalogue-medication">
+                        <div class="catalogue-medication-image">
+                            @if (!string.IsNullOrWhiteSpace(medicine.ImageUrl))
+                            {
+                                <img src="@medicine.ImageUrl" alt="" loading="lazy" />
+                            }
+                            else
+                            {
+                                <i class="fa-solid fa-pills" aria-hidden="true"></i>
+                            }
+                        </div>
+                        <div class="catalogue-medication-info">
+                            <h3>@medicine.Name</h3>
+                            @if (!string.IsNullOrWhiteSpace(medicine.GenericName))
+                            {
+                                <p>@medicine.GenericName</p>
+                            }
+                            <div class="catalogue-tags">
+                                @if (!string.IsNullOrWhiteSpace(medicine.Strength)) { <span>@medicine.Strength</span> }
+                                @if (!string.IsNullOrWhiteSpace(medicine.Form)) { <span>@medicine.Form</span> }
+                                @if (!string.IsNullOrWhiteSpace(medicine.Manufacturer)) { <span>@medicine.Manufacturer</span> }
+                            </div>
+                        </div>
+                        <div class="catalogue-statuses">
+                            @switch (medicine.Status)
+                            {
+                                case MedicationStatus.Active:
+                                    <span class="catalogue-approved">
+                                        <i class="fa-solid fa-circle-check"></i>
+                                        Active
+                                    </span>
+                                    break;
+
+                                case MedicationStatus.Pending:
+                                    <span class="submission-status pending">
+                                        <i class="fa-solid fa-clock"></i>
+                                        Pending
+                                    </span>
+                                    break;
+                                
+                                case MedicationStatus.Discontinued:
+                                    <span class="catalogue-inactive">
+                                        <i class="fa-solid fa-ban"></i>
+                                        Discontinued
+                                    </span>
+                                    break;
+
+                                case MedicationStatus.NotSupported:
+                                    <span class="submission-status rejected">
+                                        <i class="fa-solid fa-circle-xmark"></i>
+                                        Not supported
+                                    </span>
+                                    break;
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+            @if (Model.TotalPages > 1)
+            {
+                <nav class="catalogue-pagination" aria-label="Catalogue pages">
+                    <span class="pagination-info">
+                        Showing @Model.FirstResult–@Model.LastResult of @Model.MatchingTotal
+                    </span>
+                    <div class="pagination-actions">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <a class="btn" asp-action="Medications"
+                               asp-route-search="@Model.Search"
+                               asp-route-pageNumber="@(Model.PageNumber - 1)">
+                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i> Previous
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="btn pagination-disabled" aria-disabled="true">Previous</span>
+                        }
+                        <span class="pagination-current">Page @Model.PageNumber of @Model.TotalPages</span>
+                        @if (Model.HasNextPage)
+                        {
+                            <a class="btn btn-primary" asp-action="Medications"
+                               asp-route-search="@Model.Search"
+                               asp-route-pageNumber="@(Model.PageNumber + 1)">
+                                Next <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="btn pagination-disabled" aria-disabled="true">Next</span>
+                        }
+                    </div>
+                </nav>
+            }
+        }
+    </section>
+
+    <section class="panel submissions-panel" aria-labelledby="submissions-heading">
+        <div class="panel-head catalogue-panel-heading">
+            <div>
+                <h2 id="submissions-heading">My submissions</h2>
+                <p>Medications you have submitted for review.</p>
+            </div>
+        </div>
+        @if (Model.MySubmissions.Count == 0)
+        {
+            <div class="empty-state">
+                <span class="empty-icon"><i class="fa-solid fa-clipboard-check"></i></span>
+                <h2>No submissions yet</h2>
+                <p>New medication submissions and their review statuses will appear here.</p>
+            </div>
+        }
+        else
+        {
+            <div class="submission-list">
+                @foreach (var medicine in Model.MySubmissions)
+                {
+                    var statusCss = medicine.Status switch
+                    {
+                        MedicationStatus.Active => "approved",
+                        MedicationStatus.NotSupported => "rejected",
+                        MedicationStatus.Discontinued => "discontinued",
+                        MedicationStatus.Duplicated => "duplicated",
+                        _ => "pending"
+                    };
+                    <article class="submission-item">
+                        <div class="submission-info">
+                            <h3>@medicine.Name</h3>
+                            <p>
+                                @string.Join(" · ", new[] { medicine.Strength, medicine.Form }
+                                    .Where(v => !string.IsNullOrWhiteSpace(v)))
+                            </p>
+                            <small>Submitted @medicine.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</small>
+                        </div>
+                        <span class="submission-status @statusCss">@medicine.Status</span>
+                    </article>
+                }
+            </div>
+            @if (Model.MySubmissions.Count == 30)
+            {
+                <p class="catalogue-limit">Showing your 30 most recent submissions.</p>
+            }
+        }
+    </section>
+</div>

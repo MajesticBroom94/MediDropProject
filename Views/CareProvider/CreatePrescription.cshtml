@@ -1,0 +1,143 @@
+@model MediDropProject.Models.CareProvider.CreatePatientPrescriptionViewModel
+@{
+    Layout = "_CareProviderLayout";
+    var editingDraft = ViewData["EditingDraftId"] is long;
+    var draftId = editingDraft ? (long)ViewData["EditingDraftId"]! : 0L;
+    ViewData["Title"] = editingDraft ? "Edit prescription draft" : "Create prescription";
+    ViewData["Tab"] = "Prescriptions";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/careProvider/patient-overview.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/careProvider/patient-tabs.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/careProvider/prescription-picker.css" asp-append-version="true"/>
+}
+
+@await Html.PartialAsync("_PatientWorkspaceHeader", (MediDropProject.Models.CareProvider.PatientTabBaseViewModel)Model)
+
+<div class="ov-section-heading">
+    <div><h2>@(editingDraft ? "Edit prescription draft" : "Create prescription")</h2>
+        <p>For @Model.FullName · choose medications from the approved catalogue</p></div>
+    <a class="btn btn-ghost" asp-action="PatientPrescriptions" asp-route-id="@Model.PatientId"><i
+            class="fa-solid fa-arrow-left"></i> Back to prescriptions</a>
+</div>
+
+<form asp-action="@(editingDraft ? "EditDraftPrescription" : "CreatePrescription")"
+      asp-route-id="@(editingDraft ? draftId : Model.PatientId)"
+      asp-route-patientId="@(editingDraft ? Model.PatientId : (int?)null)" method="post"
+      class="ov-panel tab-panel prescription-editor">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <h2>Prescription details</h2>
+    <div class="tab-form-grid prescription-dates">
+        <div class="field"><label asp-for="StartDate">Start date</label><input asp-for="StartDate" type="date"/><span
+                asp-validation-for="StartDate" class="text-danger"></span></div>
+        <div class="field"><label asp-for="EndDate">End date</label><input asp-for="EndDate" type="date"/><span
+                asp-validation-for="EndDate" class="text-danger"></span></div>
+        <div class="field"><label asp-for="RepeatCount">Number of repeats</label><input asp-for="RepeatCount"
+                                                                                        type="number" min="0"/><span
+                asp-validation-for="RepeatCount" class="text-danger"></span></div>
+        <div class="field full"><label asp-for="Instructions">General instructions</label><textarea
+                asp-for="Instructions" rows="2"></textarea></div>
+        <div class="field full"><label asp-for="Notes">Notes</label><textarea asp-for="Notes" rows="2"></textarea></div>
+    </div>
+
+    <div class="ov-panel-title prescription-items-heading">
+        <div><h2>Prescription items</h2>
+            <p>Search the catalogue to choose a medicine</p></div>
+    </div>
+    <span asp-validation-for="Items" class="text-danger"></span>
+    <div id="prescription-items" class="tab-item-list">
+        @for (var i = 0; i < Model.Items.Count; i++)
+        {
+            var selected = Model.AvailableMedications.FirstOrDefault(m => m.Id == Model.Items[i].MedicationId);
+            <div class="tab-item prescription-entry">
+                <div class="prescription-selected">
+                    <div class="prescription-selected-name"
+                         data-selected-name>@(selected?.Label ?? (Model.Items[i].MedicationId > 0 ? $"Medication #{Model.Items[i].MedicationId}" : "No medication selected"))</div>
+                    <button type="button" class="btn btn-ghost choose-prescription-med"><i
+                            class="fa-solid fa-magnifying-glass"></i> Choose medication
+                    </button>
+                </div>
+                <input asp-for="Items[i].MedicationId" type="hidden" class="prescription-med-id"/>
+                <span asp-validation-for="Items[i].MedicationId" class="text-danger"></span>
+                <div class="tab-form-grid prescription-item-fields">
+                    <div class="field"><label asp-for="Items[i].DosageAmount">Dosage amount</label><input
+                            name="Items[@i].DosageAmount"
+                            value="@Model.Items[i].DosageAmount.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                            type="text" inputmode="decimal"/><span asp-validation-for="Items[i].DosageAmount"
+                                                                   class="text-danger"></span></div>
+                    <div class="field"><label asp-for="Items[i].DosageUnit">Dosage unit</label><input
+                            asp-for="Items[i].DosageUnit" placeholder="e.g. mg, tablet"/></div>
+                    <div class="field"><label asp-for="Items[i].Frequency">Frequency</label><input
+                            asp-for="Items[i].Frequency" placeholder="e.g. Twice daily"/></div>
+                    <div class="field"><label asp-for="Items[i].QuantityPrescribed">Quantity</label><input
+                            asp-for="Items[i].QuantityPrescribed" type="number" min="1"/></div>
+                    <div class="field full"><label asp-for="Items[i].Instructions">Item instructions</label><textarea
+                            asp-for="Items[i].Instructions" rows="2"></textarea></div>
+                </div>
+                <button type="button" class="tab-remove-item btn btn-ghost">Remove item</button>
+            </div>
+        }
+    </div>
+    <div class="tab-form-actions">
+        <button type="button" id="add-prescription-item" class="btn btn-ghost"><i class="fa-solid fa-plus"></i> Add
+            medicine
+        </button>
+        <a class="btn btn-ghost" asp-action="PatientPrescriptions" asp-route-id="@Model.PatientId">Cancel</a>
+        <button type="submit" name="submitAction" value="draft"
+                class="btn btn-ghost">@(editingDraft ? "Update draft" : "Save draft")</button>
+        <button type="submit" name="submitAction" value="issue" class="btn btn-primary">Issue prescription</button>
+    </div>
+</form>
+
+<template id="prescription-item-template">
+    <div class="tab-item prescription-entry">
+        <div class="prescription-selected">
+            <div class="prescription-selected-name" data-selected-name>No medication selected</div>
+            <button type="button" class="btn btn-ghost choose-prescription-med"><i
+                    class="fa-solid fa-magnifying-glass"></i> Choose medication
+            </button>
+        </div>
+        <input type="hidden" class="prescription-med-id" name="Items[__INDEX__].MedicationId" value="0"/>
+        <div class="tab-form-grid prescription-item-fields">
+            <div class="field"><label>Dosage amount</label><input type="text" inputmode="decimal"
+                                                                  name="Items[__INDEX__].DosageAmount"/></div>
+            <div class="field"><label>Dosage unit</label><input name="Items[__INDEX__].DosageUnit"/></div>
+            <div class="field"><label>Frequency</label><input name="Items[__INDEX__].Frequency"/></div>
+            <div class="field"><label>Quantity</label><input type="number" min="1"
+                                                             name="Items[__INDEX__].QuantityPrescribed"/></div>
+            <div class="field full"><label>Instructions</label><textarea name="Items[__INDEX__].Instructions"
+                                                                         rows="2"></textarea></div>
+        </div>
+        <button type="button" class="tab-remove-item btn btn-ghost">Remove item</button>
+    </div>
+</template>
+
+<div id="prescription-medication-dialog" class="rx-picker" hidden
+     data-url="@Url.Action("SearchPrescriptionMedications", "CareProvider", new { patientId = Model.PatientId })">
+    <div class="rx-picker-backdrop" data-close-picker></div>
+    <section class="rx-picker-sheet" role="dialog" aria-modal="true" aria-labelledby="rx-picker-title">
+        <header class="rx-picker-head">
+            <div><h2 id="rx-picker-title">Select medication</h2>
+                <p>Approved, active catalogue · 10 results per page</p></div>
+            <button type="button" class="rx-picker-close" data-close-picker aria-label="Close">&times;</button>
+        </header>
+        <form id="rx-picker-search-form" class="rx-picker-search"><input id="rx-picker-search" type="search"
+                                                                         placeholder="Search name, generic, strength or barcode"
+                                                                         autocomplete="off"/>
+            <button class="btn btn-primary" type="submit">Search</button>
+        </form>
+        <p id="rx-picker-message" class="rx-picker-message" role="status"></p>
+        <div id="rx-picker-results" class="rx-picker-results"></div>
+        <footer class="rx-picker-footer">
+            <button type="button" id="rx-picker-prev" class="btn btn-ghost">Previous</button>
+            <span id="rx-picker-page"></span>
+            <button type="button" id="rx-picker-next" class="btn btn-ghost">Next</button>
+        </footer>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/prescription-picker.js" asp-append-version="true"></script>
+}

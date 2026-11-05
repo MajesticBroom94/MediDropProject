@@ -1,0 +1,159 @@
+@using System.Globalization
+@using MediDropProject.Domain.Entities
+@using MediDropProject.Domain.Enums
+@model Prescription
+
+@{
+    Layout = "_PatientLayout";
+    ViewData["Title"] = "Prescription details";
+    ViewData["Eyebrow"] = "Prescriptions";
+
+    var totalCollections = Model.RepeatCount + 1;
+    var today = DateOnly.FromDateTime(DateTime.UtcNow);
+    var expired = Model.EndDate.HasValue && today > Model.EndDate.Value;
+    
+    var lastCollectedAt = Model.Collections
+        .OrderByDescending(c => c.CollectedAt)
+        .FirstOrDefault()?.CollectedAt;
+
+    var collectionLocked = lastCollectedAt.HasValue &&
+                           DateTimeOffset.UtcNow < lastCollectedAt.Value.AddDays(20);
+
+    var canCollect = Model.Status == PrescriptionStatus.Active &&
+                     !expired &&
+                     (!Model.StartDate.HasValue || today >= Model.StartDate.Value) &&
+                     Model.CollectedCount < totalCollections;
+
+    var providerName = $"{Model.PrescribedBy.ProfessionalTitle} {Model.PrescribedBy.User.FirstName} {Model.PrescribedBy.User.LastName}".Trim();
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/patient/prescriptions.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/patient/prescription-details-layout.css" asp-append-version="true" />
+}
+
+<div class="page-intro">
+    <div>
+        <a class="back-link" asp-action="Prescriptions"><i class="fa-solid fa-arrow-left"></i> Prescriptions</a>
+        <h1>@Model.PrescriptionNumber</h1>
+        <p>Issued by @(string.IsNullOrWhiteSpace(providerName) ? "Care provider" : providerName) on @Model.IssuedAt?.ToLocalTime().ToString("dd MMMM yyyy").</p>
+    </div>
+    
+    <div class="page-actions">
+
+        <a class="btn"
+           asp-action="PrintPrescription"
+           asp-route-id="@Model.Id">
+            <i class="fa-solid fa-print" aria-hidden="true"></i>
+            <text>&nbsp; Print / Save PDF</text>
+        </a>
+
+        @if (canCollect)
+        {
+            <form asp-action="CollectPrescription" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="id" value="@Model.Id"/>
+                <input type="hidden" name="collectionId" value="@Guid.NewGuid()"/>
+
+                <button class="btn primary"
+                        type="submit"
+                        disabled="@collectionLocked">
+
+                    @if (collectionLocked)
+                    {
+                        <i class="fa-solid fa-clock" aria-hidden="true"></i>
+                        <text>&nbsp; Collection unavailable</text>
+                    }
+                    else
+                    {
+                        <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>
+                        <text>&nbsp; Collected medication</text>
+                    }
+
+                </button>
+            </form>
+        }
+
+    </div>
+
+</div>
+
+@if (TempData["PrescriptionMessage"] is string message)
+{
+    <div class="inline-message success">@message</div>
+}
+@if (TempData["PrescriptionError"] is string error)
+{
+    <div class="inline-message error">@error</div>
+}
+
+<div class="prescription-workspace-layout">
+    <div class="prescription-workspace-main">
+        
+        <section class="card prescription-workspace-card">
+            <div class="card-head">
+                <h2>Prescription information</h2></div>
+            <dl class="detail-list">
+                <div><dt>Provider</dt><dd>@(string.IsNullOrWhiteSpace(providerName) ? "Care provider" : providerName)</dd></div>
+                <div><dt>Prescription number</dt><dd>@Model.PrescriptionNumber</dd></div>
+                <div><dt>Repeats</dt><dd>@Model.RepeatCount additional repeat(s)</dd></div>
+                <div><dt>Instructions</dt><dd>@(Model.Instructions ?? "No general instructions provided.")</dd></div>
+                <div><dt>Notes</dt><dd>@(Model.Notes ?? "No additional notes.")</dd></div>
+            </dl>
+        </section>
+
+        <section class="card prescription-workspace-card">
+            <div class="card-head">
+                <h2>Medication</h2><span class="muted">@Model.Items.Count item(s)</span></div>
+
+            <div class="prescription-item-list">
+                @foreach (var item in Model.Items)
+                {
+                    <article class="prescription-item-card">
+                        <div class="prescription-item-main">
+                            <div class="list-icon"><i class="fa-solid fa-capsules"></i></div>
+                            <div>
+                                <strong>@item.Medication.Name @item.Medication.Strength</strong>
+                                <span>@item.DosageAmount.ToString("0.####") @item.DosageUnit · @(item.Frequency ?? "Frequency not specified")</span>
+                                <small>@(item.QuantityPrescribed.HasValue ? $"{item.QuantityPrescribed} units per collection" : "Collection quantity not specified")</small>
+                            </div>
+                        </div>
+                        <a class="btn small" asp-action="PrescriptionItemDetails" asp-route-prescriptionId="@Model.Id" asp-route-itemId="@item.Id">View item</a>
+                    </article>
+                }
+            </div>
+        </section>
+    </div>
+
+    <aside class="prescription-workspace-side" aria-label="Prescription overview and collection history">
+        <div class="prescription-overview-grid prescription-workspace-metrics">
+            <section class="card metric"><strong>@Model.CollectedCount / @totalCollections</strong><span>Collections recorded</span></section>
+            <section class="card metric"><strong>@Model.Status</strong><span>Prescription status</span></section>
+            <section class="card metric"><strong>@(Model.StartDate?.ToString("dd MMM yyyy") ?? "Immediate")</strong><span>Valid from</span></section>
+            <section class="card metric"><strong>@(Model.EndDate?.ToString("dd MMM yyyy") ?? "No expiry")</strong><span>Valid until</span></section>
+        </div>
+
+        <section class="card prescription-workspace-history">
+            <div class="card-head"><h2>Collection history</h2><span class="muted">@Model.Collections.Count recorded</span></div>
+            @if (Model.Collections.Count > 0)
+            {
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>Fill</th><th>Collected</th></tr></thead>
+                        <tbody>
+                        @foreach (var collection in Model.Collections.OrderByDescending(c => c.FillNumber))
+                        {
+                            <tr><td>Collection @collection.FillNumber</td><td>@collection.CollectedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="muted prescription-workspace-empty">No medication collections recorded yet.</p>
+            }
+        </section>
+    </aside>
+</div>

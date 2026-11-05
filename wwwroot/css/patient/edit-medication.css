@@ -1,0 +1,86 @@
+/* Patient/EditMedication only — no changes to shared portal styles. */
+.edit-medication-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    max-width: 1080px;
+}
+.edit-medication-main { display: grid; gap: 16px; min-width: 0; }
+.edit-medication-overview {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    background: linear-gradient(115deg, #ffffff, #f2f9f9);
+}
+.edit-medication-identity { display: flex; gap: 14px; align-items: center; min-width: 0; }
+.edit-medication-icon, .edit-medication-section-icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 49px;
+    height: 49px;
+    border-radius: 14px;
+    background: #e3f3f3;
+    color: #147d83;
+    font-size: 20px;
+}
+.edit-medication-name { min-width: 0; }
+.edit-medication-label { font-size: 10px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: #69818e; }
+.edit-medication-name h2 { font-size: 19px; line-height: 1.25; margin: 4px 0 5px; overflow-wrap: anywhere; }
+.edit-medication-name p { font-size: 12px; color: #647e8b; margin: 0; }
+.edit-medication-details-link { flex: 0 0 auto; white-space: nowrap; }
+.edit-medication-form { padding: 23px; }
+.edit-medication-section-heading { display: flex; gap: 12px; align-items: center; margin-bottom: 22px; }
+.edit-medication-section-icon { width: 41px; height: 41px; font-size: 16px; }
+.edit-medication-section-heading h2 { margin: 0 0 4px; font-size: 16px; }
+.edit-medication-section-heading p { margin: 0; color: #6a818d; font-size: 12px; }
+.edit-medication-quantity-field input { width: 180px; max-width: 100%; font-size: 18px; font-weight: 700; }
+.edit-medication-quantity-field small { display: block; margin-top: 7px; color: #708591; font-size: 12px; }
+.edit-medication-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 26px;
+    padding-top: 18px;
+    border-top: 1px solid #e7eef0;
+}
+/* Low-emphasis full-width removal action, beneath the editor. */
+.edit-medication-remove {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-color: #edd6d8;
+    background: #fffafa;
+    padding: 18px 22px;
+}
+.edit-medication-remove-icon {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: #fcecee;
+    color: #b74a55;
+    font-size: 18px;
+}
+.edit-medication-remove-copy { flex: 1; min-width: 0; }
+.edit-medication-remove h2 { font-size: 15px; color: #963f49; margin: 0 0 5px; }
+.edit-medication-remove p { font-size: 12px; line-height: 1.5; color: #886b73; margin: 0; }
+.edit-medication-remove form { flex: 0 0 auto; }
+.edit-medication-remove .btn { white-space: nowrap; }
+@media (max-width: 650px) {
+    .edit-medication-overview { flex-wrap: wrap; }
+    .edit-medication-details-link { margin-left: 63px; }
+    .edit-medication-remove { flex-wrap: wrap; }
+    .edit-medication-remove form { width: 100%; }
+    .edit-medication-remove .btn { width: 100%; }
+}
+@media (max-width: 520px) {
+    .edit-medication-form { padding: 18px; }
+    .edit-medication-quantity-field input { width: 100%; }
+    .edit-medication-form-actions { display: grid; grid-template-columns: 1fr 1fr; }
+    .edit-medication-form-actions .btn { width: 100%; }
+}

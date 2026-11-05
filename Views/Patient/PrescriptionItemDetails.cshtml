@@ -1,0 +1,74 @@
+@using MediDropProject.Domain.Entities
+@model PrescriptionItem
+
+@{
+    Layout = "_PatientLayout";
+    ViewData["Title"] = "Medication details";
+    ViewData["Eyebrow"] = "Prescription item";
+    var medication = Model.Medication;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/patient/prescriptions.css" asp-append-version="true" />
+}
+
+<div class="page-intro">
+    <div>
+        <a class="back-link" asp-action="PrescriptionDetails" asp-route-id="@Model.PrescriptionId"><i class="fa-solid fa-arrow-left"></i> Prescription</a>
+        <h1>@medication.Name @medication.Strength</h1>
+        <p>Detailed medication and prescribing information for prescription @Model.Prescription.PrescriptionNumber.</p>
+    </div>
+</div>
+
+<div class="grid cols-2 medication-detail-layout">
+    <section class="card medication-profile-card">
+        <div class="medication-profile-top">
+            @if (!string.IsNullOrWhiteSpace(medication.ImageUrl))
+            {
+                <img src="@medication.ImageUrl" alt="@medication.Name" />
+            }
+            else
+            {
+                <div class="medication-placeholder"><i class="fa-solid fa-capsules"></i></div>
+            }
+            <div>
+                <span class="eyebrow-label">Medication</span>
+                <h2>@medication.Name</h2>
+                <p>@medication.GenericName</p>
+            </div>
+        </div>
+
+        <dl class="detail-list">
+            <div><dt>Strength</dt><dd>@(medication.Strength ?? "Not specified")</dd></div>
+            <div><dt>Form</dt><dd>@(medication.Form ?? "Not specified")</dd></div>
+            <div><dt>Manufacturer</dt><dd>@(medication.Manufacturer?.Name ?? "Not specified")</dd></div>
+            <div><dt>Barcode</dt><dd>@(medication.Barcode ?? "Not available")</dd></div>
+        </dl>
+    </section>
+
+    <section class="card">
+        <div class="card-head"><h2>How it was prescribed</h2></div>
+        <dl class="detail-list">
+            <div><dt>Dosage</dt><dd>@Model.DosageAmount.ToString("0.####") @Model.DosageUnit</dd></div>
+            <div><dt>Frequency</dt><dd>@(Model.Frequency ?? "Not specified")</dd></div>
+            <div><dt>Quantity per collection</dt><dd>@(Model.QuantityPrescribed?.ToString() ?? "Not specified")</dd></div>
+            <div><dt>Instructions</dt><dd>@(Model.Instructions ?? "No item-specific instructions.")</dd></div>
+        </dl>
+    </section>
+</div>
+
+<div class="grid cols-2 medication-info-grid">
+    <section class="card">
+        <div class="card-head"><h2>About this medication</h2></div>
+        <p class="detail-copy">@(medication.Description ?? "No medication description is currently available.")</p>
+    </section>
+    <section class="card">
+        <div class="card-head"><h2>Active ingredients</h2></div>
+        <p class="detail-copy">@(medication.ActiveIngredients ?? "Active ingredient information is not currently available.")</p>
+    </section>
+</div>
+
+<section class="card medication-safety-card">
+    <div class="card-head"><h2>Safety information</h2></div>
+    <p class="detail-copy">@(medication.SafetyInformation ?? "No additional safety information is currently available.")</p>
+</section>

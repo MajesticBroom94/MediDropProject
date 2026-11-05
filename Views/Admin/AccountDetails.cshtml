@@ -1,0 +1,354 @@
+@using MediDropProject.Domain.Enums
+@model MediDropProject.Models.Admin.AdminAccountDetailsViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Account details";
+    var a = Model.Account;
+    var reg = Model.LatestProviderRegistration;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin/account-details.css" asp-append-version="true"/>
+}
+
+<a class="admin-back" asp-action="Users"><i class="fa-solid fa-arrow-left"></i> All accounts</a>
+<div class="admin-heading">
+    <div><span class="admin-eyebrow">ACCOUNT #@a.Id</span>
+        <h1>@(string.IsNullOrWhiteSpace(a.Name) ? a.Email : a.Name)</h1>
+        <p>@a.Email</p></div>
+    <span class="admin-pill @a.Status.ToString().ToLowerInvariant()">@a.Status</span></div>
+<div class="admin-account-actions"><a class="admin-btn primary" asp-action="Audit" asp-route-search="@a.Email"><i
+            class="fa-solid fa-clock-rotate-left"></i> View recent activities</a></div>
+
+<div class="admin-account-profile-grid">
+    <details class="admin-panel admin-account-card">
+        <summary class="admin-panel-head admin-manage-head admin-account-summary">
+                <div><h2><i class="fa-regular fa-address-card" aria-hidden="true"></i> Account information</h2>
+                <p>Identity and account-wide access</p></div>
+                <span class="admin-account-summary-right">
+                    <span class="admin-pill @a.Status.ToString().ToLowerInvariant()">@a.Status</span>
+                    <i class="fa-solid fa-chevron-down admin-account-chevron" aria-hidden="true"></i>
+                </span>
+            </summary>
+            <div class="admin-account-expanded">
+        @if (Model.SelectedProfile == "Admin")
+        {
+            <div class="admin-account-scope-note">No actions available for administrator accounts</div>
+        }
+        else
+        {
+            <div class="admin-account-scope-note">Suspending an account blocks all its profiles.</div>
+        }
+        
+        
+        <dl class="admin-details">
+            <div>
+                <dt>Account ID</dt>
+                <dd>#@a.Id</dd>
+            </div>
+            <div>
+                <dt>Email</dt>
+                <dd>@a.Email</dd>
+            </div>
+            <div>
+                <dt>Name</dt>
+                <dd>@a.Name</dd>
+            </div>
+            <div>
+                <dt>Identity roles</dt>
+                <dd>@string.Join(", ", a.Roles)</dd>
+            </div>
+            <div>
+                <dt>Last selected profile</dt>
+                <dd>@(Model.SelectedProfile ?? "Not set")</dd>
+            </div>
+            <div>
+                <dt>Registered</dt>
+                <dd>@a.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</dd>
+            </div>
+            <div>
+                <dt>Profile last updated</dt>
+                <dd>@Model.UpdatedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</dd>
+            </div>
+            @if (a.LastStatusChange.HasValue)
+            {
+                <div>
+                    <dt>Account status changed</dt>
+                    <dd>@a.LastStatusChange.Value.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</dd>
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(a.StatusReason))
+            {
+                <div>
+                    <dt>Account restriction reason</dt>
+                    <dd>@a.StatusReason</dd>
+                </div>
+            }
+        </dl>
+            <div class="admin-account-manage-footer">
+                @if ((a.Status is UserStatus.Active or UserStatus.Suspended) && Model.SelectedProfile != "Admin")
+            {
+                <button type="button" class="admin-btn admin-manage-open" data-scope="account"
+                        data-action="@(a.Status == UserStatus.Active ? "suspend" : "reactivate")">
+                    <i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Manage access
+                </button>
+            }
+            </div>
+            </div>
+    </details>
+    @if (Model.PatientId.HasValue)
+    {
+        <details class="admin-panel admin-account-card">
+            <summary class="admin-panel-head admin-manage-head admin-account-summary">
+                <div><h2><i class="fa-solid fa-user" aria-hidden="true"></i> Patient profile</h2>
+                    <p>Patient access and dispenser ownership</p></div>
+                <span class="admin-account-summary-right">
+                    <span class="admin-pill @Model.PatientStatus.ToString()!.ToLowerInvariant()">@Model.PatientStatus</span>
+                    <i class="fa-solid fa-chevron-down admin-account-chevron" aria-hidden="true"></i>
+                </span>
+            </summary>
+            <div class="admin-account-expanded">
+            <div class="admin-account-scope-note">Patient restrictions affect patient features, pairing and patient
+                actions only; an eligible care provider profile remains available.
+            </div>
+            
+            <dl class="admin-details">
+                <div>
+                    <dt>Patient ID</dt>
+                    <dd>#@Model.PatientId</dd>
+                </div>
+                <div>
+                    <dt>Date of birth</dt>
+                    <dd>@(Model.DateOfBirth?.ToString("dd MMM yyyy") ?? "Not provided")</dd>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.PatientStatusReason))
+                {
+                    <div>
+                        <dt>Restriction reason</dt>
+                        <dd>@Model.PatientStatusReason</dd>
+                    </div>
+                }
+                <div>
+                    <dt>Status last changed</dt>
+                    <dd>@(Model.PatientStatusChangedAt?.ToLocalTime().ToString("dd MMM yyyy, HH:mm") ?? "Not recorded")</dd>
+                </div>
+            </dl>
+            <div class="admin-account-manage-footer">
+                @if (Model.PatientStatus is PatientStatus.Active or PatientStatus.Suspended)
+                {
+                    <button type="button" class="admin-btn admin-manage-open" data-scope="patient"
+                            data-action="@(Model.PatientStatus == PatientStatus.Active ? "suspend" : "reactivate")">
+                        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Manage access
+                    </button>
+                }
+            </div>
+            </div>
+        </details>
+    }
+    @if (Model.ProviderId.HasValue)
+    {
+        <details class="admin-panel admin-account-card">
+            <summary class="admin-panel-head admin-manage-head admin-account-summary">
+                <div><h2><i class="fa-solid fa-user-doctor" aria-hidden="true"></i> Care provider profile</h2>
+                    <p>Professional registration and privileges</p></div>
+                <span class="admin-account-summary-right">
+                    <span class="admin-pill @(reg?.Status.ToString().ToLowerInvariant() ?? "pending")">@(reg?.Status.ToString() ?? "No registration")</span>
+                    <i class="fa-solid fa-chevron-down admin-account-chevron" aria-hidden="true"></i>
+                </span>
+            </summary>
+            <div class="admin-account-expanded">
+            <div class="admin-account-scope-note">Revoking professional verification removes provider privileges but
+                does not suspend the patient profile or base account.
+            </div>
+            
+            <dl class="admin-details">
+                <div>
+                    <dt>Provider ID</dt>
+                    <dd>#@Model.ProviderId</dd>
+                </div>
+                <div>
+                    <dt>Professional title</dt>
+                    <dd>@(Model.ProfessionalTitle ?? "Not provided")</dd>
+                </div>
+                <div>
+                    <dt>Bio</dt>
+                    <dd>@(Model.Bio ?? "Not provided")</dd>
+                </div>
+                @if (reg != null)
+                {
+                    <div>
+                        <dt>Provider type</dt>
+                        <dd>@reg.ProviderType</dd>
+                    </div>
+                    <div>
+                        <dt>Authority</dt>
+                        <dd>@reg.Authority</dd>
+                    </div>
+                    <div>
+                        <dt>Registration number</dt>
+                        <dd>@reg.RegistrationNumber</dd>
+                    </div>
+                    <div>
+                        <dt>Submitted</dt>
+                        <dd>@reg.SubmittedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</dd>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(reg.StatusReason))
+                    {
+                        <div>
+                            <dt>Status reason</dt>
+                            <dd>@reg.StatusReason</dd>
+                        </div>
+                    }
+                }
+            </dl>
+            <div class="admin-account-manage-footer">
+                @if (reg != null)
+                {
+                    <a class="admin-btn admin-registration-link" asp-action="ProviderRegistrationDetails"
+                       asp-route-id="@reg.Id">
+                        <i class="fa-regular fa-file-lines" aria-hidden="true"></i> View registration #@reg.Id
+                    </a>
+                }
+                @if (reg?.Status is ProviderVerificationStatus.Verified or ProviderVerificationStatus.Revoked)
+                {
+                    <button type="button" class="admin-btn admin-manage-open" data-scope="provider"
+                            data-action="@(reg.Status == ProviderVerificationStatus.Verified ? "revoke" : "reinstate")">
+                        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Manage access
+                    </button>
+                }
+            </div>
+            </div>
+        </details>
+    }
+</div>
+
+@await Component.InvokeAsync("AccountAccessHistory", new { userId = a.Id, patientId = Model.PatientId, providerId = Model.ProviderId })
+
+<dialog id="adminAccessDialog" class="admin-access-dialog" aria-labelledby="adminAccessTitle"
+        aria-describedby="adminAccessDescription">
+    <form id="adminAccessForm" method="post" action="" class="admin-access-form">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@a.Id"/>
+        <input type="hidden" name="action" id="adminAccessAction"/>
+        <div class="admin-access-modal-header">
+            <div class="admin-access-modal-symbol"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></div>
+            <div><h2 id="adminAccessTitle">Manage access</h2>
+                <p id="adminAccessSubtitle">Update access for this account or profile.</p></div>
+            <button type="button" class="admin-access-close" id="adminAccessClose" aria-label="Close dialog"><i
+                    class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="adminAccessDescription" class="admin-access-description" role="note"></div>
+        <label class="admin-access-reason" for="adminAccessReason">
+            <span id="adminAccessReasonLabel">Reason for restriction</span>
+            <textarea id="adminAccessReason" name="reason" rows="4" maxlength="500"
+                      placeholder="Explain why this change is necessary..."></textarea>
+            <small><span id="adminAccessCharCount">0</span>/500</small>
+        </label>
+        <div class="admin-access-modal-footer">
+            <button type="button" class="admin-btn" id="adminAccessCancel">Cancel</button>
+            <button type="submit" class="admin-btn danger" id="adminAccessSubmit">Confirm action</button>
+        </div>
+    </form>
+</dialog>
+
+<script>
+    (() => {
+        const modal = document.getElementById('adminAccessDialog');
+        const form = document.getElementById('adminAccessForm');
+        if (!modal || !form) return;
+        const title = document.getElementById('adminAccessTitle');
+        const subtitle = document.getElementById('adminAccessSubtitle');
+        const description = document.getElementById('adminAccessDescription');
+        const reason = document.getElementById('adminAccessReason');
+        const reasonLabel = document.getElementById('adminAccessReasonLabel');
+        const count = document.getElementById('adminAccessCharCount');
+        const actionInput = document.getElementById('adminAccessAction');
+        const submit = document.getElementById('adminAccessSubmit');
+        const actions = {
+            'account:suspend': {
+                url: '@Url.Action("ChangeAccountStatus", "Admin")',
+                title: 'Suspend entire account',
+                text: 'Blocks access to both Patient and Care Provider profiles. Existing physical medication schedules are not automatically stopped.',
+                label: 'Reason for suspension',
+                button: 'Suspend account',
+                restricted: true
+            },
+            'account:reactivate': {
+                url: '@Url.Action("ChangeAccountStatus", "Admin")',
+                title: 'Reactivate entire account',
+                text: 'Restores account-level access. Each profile must still meet its own eligibility requirements.',
+                button: 'Reactivate account',
+                restricted: false
+            },
+            'patient:suspend': {
+                url: '@Url.Action("ChangePatientStatus", "Admin")',
+                title: 'Suspend patient profile',
+                text: 'Blocks patient-specific features and pairing. Any eligible care provider profile remains available.',
+                label: 'Reason for suspension',
+                button: 'Suspend patient profile',
+                restricted: true
+            },
+            'patient:reactivate': {
+                url: '@Url.Action("ChangePatientStatus", "Admin")',
+                title: 'Reactivate patient profile',
+                text: 'Restores patient access, provided the entire account is also active.',
+                button: 'Reactivate patient profile',
+                restricted: false
+            },
+            'provider:revoke': {
+                url: '@Url.Action("ChangeProviderProfileStatus", "Admin")',
+                title: 'Revoke provider verification',
+                text: 'Removes professional privileges while preserving the base account and any active patient profile.',
+                label: 'Reason for revocation',
+                button: 'Revoke verification',
+                restricted: true
+            },
+            'provider:reinstate': {
+                url: '@Url.Action("ChangeProviderProfileStatus", "Admin")',
+                title: 'Reinstate provider verification',
+                text: 'Restores professional verification, provided the base account is also active.',
+                button: 'Reinstate verification',
+                restricted: false
+            }
+        };
+        let current;
+        document.querySelectorAll('.admin-manage-open').forEach(button => {
+            button.addEventListener('click', () => {
+                const action = button.dataset.action;
+                current = actions[`${button.dataset.scope}:${action}`];
+                if (!current) return;
+                form.action = current.url;
+                actionInput.value = action;
+                title.textContent = current.title;
+                subtitle.textContent = 'Account #@a.Id · @a.Email';
+                description.textContent = current.text;
+                description.classList.toggle('is-danger', current.restricted);
+                reasonLabel.textContent = current.label || 'Reason (optional)';
+                reason.required = current.restricted;
+                reason.closest('.admin-access-reason').hidden = !current.restricted;
+                reason.value = '';
+                count.textContent = '0';
+                submit.textContent = current.button;
+                submit.classList.toggle('danger', current.restricted);
+                submit.classList.toggle('success', !current.restricted);
+                modal.showModal();
+            });
+        });
+        reason.addEventListener('input', () => {
+            count.textContent = String(reason.value.length);
+        });
+        document.getElementById('adminAccessClose').addEventListener('click', () => modal.close());
+        document.getElementById('adminAccessCancel').addEventListener('click', () => modal.close());
+        modal.addEventListener('click', event => {
+            if (event.target === modal) modal.close();
+        });
+        form.addEventListener('submit', event => {
+            if (!current) {
+                event.preventDefault();
+                return;
+            }
+            if (!current.restricted && !confirm(`Confirm: ${current.title}?`)) event.preventDefault();
+        });
+    })();
+</script>
+

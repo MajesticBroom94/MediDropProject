@@ -1,0 +1,229 @@
+.admin-profile-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap
+}
+
+.admin-create-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap
+}
+
+.admin-create-copy {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0
+}
+
+.admin-create-copy h2 {
+    color: #173f51;
+    font-size: 18px;
+    margin: 0 0 4px
+}
+
+.admin-create-copy p {
+    color: #758a9b;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0
+}
+
+.admin-create-icon {
+    width: 44px;
+    height: 44px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: #e3f4f4;
+    color: #0a7f8d
+}
+
+.admin-create-trigger, .admin-create-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border: 0;
+    border-radius: 12px;
+    background: #0d707b;
+    color: #fff;
+    padding: 13px 19px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 750;
+    cursor: pointer;
+    white-space: nowrap
+}
+
+.admin-create-trigger:hover, .admin-create-submit:hover {
+    background: #095b68
+}
+
+.admin-create-submit:disabled {
+    opacity: .65;
+    cursor: wait
+}
+
+.admin-create-dialog {
+    box-sizing: border-box;
+    width: min(94vw, 480px);
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 1px solid #cfe2e8;
+    border-radius: 18px;
+    box-shadow: 0 20px 65px #082d4560;
+    padding: 24px;
+    background: #fff;
+    color: #173f51
+}
+
+.admin-create-dialog::backdrop {
+    background: #071d32a6
+}
+
+.admin-create-dialog-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 16px
+}
+
+.admin-create-dialog-heading h2 {
+    margin: 0;
+    font-size: 21px;
+    color: #143952
+}
+
+.admin-create-close {
+    border: 0;
+    background: #edf4f6;
+    color: #365f70;
+    border-radius: 9px;
+    width: 34px;
+    height: 34px;
+    cursor: pointer
+}
+
+.admin-create-dialog p {
+    color: #667f90;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0 0 16px
+}
+
+.admin-create-dialog label {
+    display: block;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 7px
+}
+
+.admin-create-dialog input {
+    box-sizing: border-box;
+    width: 100%;
+    border: 1px solid #c7dae2;
+    border-radius: 10px;
+    padding: 12px;
+    font: inherit;
+    font-size: 14px;
+    color: #143952;
+    outline: none
+}
+
+.admin-create-dialog input:focus {
+    border-color: #159ba4;
+    box-shadow: 0 0 0 3px #159ba424
+}
+
+.admin-create-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 23px
+}
+
+.admin-create-cancel {
+    border: 1px solid #d4e3e8;
+    background: #f6f9fa;
+    color: #25495a;
+    border-radius: 11px;
+    padding: 11px 16px;
+    font-weight: 700;
+    cursor: pointer
+}
+
+.admin-create-error {
+    margin-top: 12px !important;
+    color: #af3545 !important
+}
+
+.admin-create-result-success {
+    color: #16805e !important;
+    font-weight: 700;
+    display: flex;
+    gap: 9px;
+    align-items: center
+}
+
+.admin-create-credential {
+    margin-top: 12px;
+    border: 1px solid #d8e7ed;
+    border-radius: 10px;
+    background: #f5f9fa;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow-wrap: anywhere
+}
+
+.admin-create-credential span {
+    font-size: 11px;
+    font-weight: 700;
+    color: #688093;
+    text-transform: uppercase;
+    letter-spacing: .04em
+}
+
+.admin-create-credential strong, .admin-create-credential code {
+    font-size: 14px;
+    color: #163e53;
+    white-space: normal;
+    overflow-wrap: anywhere
+}
+
+@media (max-width: 600px) {
+    .admin-create-section {
+        align-items: stretch
+    }
+
+    .admin-create-trigger {
+        width: 100%
+    }
+
+    .admin-create-dialog {
+        padding: 18px
+    }
+
+    .admin-create-dialog-actions > * {
+        flex: 1
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-profile-header-actions {
+        width: 100%
+    }
+
+    .admin-profile-header-actions > * {
+        flex: 1
+    }
+}

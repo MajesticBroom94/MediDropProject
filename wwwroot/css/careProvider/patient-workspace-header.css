@@ -1,0 +1,220 @@
+/* Shared header/navigation for all Care Provider patient workspace tabs. */
+.ov-return {
+    margin-bottom: 17px;
+}
+
+.ov-return a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #1177bc;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.ov-return a:hover {
+    color: #0b3157;
+    text-decoration: underline;
+}
+
+.ov-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 24px;
+    padding: 34px;
+    border-radius: 20px;
+    background: linear-gradient(112deg, #0b3157 0%, #0a528c 57%, #0879bb 100%);
+    color: #fff;
+    box-shadow: 0 12px 32px #064c8133;
+}
+
+.ov-profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    min-width: 0;
+}
+
+.ov-avatar {
+    display: grid;
+    place-items: center;
+    width: 74px;
+    height: 74px;
+    flex: 0 0 auto;
+    border-radius: 20px;
+    background: #ffffff24;
+    border: 1px solid #ffffff40;
+    color: #fff;
+    font-size: 25px;
+    font-weight: 850;
+}
+
+.ov-eyebrow {
+    display: block;
+    color: #9de3f6;
+    font-size: 10px;
+    font-weight: 850;
+    letter-spacing: 1.6px;
+}
+
+.ov-profile-text {
+    min-width: 0;
+}
+
+.ov-profile h1 {
+    color: #fff;
+    font-size: 30px;
+    margin: 7px 0;
+}
+
+.ov-profile p {
+    color: #d1e9fa;
+    margin: 0;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.ov-connection {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff20;
+    border: 1px solid #ffffff50;
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.ov-connection i {
+    color: #9bf1d2;
+}
+
+.ov-tabs {
+    display: flex;
+    gap: 7px;
+    border-bottom: 1px solid #d7e5f1;
+    overflow-x: auto;
+    margin: 23px 0 28px;
+    scrollbar-width: thin;
+}
+
+.ov-tabs a, .ov-tabs span {
+    display: inline-flex;
+    padding: 13px 16px;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 800;
+    border-bottom: 3px solid transparent;
+    text-decoration: none;
+    color: #56758f;
+}
+
+.ov-tabs a:hover {
+    color: #0879bb;
+}
+
+.ov-tabs a.active {
+    color: #0879bb;
+    border-bottom-color: #0879bb;
+}
+
+.ov-tabs span {
+    color: #97aabe;
+    cursor: not-allowed;
+}
+
+
+/* Patient workspace header actions */
+.ov-hero-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    margin-left: auto;
+}
+
+.ov-remove-form {
+    margin: 0;
+}
+
+.ov-remove-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    padding: 10px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 9px;
+
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+
+    font-size: 12px;
+    font-weight: 750;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.ov-remove-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: #fff;
+}
+
+.ov-remove-btn:focus-visible {
+    outline: 3px solid #9de3f6;
+    outline-offset: 3px;
+}
+
+@media (max-width: 650px) {
+    .ov-hero-actions {
+        width: 100%;
+        align-items: flex-start;
+        margin-left: 0;
+    }
+
+    .ov-remove-btn {
+        padding: 10px 14px;
+    }
+}
+
+
+@media (max-width: 650px) {
+    .ov-hero {
+        padding: 22px;
+        border-radius: 16px;
+    }
+
+    .ov-profile {
+        gap: 13px;
+    }
+
+    .ov-avatar {
+        width: 57px;
+        height: 57px;
+        border-radius: 15px;
+        font-size: 20px;
+    }
+
+    .ov-profile h1 {
+        font-size: 24px;
+    }
+
+    .ov-connection {
+        font-size: 11px;
+    }
+
+    .ov-tabs {
+        gap: 0;
+    }
+
+    .ov-tabs a, .ov-tabs span {
+        padding: 12px 11px;
+        font-size: 12px;
+    }
+}

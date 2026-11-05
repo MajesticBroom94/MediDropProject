@@ -1,0 +1,132 @@
+@model MediDropProject.Models.Admin.AdminAuditViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Audit & security";
+}
+<div class="admin-heading admin-audit-heading">
+    <div><span class="admin-eyebrow">SYSTEM OVERSIGHT</span>
+        <h1>Audit &amp; security</h1>
+        <p>Recorded changes, account events and device-related activity where audit events exist.</p></div>
+</div>
+<section class="admin-panel admin-modern-filter-panel admin-search-panel admin-audit-page">
+    <form asp-action="Audit" method="get" class="admin-filters admin-modern-filters">
+        <label><span>Account email (actor)</span><input type="search" name="search" value="@Model.Search"
+                                                        maxlength="100" placeholder="Email address"/></label>
+        <label><span>From date</span><input type="date" name="fromDate"
+                                                  value="@Model.FromDate?.ToString("yyyy-MM-dd")"/></label>
+        <label><span>To date</span><input type="date" name="toDate"
+                                                value="@Model.ToDate?.ToString("yyyy-MM-dd")"/></label>
+        <button class="admin-btn primary" type="submit">Search</button>
+        <a class="admin-btn" asp-action="Audit">Reset</a></form>
+</section>
+<section class="admin-panel admin-list-shell admin-results-panel admin-audit-page">
+    <div class="admin-panel-head admin-modern-head">
+        <div class="admin-modern-head-label"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+            <div><h2>Audit trail</h2>
+                <p>Recorded application activity</p></div>
+        </div>
+        <span class="admin-modern-count">@Model.Pagination.Total events</span></div>
+    @if (Model.Events.Count == 0)
+    {
+        <p class="admin-empty">No audit activity recorded.</p>
+    }
+    else
+    {
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>When</th>
+                    <th>Event</th>
+                    <th>Actor</th>
+                    <th>Record</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var e in Model.Events)
+                {
+                    <tr>
+                        <td data-label="When">@e.OccurredAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</td>
+                        <td data-label="Event"><strong>@e.EventType</strong><small>@e.Action</small></td>
+                        <td data-label="Actor">@(e.Actor ?? "System")</td>
+                        <td data-label="Record">@e.EntityType @e.EntityId</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+    @if (Model.Pagination.TotalPages > 1)
+    {
+        <nav class="admin-pagination" aria-label="Audit pages">
+            <span>Page @Model.Pagination.Page of @Model.Pagination.TotalPages</span>
+            <div>
+                @if (Model.Pagination.HasPrevious)
+                {
+                    <a class="admin-btn" asp-action="Audit" asp-route-pageNumber="@(Model.Pagination.Page - 1)"
+                       asp-route-search="@Model.Search" asp-route-fromDate="@Model.FromDate"
+                       asp-route-toDate="@Model.ToDate">Previous</a>
+                }
+                @if (Model.Pagination.HasNext)
+                {
+                    <a class="admin-btn" asp-action="Audit" asp-route-pageNumber="@(Model.Pagination.Page + 1)"
+                       asp-route-search="@Model.Search" asp-route-fromDate="@Model.FromDate"
+                       asp-route-toDate="@Model.ToDate">Next</a>
+                }
+            </div>
+        </nav>
+    }
+</section>
+<section class="admin-panel admin-list-shell admin-results-panel admin-audit-page admin-margin-top">
+    <div class="admin-panel-head admin-modern-head admin-modern-head-teal">
+        <div class="admin-modern-head-label"><i class="fa-solid fa-lock" aria-hidden="true"></i>
+            <div><h2>Recent security events</h2>
+                <p>Authentication and access events</p></div>
+        </div>
+        <span class="admin-modern-count">Latest 10</span></div>
+    @if (Model.SecurityEvents.Count == 0)
+    {
+        <p class="admin-empty">No security events recorded.</p>
+    }
+    else
+    {
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>When</th>
+                    <th>Event</th>
+                    <th>Account</th>
+                    <th>Result</th>
+                    <th>Reason</th>
+                    <th>IP Address</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var e in Model.SecurityEvents)
+                {
+                    <tr>
+                        <td data-label="When">@e.OccurredAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</td>
+                        <td data-label="Event">@e.Type</td>
+                        <td data-label="Account">@(e.UserEmail ?? "Unknown")</td>
+                        <td data-label="Result"><span
+                                class="admin-pill @(e.Success ? "approved" : "rejected")">@(e.Success ? "Success" : "Failed")</span>
+                        </td>
+                        <td data-label="Reason">
+                            @(string.IsNullOrWhiteSpace(e.FailureReason)
+                                ? "—"
+                                : e.FailureReason)
+                        </td>
+                        <td data-label="IP Address">
+                            @(string.IsNullOrWhiteSpace(e.IpAddress)
+                                ? "—"
+                                : e.IpAddress)
+                        </td>
+                     
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

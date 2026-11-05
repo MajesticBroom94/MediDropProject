@@ -1,0 +1,82 @@
+/* Patient care-provider cards: scoped to this page only. */
+.care-provider-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+.care-provider-card {
+    min-width: 0;
+    padding: 20px 22px;
+    border: 1px solid #cce0e8;
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(13, 56, 84, .06);
+}
+.care-provider-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e4eef2;
+}
+.care-provider-identity {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+}
+.care-provider-avatar {
+    flex: 0 0 46px;
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    color: #087b81;
+    background: #e3f4f2;
+    font-size: 19px;
+}
+.care-provider-identity h3 {
+    margin: 0 0 4px;
+    color: #123858;
+    font-size: 17px;
+    overflow-wrap: anywhere;
+}
+.care-provider-type { color: #5b7890; font-size: 13px; }
+.care-provider-card-top .status-pill { flex: 0 0 auto; }
+.care-provider-facts {
+    display: grid;
+    gap: 10px;
+    padding-top: 15px;
+}
+.care-provider-fact {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    color: #607f93;
+    font-size: 13px;
+    min-width: 0;
+}
+.care-provider-fact i { width: 16px; flex: 0 0 16px; color: #118c91; text-align: center; }
+.care-provider-fact span, .care-provider-fact a { overflow-wrap: anywhere; }
+.care-provider-fact a { color: #087d87; text-decoration: none; }
+.care-provider-fact a:hover { text-decoration: underline; }
+.care-provider-request { border-color: #e7d9ab; }
+.care-provider-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 17px;
+    padding-top: 15px;
+    border-top: 1px solid #e4eef2;
+}
+@media (max-width: 860px) {
+    .care-provider-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+    .care-provider-card { padding: 17px; }
+    .care-provider-card-top { align-items: flex-start; }
+    .care-provider-identity { align-items: flex-start; }
+    .care-provider-avatar { flex-basis: 40px; width: 40px; height: 40px; }
+}

@@ -1,0 +1,164 @@
+@model MediDropProject.Models.Patient.MedicationCatalogueViewModel
+@{
+    Layout = "_PatientLayout";
+    ViewData["Title"] = "Add medication";
+    ViewData["Eyebrow"] = "Medication";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/patient/add-medication.css" asp-append-version="true" />
+}
+
+<div class="page-intro">
+    <div>
+        <a class="back-link" asp-action="Inventory"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Inventory</a>
+        <h1>Add medication</h1>
+        <p>Find medication in the catalogue and add it to your personal inventory.</p>
+    </div>
+</div>
+
+@if (TempData["InventoryError"] is string error)
+{
+    <div class="notice error">@error</div>
+}
+
+<form method="get" class="card medication-search-panel am-search-panel">
+    <div class="medication-search-main">
+        <div class="field search-field">
+            <label for="search">Search medication</label>
+            <div class="search-input-wrap">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                <input id="search" name="search" value="@Model.Search" placeholder="Name, generic name, barcode or ingredient" />
+            </div>
+        </div>
+        <div class="field">
+            <label for="form">Form</label>
+            <select id="form" name="form">
+                <option value="">All forms</option>
+                @foreach (var item in Model.Forms)
+                {
+                    <option value="@item" selected="@(Model.Form == item)">@item</option>
+                }
+            </select>
+        </div>
+        <div class="field">
+            <label for="manufacturerId">Manufacturer</label>
+            <select id="manufacturerId" name="manufacturerId">
+                <option value="">All manufacturers</option>
+                @foreach (var manufacturer in Model.Manufacturers)
+                {
+                    <option value="@manufacturer.Id" selected="@(Model.ManufacturerId == manufacturer.Id)">@manufacturer.Name</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="row-actions medication-search-actions">
+        <button class="btn primary" type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Search</button>
+        <a class="btn" asp-action="AddMedication">Clear filters</a>
+    </div>
+</form>
+
+<div class="am-results-heading">
+    <div>
+        <h2>Medication catalogue</h2>
+        <p>Choose a medication and enter the quantity you have on hand.</p>
+    </div>
+    <span class="am-result-count">@Model.Medications.Count result@(Model.Medications.Count == 1 ? "" : "s")</span>
+</div>
+
+@if (!Model.Medications.Any())
+{
+    <div class="card empty-state">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <h2>No medication found</h2>
+        <p>Try a different search term or adjust the filters.</p>
+    </div>
+}
+else
+{
+    <div class="am-catalogue-grid">
+        @foreach (var medication in Model.Medications)
+        {
+            <article class="card am-medication-card @(medication.IsInInventory ? "am-already-added" : "")">
+                <div class="am-card-content">
+                    <div class="am-card-header">
+                        <div class="am-medication-image">
+                            @if (!string.IsNullOrWhiteSpace(medication.ImageUrl))
+                            {
+                                <img src="@medication.ImageUrl" alt="" loading="lazy" />
+                            }
+                            else
+                            {
+                                <i class="fa-solid fa-capsules" aria-hidden="true"></i>
+                            }
+                        </div>
+                        <div class="am-medication-identity">
+                            <div class="am-title-line">
+                                <h3>@medication.Name</h3>
+                                @if (medication.IsInInventory)
+                                {
+                                    <span class="status-pill green">In inventory</span>
+                                }
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(medication.GenericName))
+                            {
+                                <p class="am-generic">@medication.GenericName</p>
+                            }
+                            <div class="am-medication-tags">
+                                @if (!string.IsNullOrWhiteSpace(medication.Strength))
+                                {
+                                    <span>@medication.Strength</span>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(medication.Form))
+                                {
+                                    <span>@medication.Form</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(medication.ManufacturerName))
+                    {
+                        <div class="am-detail-row">
+                            <i class="fa-solid fa-industry" aria-hidden="true"></i>
+                            <span>@medication.ManufacturerName</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(medication.ActiveIngredients))
+                    {
+                        <div class="am-detail-row">
+                            <i class="fa-solid fa-flask" aria-hidden="true"></i>
+                            <span><strong>Ingredients:</strong> @medication.ActiveIngredients</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(medication.Description))
+                    {
+                        <p class="am-description">@medication.Description</p>
+                    }
+                </div>
+
+                @if (!medication.IsInInventory)
+                {
+                    <form asp-action="AddMedication" method="post" class="am-card-footer am-add-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="MedicationId" value="@medication.Id" />
+                        <div class="field am-quantity-field">
+                            <label for="quantity-@medication.Id">Quantity on hand</label>
+                            <input id="quantity-@medication.Id" type="number" name="Quantity" min="1" max="10000" value="1" required />
+                        </div>
+                        <button class="btn primary" type="submit">
+                            <i class="fa-solid fa-plus" aria-hidden="true"></i> Add to inventory
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <div class="am-card-footer am-added-footer">
+                        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                        Already in your active inventory
+                    </div>
+                }
+            </article>
+        }
+    </div>
+}

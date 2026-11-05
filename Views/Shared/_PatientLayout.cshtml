@@ -1,0 +1,440 @@
+@using MediDropProject.Domain.Enums
+@using MediDropProject.Data
+@using MediDropProject.Domain.Entities
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext Db
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Admin";
+
+    string Active(params string[] actions) => 
+        currentController.Equals("Patient", StringComparison.OrdinalIgnoreCase) &&
+        actions.Contains(currentAction, StringComparer.OrdinalIgnoreCase) ? "active" : "";
+
+    var unreadNotificationCount = 0;
+    var showPairingAlert = false;
+
+    ApplicationUser? currentUser = null;
+    int? currentPatientId = null;
+
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        currentUser = await UserManager.GetUserAsync(User);
+
+        if (currentUser != null)
+        {
+            unreadNotificationCount = await Db.Notifications
+                .AsNoTracking()
+                .CountAsync(n =>
+                    n.UserId == currentUser.Id &&
+                    n.RecipientProfile == LastSelectedProfile.Patient &&
+                    n.ReadAt == null &&
+                    n.RemovedAt == null);
+
+            currentPatientId = await Db.Patients
+                .AsNoTracking()
+                .Where(p => p.UserId == currentUser.Id)
+                .Select(p => (int?)p.Id)
+                .FirstOrDefaultAsync();
+
+            if (currentPatientId != null)
+            {
+                var hasActiveDevice = await Db.DeviceAssignments
+                    .AsNoTracking()
+                    .AnyAsync(a =>
+                        a.PatientId == currentPatientId.Value &&
+                        a.UnassignedAt == null);
+
+                showPairingAlert = !hasActiveDevice;
+            }
+        }
+    }
+
+    var canSwitchProfile = currentUser != null &&
+        User.IsInRole("CareProvider") &&
+        await Db.CareProviders.AsNoTracking().AnyAsync(p => p.UserId == currentUser.Id);
+
+    var notificationBadge = unreadNotificationCount > 99
+        ? "99+"
+        : unreadNotificationCount.ToString();
+
+    var initials = "PT";
+
+    if (currentUser != null)
+    {
+        var firstInitial = !string.IsNullOrWhiteSpace(currentUser.FirstName)
+            ? currentUser.FirstName[0].ToString()
+            : "";
+
+        var lastInitial = !string.IsNullOrWhiteSpace(currentUser.LastName)
+            ? currentUser.LastName[0].ToString()
+            : "";
+
+        var generatedInitials = $"{firstInitial}{lastInitial}".ToUpperInvariant();
+
+        if (!string.IsNullOrWhiteSpace(generatedInitials))
+            initials = generatedInitials;
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+    <title>@ViewData["Title"] - MediDrop</title>
+
+    <link rel="stylesheet"href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/patient/patient.css"
+          asp-append-version="true" />
+
+    <link rel="icon" type="image/png" href="~/images/medidrop-logo.png" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/account/profile-switch.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/account/account-profile.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/notification/live-notifications.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/shared/support-popup.css" asp-append-version="true"/>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body class="patient-body">
+
+<div class="patient-app">
+
+    <aside class="patient-sidebar"
+           id="patientSidebar">
+
+        <a class="patient-brand"
+           asp-controller="Patient"
+           asp-action="Index">
+
+            <img src="~/images/medidrop-logo.png"
+                 alt="MediDrop" />
+
+            <div>
+                <strong>MediDrop</strong>
+                <span>Patient Portal</span>
+            </div>
+
+        </a>
+
+        <nav class="patient-nav"
+             aria-label="Patient navigation">
+
+            <a class="@Active("Index")"
+               asp-controller="Patient"
+               asp-action="Index">
+
+                <span>
+                    <i class="fa-solid fa-house"></i>
+                </span>
+
+                Dashboard
+            </a>
+
+            <a class="@Active("Schedule")"
+               asp-controller="Patient"
+               asp-action="Schedule">
+
+                <span>
+                    <i class="fa-regular fa-calendar-days"></i>
+                </span>
+
+                Schedule
+            </a>
+
+            <a class="@Active("Inventory","InventoryDetails","EditMedication","AddMedication")"
+               asp-controller="Patient"
+               asp-action="Inventory">
+
+                <span>
+                    <i class="fa-solid fa-capsules"></i>
+                </span>
+
+                Medication
+            </a>
+
+            <a class="@Active("Prescriptions","PrescriptionDetails","PrescriptionItemDetails")"
+               asp-controller="Patient"
+               asp-action="Prescriptions">
+
+                <span>
+                    <i class="fa-solid fa-file-prescription"></i>
+                </span>
+
+                Prescriptions
+            </a>
+
+            <a class="@Active("CareProviders")"
+               asp-controller="Patient"
+               asp-action="CareProviders">
+
+                <span>
+                    <i class="fa-solid fa-user-doctor"></i>
+                </span>
+
+                Care providers
+            </a>
+
+            <a class="@(currentController == "Notification" ? "active" : "")"
+               data-notification-link asp-controller="Notification"
+               asp-action="Index">
+
+                <span>
+                    <i class="fa-regular fa-bell"></i>
+                </span>
+
+                Notifications
+
+                @if (unreadNotificationCount > 0)
+                {
+                    <b class="nav-count">
+                        @notificationBadge
+                    </b>
+                }
+
+            </a>
+            
+            <a class="@Active("Device")"
+               asp-controller="Patient"
+               asp-action="Device">
+
+                <span>
+                    <i class="fa-solid fa-microchip"></i>
+                </span>
+
+                Device
+            </a>
+
+            <a class="@Active("History","HistoryDetails")"
+               asp-controller="Patient"
+               asp-action="History">
+
+                <span>
+                    <i class="fa-solid fa-chart-line"></i>
+                </span>
+
+                History & reports
+            </a>
+            
+        </nav>
+
+        <div class="sidebar-bottom">
+            <details class="profile-switch-menu">
+                <summary class="profile-chip profile-switch-trigger">
+                    <div class="avatar">@initials</div>
+
+                    <div class="profile-switch-user-details">
+                        <strong>
+                            @(currentUser != null
+                                ? $"{currentUser.FirstName} {currentUser.LastName}".Trim()
+                                : "Patient account")
+                        </strong>
+                        <span>@(currentUser?.Email ?? "")</span>
+                    </div>
+
+                    <span class="profile-switch-toggle-icon" aria-hidden="true">
+                        <i class="fa-solid fa-chevron-up profile-switch-chevron"></i>
+                        <i class="fa-solid fa-xmark profile-switch-x"></i>
+                    </span>
+                </summary>
+                <div class="profile-switch-popup">
+                    <div class="profile-switch-popup-title">Current profile: Patient</div>
+                    <a class="profile-switch-action profile-switch-edit" asp-controller="AccountProfile" asp-action="Index">
+                        <i class="fa-solid fa-user-gear" aria-hidden="true"></i>
+                        Edit profile &amp; security
+                    </a>
+                    @if (canSwitchProfile)
+                    {
+                        <form asp-controller="Account" asp-action="SwitchProfile" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="selectedProfile" value="CareProvider" />
+                            <button class="profile-switch-action" type="submit">
+                                <i class="fa-solid fa-right-left" aria-hidden="true"></i>
+                                Switch profile
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="profile-switch-unavailable">No other profile available</span>
+                    }
+                </div>
+            </details>
+            <form asp-controller="Account" asp-action="Logout" method="post">
+                @Html.AntiForgeryToken()
+                <button class="logout-button"type="submit">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Sign out
+                </button>
+            </form>
+
+        </div>
+
+    </aside>
+
+    <div class="patient-main">
+
+        <header class="patient-topbar">
+
+            <button class="menu-button"
+                    id="menuButton"
+                    type="button"
+                    aria-label="Open menu">
+
+                <i class="fa-solid fa-bars"></i>
+
+            </button>
+
+            <div class="topbar-title">
+
+                <span>
+                    @ViewData["Eyebrow"]
+                </span>
+
+                <strong>
+                    @ViewData["Title"]
+                </strong>
+
+            </div>
+            
+            <div class="patient-header-actions">
+                
+                @await Html.PartialAsync("_SupportPopup")
+                
+                <a class="top-notice"
+                   data-notification-link
+                   asp-controller="Notification"
+                   asp-action="Index"
+                   aria-label="Notifications">
+                    <i class="fa-regular fa-bell" aria-hidden="true"></i>
+                    @if (unreadNotificationCount > 0)
+                    {
+                        <span>@notificationBadge</span>
+                    }
+                </a>
+            </div>
+            
+        </header>
+
+        @if (showPairingAlert)
+        {
+            <div class="pairing-alert">
+
+                <div class="pairing-alert-copy">
+
+                    <div class="warning-icon">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+
+                    <div>
+                        <strong>
+                            PAIR YOUR MEDIDROP DISPENSER
+                        </strong>
+
+                        <span>
+                            Your medication schedule cannot be sent to a dispenser
+                            until a device is paired.
+                        </span>
+                    </div>
+
+                </div>
+
+                <a class="pairing-alert-button"
+                   asp-controller="Patient"
+                   asp-action="Device">
+
+                    <i class="fa-solid fa-link"></i>
+                    Pair device
+
+                </a>
+
+            </div>
+        }
+
+        <main class="patient-content">
+            @RenderBody()
+        </main>
+
+    </div>
+
+</div>
+
+<div class="sidebar-scrim"
+     id="sidebarScrim"></div>
+
+<nav class="mobile-nav"
+     aria-label="Mobile patient navigation">
+
+    <a class="@Active("Patient", "Index")"
+       asp-controller="Patient"
+       asp-action="Index">
+
+        <span>
+            <i class="fa-solid fa-house"></i>
+        </span>
+
+        Home
+    </a>
+
+    <a class="@Active("Patient", "Schedule")"
+       asp-controller="Patient"
+       asp-action="Schedule">
+
+        <span>
+            <i class="fa-regular fa-calendar-days"></i>
+        </span>
+
+        Schedule
+    </a>
+
+    <a class="@Active("Patient", "Inventory")"
+       asp-controller="Patient"
+       asp-action="Inventory">
+
+        <span>
+            <i class="fa-solid fa-capsules"></i>
+        </span>
+
+        Meds
+    </a>
+
+    <a class="@Active("Patient", "Device")"
+       asp-controller="Patient"
+       asp-action="Device">
+
+        <span>
+            <i class="fa-solid fa-microchip"></i>
+        </span>
+
+        Device
+    </a>
+
+    <button type="button"
+            id="mobileMore">
+
+        <span>
+            <i class="fa-solid fa-ellipsis"></i>
+        </span>
+
+        More
+
+    </button>
+
+</nav>
+
+<script src="~/js/patient.js" asp-append-version="true"></script>
+
+<script src="~/js/live-notifications.js" asp-append-version="true" defer></script>
+<script src="~/js/support-popup.js" asp-append-version="true" defer></script>
+@await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

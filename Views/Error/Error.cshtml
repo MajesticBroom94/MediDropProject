@@ -1,0 +1,58 @@
+﻿@model int
+
+@{
+    ViewData["Title"] = "Oops";
+    Layout = null;
+
+    var (title, message) = Model switch
+    {
+        403 => ("Access denied", "You do not have permission to access this area."),
+        404 => ("Lost in the desert", "The page you were looking for could not be found."),
+        405 => ("Wrong turn", "That action is not available for this request."),
+        500 => ("Something went wrong", "An unexpected error occurred while processing your request."),
+        _ => ("Request unsuccessful", "We could not complete your request.")
+    };
+}
+
+<link rel="stylesheet" href="~/css/Error/error.css" asp-append-version="true" />
+
+<div class="error-page-shell">
+    <div class="error-scene">
+        <div class="error-sun"></div>
+        <div class="error-dune dune-back"></div>
+        <div class="error-dune dune-mid"></div>
+        <div class="error-dune dune-front"></div>
+        <div class="error-cactus cactus-left"></div>
+        <div class="error-cactus cactus-right"></div>
+    </div>
+
+    <section class="error-card">
+        <div class="error-brand">
+            <img src="~/images/medidrop-logo.png" alt="MediDrop logo" class="error-logo" />
+            <div>
+                <span class="error-kicker">MEDIDROP</span>
+                <h1>@Model</h1>
+            </div>
+        </div>
+
+        <div class="error-content">
+            <h2>@title</h2>
+            <p>@message</p>
+
+            <p class="error-subtext">
+                You seem to have wandered a bit too far.
+                Luckily, there is still a path back.
+            </p>
+        </div>
+
+        <div class="error-actions">
+            <a asp-controller="Account" asp-action="Index" class="error-btn error-btn-primary">
+                Return to MediDrop
+            </a>
+
+            <a href="javascript:history.back()" class="error-btn error-btn-secondary">
+                Go back
+            </a>
+        </div>
+    </section>
+</div>

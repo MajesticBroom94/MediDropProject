@@ -1,0 +1,155 @@
+@using MediDropProject.Domain.Enums
+@model MediDropProject.Models.CareProvider.PatientPrescriptionDetailsViewModel
+@{
+    Layout = "_CareProviderLayout";
+    ViewData["Title"] = "Prescription details";
+    ViewData["Tab"] = "Prescriptions";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/careProvider/patient-overview.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/careProvider/patient-tabs.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/careProvider/prescription-details.css" asp-append-version="true"/>
+}
+
+@await Html.PartialAsync("_PatientWorkspaceHeader", (MediDropProject.Models.CareProvider.PatientTabBaseViewModel)Model)
+<div class="ov-section-heading">
+    <div>
+        <h2>Prescription @Model.Prescription.Number</h2>
+
+    </div>
+    <div class="rx-page-actions">
+        
+        <a class="btn btn-ghost" asp-action="PatientPrescriptions" asp-route-id="@Model.PatientId">
+            <i
+                class="fa-solid fa-arrow-left"></i> Patient prescriptions</a>
+
+        @if (Model.Prescription.Status == MediDropProject.Domain.Enums.PrescriptionStatus.Draft)
+        {
+            <a class="btn btn-primary" asp-action="EditDraftPrescription" asp-route-id="@Model.Prescription.Id"
+               asp-route-patientId="@Model.PatientId" style="margin-inline-start: 10px; margin-inline-end: 10px">
+                <i class="fa-solid fa-pen"></i> Edit draft
+            </a>
+        }
+        
+        <a class="report-pdf-link" asp-action="PrintPrescription"
+           asp-route-id="@Model.Prescription.Id" asp-route-patientId="@Model.PatientId">
+            <i class="fa-solid fa-print"></i> Print / Save PDF
+        </a>
+    </div>
+</div>
+@if (TempData["PrescriptionSuccess"] is string message)
+{
+    <div class="tab-success">@message</div>
+}
+<section class="ov-panel tab-panel">
+    <div class="rx-summary-heading">
+        <h2>Prescription summary</h2>
+
+        <span class="rx-status-badge @Model.Prescription.Status.ToString().ToLowerInvariant()">
+            @Model.Prescription.Status
+        </span>
+    </div>
+    <div class="rx-date-highlights">
+        <div class="rx-date-highlight">
+            <span class="rx-date-label"><i class="fa-regular fa-calendar-plus" aria-hidden="true"></i> Created at</span>
+            <strong>@Model.Prescription.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</strong>
+            <span class="rx-date-time">@Model.Prescription.CreatedAt.ToLocalTime().ToString("HH:mm")</span>
+        </div>
+        <div class="rx-date-highlight">
+            <span class="rx-date-label"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Issued at</span>
+            @if (Model.Prescription.Status == MediDropProject.Domain.Enums.PrescriptionStatus.Draft)
+            {
+                <strong>Not issued</strong>
+            }
+            else
+            {
+                <strong>@Model.Prescription.IssuedAt?.ToLocalTime().ToString("dd MMM yyyy")</strong>
+                <span class="rx-date-time">@Model.Prescription.IssuedAt?.ToLocalTime().ToString("HH:mm")</span>
+            }
+        </div>
+    </div>
+    <div class="tab-details"><p><strong>Start
+                date</strong><span>@(Model.StartDate?.ToString("dd MMM yyyy") ?? "Not specified")</span></p>
+        <p><strong>End date</strong><span>@(Model.EndDate?.ToString("dd MMM yyyy") ?? "Not specified")</span></p>
+        <p><strong>General instructions</strong><span>@(Model.Instructions ?? "—")</span></p>
+        <p><strong>Notes</strong><span>@(Model.Notes ?? "—")</span></p></div>
+</section>
+<section class="ov-panel tab-panel">
+    <div class="ov-panel-title">
+        <div><h2>Prescribed medication</h2></div>
+    </div>
+    <div class="tab-table-wrap">
+        <table class="tab-table">
+            <thead>
+            <tr>
+                <th>Medication</th>
+                <th>Dose</th>
+                <th>Frequency</th>
+                <th>Quantity</th>
+                <th>Instructions</th>
+            </tr>
+            </thead>
+            <tbody>@foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.DosageAmount.ToString("0.####") @item.DosageUnit</td>
+                    <td>@(item.Frequency ?? "—")</td>
+                    <td>@(item.QuantityPrescribed?.ToString() ?? "—")</td>
+                    <td>@(item.Instructions ?? "—")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+@if (Model.Prescription.Status != PrescriptionStatus.Draft)
+{
+    <section class="ov-panel tab-panel rx-collection-history">
+        <div class="ov-panel-title">
+            <div>
+                <h2>Collection history</h2>
+                <p>Recorded prescription collections</p>
+            </div>
+            <span class="rx-collection-count">
+                @Model.Collections.Count of @(Model.Prescription.RepeatCount + 1) collected
+            </span>
+        </div>
+
+        @if (Model.Collections.Count == 0)
+        {
+            <div class="rx-collection-empty">
+                <i class="fa-regular fa-calendar-xmark" aria-hidden="true"></i>
+                <span>No collections have been recorded for this prescription.</span>
+            </div>
+        }
+        else
+        {
+            <div class="tab-table-wrap">
+                <table class="tab-table rx-collection-table">
+                    <thead>
+                    <tr>
+                        <th>Collection</th>
+                        <th>Collected at</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var collection in Model.Collections.OrderByDescending(c => c.FillNumber))
+                    {
+                        <tr>
+                            <td data-label="Collection">
+                                <strong>Collection @collection.FillNumber</strong>
+                            </td>
+                            <td data-label="Collected at">
+                                @collection.CollectedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+}

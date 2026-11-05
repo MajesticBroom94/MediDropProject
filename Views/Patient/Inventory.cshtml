@@ -1,0 +1,91 @@
+@model MediDropProject.Models.Patient.InventoryViewModel
+@{
+    Layout = "_PatientLayout";
+    ViewData["Title"] = "Medication inventory";
+    ViewData["Eyebrow"] = "Medication";
+}
+
+<div class="page-intro inventory-intro">
+    <div>
+        <h1>Medication inventory</h1>
+        <p>Medication currently available for scheduling and loading into your dispenser.</p>
+    </div>
+    <div class="page-actions">
+        <a class="btn primary" asp-action="AddMedication">Add medication</a>
+    </div>
+</div>
+
+@if (TempData["InventoryMessage"] is string message)
+{
+    <div class="notice success">@message</div>
+}
+@if (TempData["InventoryError"] is string error)
+{
+    <div class="notice error">@error</div>
+}
+
+<div class="grid cols-3 inventory-metrics">
+    <div class="card metric"><strong>@Model.ActiveMedicationCount</strong><span>Active medications</span></div>
+    <div class="card metric"><strong>@Model.TotalUnits</strong><span>Total units available</span></div>
+    <div class="card metric"><strong>@Model.LowStockCount</strong><span>Low stock items</span></div>
+</div>
+
+@if (!Model.Items.Any())
+{
+    <div class="card empty-state inventory-empty">
+        <i class="fa-solid fa-capsules"></i>
+        <h2>No medication in your inventory</h2>
+        <p>Add medication manually or collect medication from an active prescription.</p>
+        <a class="btn primary" asp-action="AddMedication">Add medication</a>
+    </div>
+}
+else
+{
+    <div class="table-wrap inventory-table-wrap">
+        <table class="data-table inventory-table">
+            <thead>
+            <tr>
+                <th>Medication</th>
+                <th>Strength</th>
+                <th>Form</th>
+                <th>Available</th>
+                <th>Source</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td data-label="Medication">
+                        <strong>@item.MedicationName</strong>
+                        @if (!string.IsNullOrWhiteSpace(item.GenericName))
+                        {
+                            <br/><span class="muted">@item.GenericName</span>
+                        }
+                    </td>
+                    <td data-label="Strength">@(item.Strength ?? "—")</td>
+                    <td data-label="Form">@(item.Form ?? "—")</td>
+                    <td data-label="Available">
+                        @if (item.Quantity <= 10)
+                        {
+                            <span class="status-pill amber">@item.Quantity left</span>
+                        }
+                        else
+                        {
+                            @item.Quantity
+                        }
+                    </td>
+                    <td data-label="Source">@(item.IsFromPrescription ? "Prescription" : "Personal")</td>
+                    <td class="inventory-actions-cell">
+                        <div class="row-actions">
+                            <a class="btn small" asp-action="InventoryDetails" asp-route-id="@item.Id">View details</a>
+                            <a class="btn small" asp-action="EditMedication" asp-route-id="@item.Id">Edit</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

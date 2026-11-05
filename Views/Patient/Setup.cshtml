@@ -1,0 +1,71 @@
+@model MediDropProject.Models.Setup.PatientSetupViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Patient setup";
+    var isSuspended = TempData["IsSuspended"] is bool suspended && suspended;
+}
+
+<link rel="stylesheet" href="~/css/profileSetup/patient.css" asp-append-version="true" />
+
+<div class="setup-screen">
+    <main class="setup-card">
+        <header class="setup-header">
+            <span class="setup-header-icon" aria-hidden="true">
+                <i class="fa-solid @(isSuspended ? "fa-user-lock" : "fa-user-plus")"></i>
+            </span>
+            <div>
+                <span class="setup-eyebrow">MediDrop · Patient account</span>
+                <h1>@(isSuspended ? "Account suspended" : "Complete your patient profile")</h1>
+                <p>
+                    @(isSuspended
+                        ? "Your patient profile is temporarily unavailable."
+                        : "Just one optional detail and you're ready to manage your dispenser.")
+                </p>
+            </div>
+        </header>
+
+        @if (isSuspended)
+        {
+            <section class="setup-status setup-status--suspended" role="status" aria-labelledby="suspended-heading">
+                <div class="setup-status-heading">
+                    <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                    <h2 id="suspended-heading">Patient access restricted</h2>
+                </div>
+                <p>
+                    Your patient profile has been suspended. You cannot access your
+                    medication inventory, prescriptions or dispenser features while
+                    the suspension is in effect.
+                </p>
+            </section>
+        }
+        else
+        {
+            <form asp-action="Setup" asp-controller="Patient" method="post" class="setup-form">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="setup-field">
+                    <label asp-for="DateOfBirth">Date of birth <span class="setup-optional">Optional</span></label>
+                    <input asp-for="DateOfBirth" type="date" />
+                    <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn-create">
+                    <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                    Create patient profile
+                </button>
+            </form>
+        }
+
+        <footer class="setup-footer">
+            <form asp-controller="Account" asp-action="Logout" method="post">
+                @Html.AntiForgeryToken()
+                <button class="setup-signout-button" type="submit">
+                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                    Sign out
+                </button>
+            </form>
+        </footer>
+    </main>
+</div>

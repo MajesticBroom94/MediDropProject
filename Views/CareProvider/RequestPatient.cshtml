@@ -1,0 +1,95 @@
+@using MediDropProject.Domain.Entities
+@model IReadOnlyList<PatientCareRelationship>
+@{
+    Layout = "_CareProviderLayout";
+    ViewData["Title"] = "Request patient";
+    int results = Model.Count;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/careProvider/request-patient.css" asp-append-version="true" />
+}
+
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">Patient relationships</span>
+        <h1>Request patient</h1>
+    </div>
+</div>
+
+<p class="page-subtitle">Connect by email address. Patients must accept your request before you can access their information.</p>
+
+<div class="request-patient-stack">
+    <section class="form-panel request-patient-panel" aria-labelledby="request-heading">
+        <div class="panel-head"><h2 id="request-heading">Send a relationship request</h2></div>
+
+        @if (TempData["RequestSuccess"] is string success)
+        {
+            <div class="request-feedback success" role="status">@success</div>
+        }
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="request-feedback error" role="alert"></div>
+        }
+
+        <form asp-controller="CareProvider" asp-action="RequestPatient" method="post">
+            @Html.AntiForgeryToken()
+            <div class="field">
+                <label for="patientEmail">Patient email address</label>
+                <input id="patientEmail" name="email" type="email" maxlength="256"
+                       required autocomplete="email" placeholder="patient@example.com"
+                       value="@ViewData["EnteredEmail"]" />
+                <small>Enter the email address the patient registered with. They will receive a request in MediDrop.</small>
+            </div>
+            <button class="btn btn-primary" type="submit">
+                <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Send request
+            </button>
+        </form>
+    </section>
+
+    <section class="panel request-patient-panel" aria-labelledby="pending-heading">
+        <div class="panel-head">
+            <h2 id="pending-heading">Relationship history</h2>
+            <span class="request-count">@(results) @(results == 1 ? " result" : " results")</span>
+        </div>
+        @if (results == 0)
+        {
+            <div class="empty-state">
+                <span class="empty-icon"><i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i></span>
+                <h2>No request history</h2>
+                <p>Your recent care provider requests and their outcomes will appear here.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Created on</th>
+                        <th>Started at</th>
+                        <th>Ended at</th>
+                        <th>Current Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var request in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@(string.Join(" ", new[] { request.Patient.User.FirstName, request.Patient.User.LastName }.Where(x => !string.IsNullOrWhiteSpace(x))))</strong>
+                                <div class="request-secondary">@request.Patient.User.Email</div>
+                            </td>
+                            <td>@request.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                            <td>@(request.StartDate?.ToLocalTime().ToString("dd MMM yyyy HH:mm") ?? "—")</td>
+                            <td>@(request.EndDate?.ToLocalTime().ToString("dd MMM yyyy HH:mm") ?? "—")</td>
+                            <td><span class="status-badge @request.Status.ToString().ToLowerInvariant()">@request.Status</span></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>

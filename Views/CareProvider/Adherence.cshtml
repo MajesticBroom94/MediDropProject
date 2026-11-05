@@ -1,0 +1,90 @@
+@model MediDropProject.Models.CareProvider.PatientAdherenceViewModel
+@{
+    Layout = "_CareProviderLayout";
+    ViewData["Title"] = "Patient adherence";
+    ViewData["Tab"] = "Adherence";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/careProvider/patient-overview.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/careProvider/patient-tabs.css" asp-append-version="true"/> }
+
+@await Html.PartialAsync("_PatientWorkspaceHeader", (MediDropProject.Models.CareProvider.PatientTabBaseViewModel)Model)
+<div class="ov-section-heading">
+    <div><h2>Adherence report</h2>
+        <p>Recorded dispenser activity</p></div>
+    <div class="report-actions">
+        
+        <div class="tabs-range">
+            <a class="@(Model.Days == 7 ? "selected" : "")" asp-action="Adherence"
+               asp-route-id="@Model.PatientId" asp-route-days="7">7 days</a>
+            
+            <a class="@(Model.Days == 30 ? "selected" : "")" asp-action="Adherence" asp-route-id="@Model.PatientId"
+               asp-route-days="30">30 days</a>
+            
+            <a class="@(Model.Days == 90 ? "selected" : "")" asp-action="Adherence"
+               asp-route-id="@Model.PatientId" asp-route-days="90">90 days</a>
+        </div>
+        
+        <a class="report-pdf-link" asp-action="PrintAdherence" asp-route-id="@Model.PatientId"
+           asp-route-days="@Model.Days"><i class="fa-solid fa-print"></i> Print / Save PDF</a>
+    </div>
+</div>
+<div class="ov-stats">
+    <section class="ov-stat ov-stat-highlight">
+        <span>Removal adherence <i class="fa-solid fa-chart-line"></i></span>
+        <strong>@(Model.Rate.HasValue ? $"{Model.Rate:0.#}%" : "—")</strong>
+        <small>@Model.Removed of @Model.Assessed slot items removed</small>
+    </section>
+    <section class="ov-stat"><span>Past scheduled operations <i
+                class="fa-regular fa-calendar"></i></span><strong>@Model.Scheduled</strong><small>Past @Model.Days days
+            · includes past cancellations</small></section>
+    <section class="ov-stat"><span>Missed <i
+                class="fa-solid fa-triangle-exclamation"></i></span><strong>@Model.Missed</strong><small>Missed
+            scheduled doses</small></section>
+    <section class="ov-stat"><span>Cancelled <i
+                class="fa-solid fa-ban"></i></span><strong>@Model.Cancelled</strong><small>Scheduled doses
+            cancelled</small></section>
+    <section class="ov-stat"><span>Not concluded <i
+                class="fa-solid fa-clock"></i></span><strong>@(Model.Pending + Model.Dispensed)</strong><small>Pending,
+            ready or dispensed</small></section>
+</div>
+<section class="ov-panel tab-panel">
+    <div class="ov-panel-title">
+        <div><h2>Dose history</h2>
+            <p>Each row represents one dispenser slot, possibly containing multiple medicines</p></div>
+    </div>
+    @if (Model.Slots.Count == 0)
+    {
+        <div class="ov-empty"><strong>No scheduled activity in this period</strong>
+            <p>Choose another date range or wait for a medication round.</p></div>
+    }
+    else
+    {
+        <div class="tab-table-wrap">
+            <table class="tab-table">
+                <thead>
+                <tr>
+                    <th>Scheduled</th>
+                    <th>Medications</th>
+                    <th>Dispensed</th>
+                    <th>Removed</th>
+                    <th>Outcome</th>
+                </tr>
+                </thead>
+                <tbody>@foreach (var s in Model.Slots)
+                {
+                    <tr>
+                        <td>@s.ScheduledFor.ToLocalTime().ToString("dd MMM yyyy · HH:mm")</td>
+                        <td>@string.Join(", ", s.Medications)</td>
+                        <td>@(s.DispensedAt?.ToLocalTime().ToString("dd MMM HH:mm") ?? "—")</td>
+                        <td>@(s.RemovedAt?.ToLocalTime().ToString("dd MMM HH:mm") ?? "—")</td>
+                        <td><span class="tab-status">@s.Status</span></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+

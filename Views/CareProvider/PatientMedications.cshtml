@@ -1,0 +1,44 @@
+@model MediDropProject.Models.CareProvider.PatientMedicationsTabViewModel
+@{
+    Layout = "_CareProviderLayout";
+    ViewData["Title"] = "Patient medications";
+    ViewData["Tab"] = "Medications";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/careProvider/patient-overview.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/careProvider/patient-tabs.css" asp-append-version="true"/> }
+
+@await Html.PartialAsync("_PatientWorkspaceHeader", (MediDropProject.Models.CareProvider.PatientTabBaseViewModel)Model)
+<div class="ov-section-heading">
+    <div><h2>Patient medications</h2>
+        <p>Recorded medication inventory and available quantity</p></div>
+</div>
+@if (Model.Medications.Count == 0)
+{
+    <section class="ov-panel">
+        <div class="ov-empty"><i class="fa-solid fa-pills"></i><strong>No medications recorded</strong>
+            <p>Patient medications will be displayed here.</p></div>
+    </section>
+}
+else
+{
+    <div class="tab-med-grid">@foreach (var m in Model.Medications)
+        {
+            <article class="ov-panel tab-med">
+                <div class="tab-med-media">@if (!string.IsNullOrEmpty(m.ImageUrl))
+                    {
+                        <img src="@m.ImageUrl" alt="" loading="lazy"/>
+                    }
+                    else
+                    {
+                        <i class="fa-solid fa-pills"></i>
+                    }
+                </div>
+                <div><h3>@m.Name</h3>
+                    <p>@m.Strength · @m.Form</p><span class="tab-status">@m.Status</span></div>
+                <div class="tab-med-quantity"><strong>@m.Quantity</strong><small>in personal medication</small></div>
+            </article>
+        }
+    </div>
+}

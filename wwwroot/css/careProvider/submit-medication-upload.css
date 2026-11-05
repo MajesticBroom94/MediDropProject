@@ -1,0 +1,23 @@
+.submit-medication-page input[type="file"] {
+    padding: 11px 12px;
+    background: #f5faff;
+    cursor: pointer;
+}
+
+.submit-medication-page input[type="file"]::file-selector-button {
+    border: 0;
+    border-radius: 8px;
+    background: #0b3157;
+    color: white;
+    padding: 9px 12px;
+    margin-right: 12px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.submit-medication-page .submit-image-note {
+    display: block;
+    margin-top: 7px;
+    color: #667f96;
+    font-size: 12px;
+}

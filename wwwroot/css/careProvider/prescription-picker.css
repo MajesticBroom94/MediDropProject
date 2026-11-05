@@ -1,0 +1,88 @@
+.prescription-items-heading { margin-top: 24px; }
+.prescription-entry { margin-bottom: 14px; }
+.prescription-selected { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 12px 14px; margin-bottom: 12px; background: #ecf6fc; border: 1px solid #cfe5f3; border-radius: 12px; }
+.prescription-selected-name { color: #0b3157; font-size: 14px; font-weight: 750; overflow-wrap: anywhere; }
+.rx-picker[hidden] { display: none !important; }
+.rx-picker { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 16px; }
+.rx-picker-backdrop { position: absolute; inset: 0; background: rgba(7, 31, 55, .66); }
+.rx-picker-sheet { position: relative; width: min(100%, 750px); max-height: min(85vh, 850px); background: #fff; border-radius: 19px; box-shadow: 0 25px 80px #061d38aa; padding: 23px; overflow-y: auto; }
+.rx-picker-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; margin-bottom: 18px; }
+.rx-picker-head h2 { margin: 0 0 5px; color: #0b3157; }
+.rx-picker-head p { margin: 0; font-size: 12px; color: #72879b; }
+.rx-picker-close { border: 0; background: #edf4fb; border-radius: 10px; width: 36px; height: 36px; font-size: 25px; cursor: pointer; color: #0b3157; }
+.rx-picker-search { display: flex; gap: 10px; }
+.rx-picker-search input { flex: 1; min-width: 0; padding: 11px 12px; border: 1px solid #cbddea; border-radius: 10px; }
+.rx-picker-message { min-height: 20px; color: #6f879c; font-size: 13px; }
+.rx-picker-results { display: grid; gap: 9px; }
+.rx-picker-result { display: flex; align-items: center; justify-content: space-between; gap: 14px; border: 1px solid #e0eaf2; border-radius: 11px; padding: 13px; }
+.rx-picker-result strong { display: block; color: #133959; font-size: 14px; }
+.rx-picker-result small { display: block; color: #71879b; margin-top: 4px; font-size: 12px; }
+.rx-picker-result .btn { flex-shrink: 0; }
+.rx-picker-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid #e3edf5; margin-top: 20px; padding-top: 15px; }
+.rx-picker-footer span { color: #375a75; font-size: 12px; text-align: center; }
+.rx-picker-open { overflow: hidden; }
+@media (max-width: 550px) { .rx-picker-sheet { padding: 15px; max-height: 92vh; } .rx-picker-result { align-items: flex-start; } .rx-picker-result .btn { padding: 8px 10px; } .rx-picker-search { flex-direction: column; } }
+
+
+/* Prescription editor: readable three-column metadata on wide screens. */
+.prescription-editor { min-width: 0; }
+.prescription-editor .prescription-dates {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px 18px;
+}
+.prescription-editor .prescription-dates > .field { min-width: 0; }
+.prescription-editor .prescription-dates > .field.full { grid-column: 1 / -1; }
+.prescription-editor .prescription-dates input,
+.prescription-editor .prescription-dates textarea { width: 100%; min-width: 0; }
+.prescription-editor .prescription-item-fields {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+.prescription-editor .prescription-item-fields > .field { min-width: 0; }
+.prescription-editor .prescription-item-fields > .field.full { grid-column: 1 / -1; }
+.prescription-editor .prescription-item-fields input,
+.prescription-editor .prescription-item-fields textarea { width: 100%; min-width: 0; }
+.prescription-editor .prescription-selected > .choose-prescription-med { white-space: nowrap; }
+
+/* Tablet: two columns for medicine details, date controls stay compact. */
+@media (max-width: 900px) {
+    .prescription-editor .prescription-item-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Phone: avoid cramped date inputs and make the picker feel native. */
+@media (max-width: 600px) {
+    .prescription-editor .prescription-dates { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .prescription-editor .prescription-dates > .field:nth-child(3) { grid-column: 1 / -1; }
+    .prescription-editor .prescription-dates > .field.full { grid-column: 1 / -1; }
+    .prescription-editor .prescription-selected { align-items: stretch; flex-direction: column; padding: 12px; }
+    .prescription-editor .prescription-selected > .choose-prescription-med { width: 100%; min-height: 44px; }
+    .prescription-editor .prescription-items-heading { align-items: stretch; flex-direction: column; }
+    .prescription-editor #add-prescription-item { min-height: 44px; width: 100%; }
+    .prescription-editor .prescription-entry { padding: 14px; }
+    .prescription-editor .tab-form-actions { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+    .prescription-editor .tab-form-actions > * { width: 100%; min-width: 0; text-align: center; }
+    .prescription-editor .tab-form-actions > :last-child { grid-column: 1 / -1; }
+    .rx-picker { padding: 0; place-items: end center; }
+    .rx-picker-sheet { width: 100%; max-width: none; max-height: 92dvh; min-height: 55dvh; border-radius: 20px 20px 0 0; padding: 18px 15px max(18px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; overflow: hidden; }
+    .rx-picker-head { flex-shrink: 0; margin-bottom: 12px; }
+    .rx-picker-search { flex-shrink: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+    .rx-picker-search .btn { min-height: 44px; }
+    .rx-picker-search input { min-height: 44px; }
+    .rx-picker-message { flex-shrink: 0; }
+    .rx-picker-results { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; align-content: start; }
+    .rx-picker-result { min-width: 0; align-items: stretch; flex-direction: column; gap: 10px; }
+    .rx-picker-result > div { min-width: 0; overflow-wrap: anywhere; }
+    .rx-picker-result .btn { width: 100%; min-height: 42px; }
+    .rx-picker-footer { flex-shrink: 0; gap: 6px; margin-top: 12px; padding-top: 12px; }
+    .rx-picker-footer .btn { min-height: 42px; padding-inline: 10px; }
+    .rx-picker-close { flex-shrink: 0; min-width: 44px; min-height: 44px; }
+}
+@media (max-width: 390px) {
+    .prescription-editor .prescription-dates,
+    .prescription-editor .prescription-item-fields { grid-template-columns: minmax(0, 1fr); }
+    .prescription-editor .prescription-dates > .field:nth-child(3) { grid-column: auto; }
+    .rx-picker-search { grid-template-columns: minmax(0, 1fr); }
+    .rx-picker-footer span { font-size: 11px; }
+}

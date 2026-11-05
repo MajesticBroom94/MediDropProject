@@ -1,0 +1,170 @@
+/* Page-specific improvements for CareProvider/Setup.
+   Keep the existing profileSetup/provider.css for shared form controls. */
+.provider-registration-page .setup-card {
+    max-width: 760px;
+    padding: clamp(20px, 4vw, 36px);
+}
+
+.provider-registration-page .setup-header {
+    margin-bottom: 26px;
+}
+
+.provider-registration-page .setup-header h1 {
+    font-size: clamp(1.5rem, 3vw, 1.85rem);
+    line-height: 1.2;
+}
+
+.provider-registration-page .registration-state {
+    border: 1px solid #d2e5ee;
+    border-left: 4px solid #178e98;
+    background: #f3f9fc;
+    border-radius: 14px;
+    padding: 20px;
+    color: #173c55;
+}
+
+.provider-registration-page .registration-state--pending {
+    border-color: #ead49f;
+    border-left-color: #bd871a;
+    background: #fffbf2;
+}
+
+.provider-registration-page .registration-state--rejected,
+.provider-registration-page .registration-state--suspended {
+    border-color: #efced0;
+    border-left-color: #bd5260;
+    background: #fff8f8;
+}
+
+.provider-registration-page .registration-state--verified {
+    border-color: #bfe3d0;
+    border-left-color: #2c9267;
+    background: #f2fbf6;
+}
+
+.provider-registration-page .registration-state__top {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.provider-registration-page .registration-state__icon {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    display: grid;
+    place-items: center;
+    background: #e0f1f5;
+    color: #137b86;
+    border-radius: 12px;
+    font-size: 17px;
+}
+
+.provider-registration-page .registration-state--pending .registration-state__icon {
+    background: #f9ebc9;
+    color: #996b11;
+}
+
+.provider-registration-page .registration-state--rejected .registration-state__icon,
+.provider-registration-page .registration-state--suspended .registration-state__icon {
+    background: #f9e5e7;
+    color: #ae4554;
+}
+
+.provider-registration-page .registration-state--verified .registration-state__icon {
+    background: #ddf3e7;
+    color: #248056;
+}
+
+.provider-registration-page .registration-state__eyebrow {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #758e9e;
+}
+
+.provider-registration-page .registration-state__heading h2 {
+    font-size: 17px;
+    line-height: 1.3;
+    margin: 3px 0 0;
+    color: #153c66;
+}
+
+.provider-registration-page .registration-state__description {
+    margin: 13px 0 0;
+    color: #557083;
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+.provider-registration-page .registration-state__reason {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    margin-top: 16px;
+    padding: 13px 14px;
+    background: #fff;
+    border: 1px solid #eed9dc;
+    border-radius: 10px;
+}
+
+.provider-registration-page .registration-state__reason > i {
+    margin-top: 2px;
+    color: #a74a55;
+}
+
+.provider-registration-page .registration-state__reason strong {
+    display: block;
+    color: #173c55;
+    font-size: 12px;
+}
+
+.provider-registration-page .registration-state__reason p {
+    margin: 4px 0 0;
+    color: #5b7080;
+    font-size: 13px;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+.provider-registration-page .registration-state__next {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    margin-top: 14px;
+    padding-top: 13px;
+    border-top: 1px solid #e6dfe0;
+    color: #586f7c;
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.provider-registration-page .registration-state__next i { margin-top: 2px; }
+
+.provider-registration-page .setup-form { margin-top: 26px; }
+.provider-registration-page .setup-form-section { margin-top: 20px; padding-top: 20px; }
+.provider-registration-page .setup-form-section:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+.provider-registration-page .setup-field-grid { gap: 0 16px; }
+.provider-registration-page .setup-field { min-width: 0; }
+.provider-registration-page .setup-field input,
+.provider-registration-page .setup-field select { min-height: 45px; }
+.provider-registration-page .setup-actions { margin-top: 22px; }
+.provider-registration-page .setup-actions p {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 12px;
+    color: #708797;
+    margin: 0 0 13px;
+    line-height: 1.5;
+}
+.provider-registration-page .setup-actions p i { margin-top: 2px; }
+.provider-registration-page .setup-actions a.setup-submit-button { text-decoration: none; }
+
+@media (max-width: 640px) {
+    .provider-registration-page .setup-header { gap: 12px; }
+    .provider-registration-page .registration-state { padding: 16px; }
+    .provider-registration-page .registration-state__heading h2 { font-size: 16px; }
+    .provider-registration-page .setup-field-grid { grid-template-columns: 1fr; }
+}

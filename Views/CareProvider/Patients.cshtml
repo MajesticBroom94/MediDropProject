@@ -1,0 +1,116 @@
+@using MediDropProject.Domain.Entities
+@model IReadOnlyList<PatientCareRelationship>
+@{
+    Layout = "_CareProviderLayout";
+    ViewData["Title"] = "My patients";
+}
+<link rel="stylesheet" href="~/css/careProvider/my-patients.css" asp-append-version="true" />
+
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">Patient care</span>
+        <h1>My patients</h1>
+    </div>
+</div>
+<p class="page-subtitle">View patients who have accepted your care request. Patient information is available only while your relationship is active.</p>
+
+<section class="panel patients-panel" aria-labelledby="patients-heading">
+    <div class="panel-head">
+        <div>
+            <h2 id="patients-heading">Connected patients</h2>
+            <span class="quiet">@Model.Count @(Model.Count == 1 ? "patient" : "patients") connected</span>
+        </div>
+    </div>
+
+    @if (Model.Count > 0)
+    {
+        <div class="patients-toolbar">
+            <label for="patient-filter" class="search-wrap">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                <input id="patient-filter" type="search" placeholder="Filter your patients by name or email" autocomplete="off" />
+            </label>
+        </div>
+
+        <div class="patient-grid" id="patient-grid">
+            @foreach (var relationship in Model)
+            {
+                var patient = relationship.Patient;
+                var name = $"{patient.User.FirstName} {patient.User.LastName}".Trim();
+                if (string.IsNullOrWhiteSpace(name)) name = "Patient";
+                var email = patient.User.Email ?? "";
+                var initials = string.Concat(name.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                    .Take(2).Select(part => char.ToUpperInvariant(part[0])));
+
+                <article class="patient-card" data-filter="@($"{name} {email}".ToLowerInvariant())">
+                    <div class="patient-card-identity">
+                        <div class="patient-avatar" aria-hidden="true">@initials</div>
+                        <div class="patient-card-details">
+                            <h3>@name</h3>
+                            <p class="patient-email">@email</p>
+                            <span class="patient-connected-since">
+                                <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+                                Since @relationship.StartDate?.ToString("dd MMM yyyy")
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="patient-card-end">
+                        <div class="patient-card-actions">
+                            <a class="btn btn-ghost"
+                               asp-controller="CareProvider"
+                               asp-action="PatientPrescriptions"
+                               asp-route-id="@patient.Id">
+                                <i class="fa-solid fa-prescription" aria-hidden="true"></i>
+                                Prescriptions
+                            </a>
+                            <a class="btn btn-primary"
+                               asp-controller="CareProvider"
+                               asp-action="PatientDetails"
+                               asp-route-id="@patient.Id">
+                                View patient
+                                <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+        <div class="empty-state" id="patient-filter-empty" hidden>
+            <span class="empty-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
+            <h2>No matching patients</h2>
+            <p>Try another name or email address.</p>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <span class="empty-icon"><i class="fa-solid fa-users" aria-hidden="true"></i></span>
+            <h2>No connected patients yet</h2>
+            <p>Once a patient accepts your request, they will appear here.</p>
+            <a class="btn btn-primary" asp-controller="CareProvider" asp-action="RequestPatient">
+                <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Send a patient request
+            </a>
+        </div>
+    }
+</section>
+
+@section Scripts {
+    <script>
+        (() => {
+            const filter = document.getElementById('patient-filter');
+            const cards = [...document.querySelectorAll('.patient-card')];
+            const empty = document.getElementById('patient-filter-empty');
+            if (!filter || !empty) return;
+            filter.addEventListener('input', () => {
+                const query = filter.value.trim().toLocaleLowerCase();
+                let visible = 0;
+                for (const card of cards) {
+                    const matches = card.dataset.filter.includes(query);
+                    card.hidden = !matches;
+                    if (matches) visible++;
+                }
+                empty.hidden = visible > 0;
+            });
+        })();
+    </script>
+}

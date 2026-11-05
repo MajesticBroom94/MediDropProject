@@ -1,0 +1,167 @@
+﻿@using MediDropProject.Domain.Enums
+@model MediDropProject.Models.Account.RegisterViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = null;
+    ViewData["Title"] = "Create account | MediDrop";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#eaf5fa" />
+    <title>@ViewData["Title"]</title>
+    <link rel="icon" type="image/png" href="~/images/medidrop-logo.png" asp-append-version="true" />
+    <link rel="stylesheet" href="@Url.Content("~/css/account/medidrop-login.css")" />
+</head>
+<body>
+    <main class="auth-page">
+        <div class="auth-shell">
+            <header class="brand">
+                <img class="brand-logo" src="@Url.Content("~/images/medidrop-logo.png")"
+                     alt="MediDrop dispenser logo" width="100" height="100" />
+                <h1>MediDrop</h1>
+                <p>Towards better health, one step at a time.</p>
+            </header>
+
+            <section class="auth-card" aria-labelledby="register-title">
+                <h2 id="register-title">Create your account</h2>
+                <p class="card-subtitle">One account, multiple MediDrop profiles.</p>
+
+                <form id="register-form" method="post" action="@Url.Action("Register", "Account")">
+                    @Html.AntiForgeryToken()
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="validation-summary" role="alert" aria-live="polite">
+                            @Html.ValidationSummary(false)
+                        </div>
+                    }
+
+                    <fieldset class="profile-picker">
+                        <legend>Start with</legend>
+                        <div class="profile-options">
+                            <label class="profile-option">
+                                <input asp-for="SelectedProfile" type="radio"
+                                       id="register-patient" value="@LastSelectedProfile.Patient" />
+                                <span>Patient</span>
+                            </label>
+                            <label class="profile-option">
+                                <input asp-for="SelectedProfile" type="radio"
+                                       id="register-provider" value="@LastSelectedProfile.CareProvider" />
+                                <span>Care Provider</span>
+                            </label>
+                        </div>
+                        <span asp-validation-for="SelectedProfile" class="field-error"></span>
+                    </fieldset>
+
+                    <div class="name-fields">
+                        <div class="field">
+                            <label for="FirstName">First name</label>
+                            <input asp-for="FirstName" id="FirstName"
+                                   autocomplete="given-name" placeholder="First name" required />
+                            <span asp-validation-for="FirstName" class="field-error"></span>
+                        </div>
+                        <div class="field">
+                            <label for="LastName">Last name</label>
+                            <input asp-for="LastName" id="LastName"
+                                   autocomplete="family-name" placeholder="Last name" required />
+                            <span asp-validation-for="LastName" class="field-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="Email">Email address</label>
+                        <input asp-for="Email" id="Email" type="email" inputmode="email"
+                               autocomplete="email" placeholder="Enter your email address"
+                               required />
+                        <span asp-validation-for="Email" class="field-error"></span>
+                    </div>
+
+                    <div class="field">
+                        <label for="Password">Password</label>
+                        <div class="password-field">
+                            <input asp-for="Password" id="Password" type="password"
+                                   autocomplete="new-password" placeholder="Create a password"
+                                   required minlength="8" />
+                            <button class="password-toggle" type="button" data-toggle-password="Password"
+                                    aria-label="Show password" aria-pressed="false">
+                                <svg viewBox="0 0 24 24" width="21" height="21"
+                                     fill="none" stroke="currentColor" stroke-width="1.8"
+                                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12Z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="field-error"></span>
+                    </div>
+
+                    <div class="field">
+                        <label for="ConfirmPassword">Confirm password</label>
+                        <div class="password-field">
+                            <input asp-for="ConfirmPassword" id="ConfirmPassword" type="password"
+                                   autocomplete="new-password" placeholder="Repeat your password"
+                                   required />
+                            <button class="password-toggle" type="button"
+                                    data-toggle-password="ConfirmPassword"
+                                    aria-label="Show password confirmation" aria-pressed="false">
+                                <svg viewBox="0 0 24 24" width="21" height="21"
+                                     fill="none" stroke="currentColor" stroke-width="1.8"
+                                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12Z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="field-error"></span>
+                    </div>
+
+                    <button class="sign-in" id="register-submit" type="submit">
+                        <span>Create account</span>
+                        <span class="button-spinner" aria-hidden="true"></span>
+                    </button>
+                </form>
+
+                <div class="auth-divider"></div>
+                <p class="new-account">Already have an account?</p>
+                <a class="register-link" id="login-link"
+                   href="@Url.Action("Login", "Account")">
+                    Sign in
+                </a>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        (() => {
+            document.querySelectorAll('[data-toggle-password]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const input = document.getElementById(button.dataset.togglePassword);
+                    const visible = input.type === 'text';
+                    input.type = visible ? 'password' : 'text';
+                    button.setAttribute('aria-pressed', String(!visible));
+                    button.setAttribute('aria-label', visible ? 'Show password' : 'Hide password');
+                });
+            });
+
+            const loginLink = document.getElementById('login-link');
+            const loginBaseUrl = '@Url.Action("Login", "Account")';
+            document.querySelectorAll('input[name="SelectedProfile"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    if (radio.checked)
+                        loginLink.href = loginBaseUrl + '?profile=' + encodeURIComponent(radio.value);
+                });
+            });
+            document.getElementById('register-form').addEventListener('submit', event => {
+                if (event.currentTarget.checkValidity()) {
+                    const button = document.getElementById('register-submit');
+                    button.disabled = true;
+                    button.classList.add('loading');
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
