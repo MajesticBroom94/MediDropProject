@@ -21,14 +21,13 @@ public partial class PatientController
     public async Task<IActionResult> Device()
     {
         var user = await _users.GetUserAsync(User);
+        
         if (user == null) return Challenge();
 
-        var patient = await _db.Patients
-            .AsNoTracking()
-            .SingleOrDefaultAsync(p => p.UserId == user.Id);
-
+        var patient = await GetCurrentPatientAsync();
+        
         if (patient == null)
-            return RedirectToAction("Setup", "Patient");
+            return RedirectToAction(nameof(Setup));
 
         var assignment = await _db.DeviceAssignments
             .AsNoTracking()
@@ -59,20 +58,20 @@ public partial class PatientController
     public async Task<IActionResult> PairDevice(DevicePairingViewModel model)
     {
         var user = await _users.GetUserAsync(User);
+        
         if (user == null) return Challenge();
+        
+        var patient = await GetCurrentPatientAsync();
+        
+        if (patient == null)
+            return RedirectToAction(nameof(Setup));
 
         if (!ModelState.IsValid)
         {
             TempData["DeviceError"] = "Enter a valid pairing code.";
             return RedirectToAction(nameof(Device));
         }
-
-        var patient = await _db.Patients
-            .SingleOrDefaultAsync(p => p.UserId == user.Id);
-
-        if (patient == null)
-            return RedirectToAction("Setup", "Patient");
-
+        
         var alreadyPaired = await _db.DeviceAssignments.AnyAsync(a =>
             a.PatientId == patient.Id &&
             a.Status == DeviceAssignmentStatus.Assigned &&
@@ -142,11 +141,10 @@ public partial class PatientController
         if (user == null) 
             return Challenge();
 
-        var patient = await _db.Patients
-            .SingleOrDefaultAsync(p => p.UserId == user.Id);
-
+        var patient = await GetCurrentPatientAsync();
+        
         if (patient == null)
-            return RedirectToAction("Setup", "Patient");
+            return RedirectToAction(nameof(Setup));
 
         var assignment = await _db.DeviceAssignments
             .Include(a => a.Device)
@@ -207,8 +205,14 @@ public partial class PatientController
     public async Task<IActionResult> QueueDeviceCommand(DeviceCommandType type)
     {
         var user = await _users.GetUserAsync(User);
+        
         if (user == null)
             return Challenge();
+        
+        var patient = await GetCurrentPatientAsync();
+        
+        if (patient == null)
+            return RedirectToAction(nameof(Setup));
 
         // Both "Dispense" (older enum) and "EarlyDispense" are understood by the ESP.
         // Check names so this action works with either enum version.
@@ -218,14 +222,7 @@ public partial class PatientController
 
         if (!Enum.IsDefined(type) || (!isEarlyDispense && !isPurge))
             return BadRequest();
-
-        var patient = await _db.Patients
-            .AsNoTracking()
-            .SingleOrDefaultAsync(p => p.UserId == user.Id);
-
-        if (patient == null)
-            return RedirectToAction(nameof(Setup));
-
+        
         var assignment = await _db.DeviceAssignments
             .AsNoTracking()
             .Where(a => a.PatientId == patient.Id &&

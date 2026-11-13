@@ -118,11 +118,12 @@ public partial class PatientController : Controller
     private async Task<Patient?> GetCurrentPatientAsync()
     {
         var user = await _users.GetUserAsync(User);
+        
         if (user == null)
             return null;
 
         return await _db.Patients
-            .SingleOrDefaultAsync(p => p.UserId == user.Id);
+            .SingleOrDefaultAsync(p => p.UserId == user.Id && p.Status == PatientStatus.Active);
     }
 }
 

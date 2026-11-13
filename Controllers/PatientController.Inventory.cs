@@ -149,9 +149,8 @@ public partial class PatientController
         if (user == null)
             return Challenge();
 
-        var patient = await _db.Patients
-            .SingleOrDefaultAsync(p => p.UserId == user.Id);
-
+        var patient = await GetCurrentPatientAsync();
+        
         if (patient == null)
             return RedirectToAction(nameof(Setup));
 
@@ -282,9 +281,8 @@ public partial class PatientController
         if (user == null)
             return Challenge();
 
-        var patient = await _db.Patients
-            .SingleOrDefaultAsync(p => p.UserId == user.Id);
-
+        var patient = await GetCurrentPatientAsync();
+        
         if (patient == null)
             return RedirectToAction(nameof(Setup));
 
@@ -334,9 +332,8 @@ public partial class PatientController
         if (user == null)
             return Challenge();
 
-        var patient = await _db.Patients
-            .SingleOrDefaultAsync(p => p.UserId == user.Id);
-
+        var patient = await GetCurrentPatientAsync();
+        
         if (patient == null)
             return RedirectToAction(nameof(Setup));
 

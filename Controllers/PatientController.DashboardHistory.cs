@@ -24,7 +24,7 @@ public partial class PatientController
 
         var patient = await GetCurrentPatientAsync();
         
-        if (patient?.Status != PatientStatus.Active)
+        if (patient == null)
             return RedirectToAction(nameof(Setup));
 
         var now = LocalNow();
@@ -202,6 +202,7 @@ public partial class PatientController
     public async Task<IActionResult> HistoryDetails(long id)
     {
         var patient = await GetCurrentPatientAsync();
+        
         if (patient == null)
             return RedirectToAction(nameof(Setup));
 
@@ -297,6 +298,7 @@ public partial class PatientController
     public async Task<IActionResult> ExportHistory()
     {
         var patient = await GetCurrentPatientAsync();
+        
         if (patient == null)
             return RedirectToAction(nameof(Setup));
 

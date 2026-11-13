@@ -110,11 +110,10 @@ public partial class PatientController
         if (user == null)
             return Challenge();
 
-        var patient = await _db.Patients
-            .SingleOrDefaultAsync(p => p.UserId == user.Id);
-
+        var patient = await GetCurrentPatientAsync();
+        
         if (patient == null)
-            return RedirectToAction("Index", "Account");
+            return RedirectToAction(nameof(Setup));
 
         // Prevent accidental duplicate submission of the same form.
         if (await _db.PrescriptionCollections.AnyAsync(c => c.Id == collectionId))
@@ -292,7 +291,6 @@ public partial class PatientController
             return RedirectToAction(nameof(PrescriptionDetails), new { id });
         }
     }
-    
     
     
     [Authorize(Roles = "Patient")]

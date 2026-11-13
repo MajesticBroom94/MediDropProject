@@ -21,9 +21,10 @@ public class NotificationController : Controller
     }
     
     private LastSelectedProfile CurrentProfile(ApplicationUser user) =>
-        User.IsInRole("Admin")
+        User.IsInRole("Admin") || User.IsInRole("SuperAdmin")
             ? LastSelectedProfile.Admin
-            : user.LastSelectedProfile == LastSelectedProfile.CareProvider && User.IsInRole("CareProvider")
+            : user.LastSelectedProfile == LastSelectedProfile.CareProvider
+              && User.IsInRole("CareProvider")
                 ? LastSelectedProfile.CareProvider
                 : LastSelectedProfile.Patient;
 
@@ -33,9 +34,17 @@ public class NotificationController : Controller
     public async Task<IActionResult> Live([FromQuery] long sinceId = 0)
     {
         var user = await _users.GetUserAsync(User);
-        if (user == null) return Unauthorized();
-
+        
+        if (user == null) 
+            return Unauthorized();
+        
         var profile = CurrentProfile(user);
+
+        if (!await AuthorizedProfile(profile, user))
+        {
+            return Unauthorized();
+        }
+        
         var visible = _db.Notifications.AsNoTracking()
             .Where(n => n.UserId == user.Id &&
                         n.RecipientProfile == profile &&
@@ -79,6 +88,11 @@ public class NotificationController : Controller
             return Challenge();
 
         var profile = CurrentProfile(user);
+        
+        if (!await AuthorizedProfile(profile, user))
+        {
+            return RedirectToAction("Index", "Account");
+        }
 
         var items = await _db.Notifications
             .AsNoTracking()
@@ -116,6 +130,12 @@ public class NotificationController : Controller
         if (user == null) return Challenge();
 
         var profile = CurrentProfile(user);
+        
+        if (!await AuthorizedProfile(profile, user))
+        {
+            return RedirectToAction("Index", "Account");
+        }
+        
         var notification = await _db.Notifications.SingleOrDefaultAsync(n =>
             n.Id == id && n.UserId == user.Id &&
             n.RecipientProfile == profile && n.RemovedAt == null);
@@ -142,6 +162,11 @@ public class NotificationController : Controller
             return Challenge();
 
         var profile = CurrentProfile(user);
+        
+        if (!await AuthorizedProfile(profile, user))
+        {
+            return RedirectToAction("Index", "Account");
+        }
 
         var notification = await _db.Notifications
             .SingleOrDefaultAsync(n => n.Id == id && n.UserId == user.Id && n.RecipientProfile == profile && n.RemovedAt == null);
@@ -167,6 +192,11 @@ public class NotificationController : Controller
             return Challenge();
 
         var profile = CurrentProfile(user);
+        
+        if (!await AuthorizedProfile(profile, user))
+        {
+            return RedirectToAction("Index", "Account");
+        }
 
         var notification = await _db.Notifications
             .SingleOrDefaultAsync(n => n.Id == id && n.UserId == user.Id && n.RecipientProfile == profile && n.RemovedAt == null);
@@ -189,6 +219,11 @@ public class NotificationController : Controller
             return Challenge();
 
         var profile = CurrentProfile(user);
+        
+        if (!await AuthorizedProfile(profile, user))
+        {
+            return RedirectToAction("Index", "Account");
+        }
 
         var unread = await _db.Notifications
             .Where(n => n.UserId == user.Id && n.RecipientProfile == profile && n.RemovedAt == null && n.ReadAt == null)
@@ -204,5 +239,41 @@ public class NotificationController : Controller
         }
 
         return RedirectToAction(nameof(Index));
+    }
+    
+    public async Task<bool> AuthorizedProfile(LastSelectedProfile currProfile, ApplicationUser currentUser)
+    {
+        switch (currProfile)
+        {
+            case LastSelectedProfile.Patient:
+            {
+                var patientExists = await _db.Patients
+                    .AsNoTracking()
+                    .AnyAsync(p =>
+                        p.UserId == currentUser.Id &&
+                        p.Status == PatientStatus.Active);
+
+                return patientExists;
+            }
+            case LastSelectedProfile.CareProvider:
+            {
+                var providerVerified = await _db.CareProviders
+                    .AsNoTracking()
+                    .Where(p => p.UserId == currentUser.Id)
+                    .Select(p => p.Registrations
+                        .OrderByDescending(r => r.SubmittedAt)
+                        .ThenByDescending(r => r.Id)
+                        .Select(r => r.Status == ProviderVerificationStatus.Verified)
+                        .FirstOrDefault())
+                    .SingleOrDefaultAsync();
+
+                return providerVerified;
+            }
+            case LastSelectedProfile.Admin:
+                return User.IsInRole("Admin") || User.IsInRole("SuperAdmin");
+
+            default:
+                return false;
+        }
     }
 }
